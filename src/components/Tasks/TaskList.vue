@@ -10,10 +10,44 @@
       .task-divider
 </template>
 <script>
+import {differenceInCalendarDays, isThisWeek} from 'date-fns'
 export default {
+  props: [ 'sortDate' ],
   computed: {
     getTasks: function () {
-      return this.$store.state.tasks
+      if(this.$route.name==='Входящие'){
+        return this.$store.state.tasks.filter(item=> item.project.name==='Входящие')
+      }
+      if(this.$route.name==='Сегодня'){
+        return this.$store.state.tasks.filter(item=> {
+          if(
+            differenceInCalendarDays(item.start,new Date())>=0
+            &&
+            differenceInCalendarDays(item.end,new Date())<=0
+          ) return item
+        })
+      }
+      if(this.$route.name==='Неделя'){
+        return this.$store.state.tasks.filter(item=> {
+          if(
+            isThisWeek(item.start)
+            &&
+            isThisWeek(item.end)
+          ) return item
+        })
+      }
+      if(this.sortDate){
+        return this.$store.state.tasks.filter(item=>{
+          if(
+            differenceInCalendarDays(item.start,this.sortDate)>=0
+            &&
+            differenceInCalendarDays(item.end,this.sortDate)<=0
+          ) return item
+        })
+      }else {
+        return this.$store.state.tasks
+      }
+      
     }
   },
   methods: {

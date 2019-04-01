@@ -17,15 +17,12 @@ export default new Router({
       name: 'Входящие',
       component: Tasks,
       props: {
-        sortByProj: false
+        sortByProj: true
       }
     }, {
       path: '/today',
       name: 'Сегодня',
-      component: Tasks,
-      props: {
-        sortByProj: true
-      }
+      component: Tasks
     }, {
       path: '/gantt',
       name: 'Гантт',

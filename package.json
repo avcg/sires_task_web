@@ -18,6 +18,7 @@
     "v-click-outside": "^2.0.2",
     "vue": "^2.6.6",
     "vue-date-pick": "^1.1.0",
+    "vue-rangedate-picker": "^1.0.0",
     "vue-router": "^3.0.2",
     "vue-textarea-autosize": "^1.0.4",
     "vuex": "^3.1.0"

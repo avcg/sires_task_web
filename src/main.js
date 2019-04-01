@@ -11,6 +11,9 @@ import SComponents from './components/common'
 import DatePick from 'vue-date-pick'
 import ru from '../node_modules/date-fns/locale/ru'
 import { format } from 'date-fns'
+import VueRangedatePicker from 'vue-rangedate-picker'
+
+Vue.component('vue-rangedate-picker', VueRangedatePicker)
 // import store from './store'
 
 SComponents.forEach(component => {
@@ -40,6 +43,9 @@ const store = new Vuex.Store({
       'Анастасия Хвостова'
     ],
     projects: [
+      {
+        name: 'Входящие'
+      }
     ],
     labels: [
     ],
@@ -190,10 +196,12 @@ const store = new Vuex.Store({
         name: 'Новая задача',
         completed: false,
         id: randomId,
-        project: null,
+        project: {
+          name: 'Входящие'
+        },
         deadline: null,
-        start: '2019-03-28',
-        end: '2019-03-28',
+        start: new Date(),
+        end: new Date(),
         labels: [],
         assigned: {
           responsible: null,
@@ -231,7 +239,10 @@ const store = new Vuex.Store({
     }
   }
 })
-
+router.beforeEach((to, from, next) => {
+  store.commit('closeTaskViewAndAdd')
+  next()
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

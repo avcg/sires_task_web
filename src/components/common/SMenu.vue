@@ -3,12 +3,12 @@
     .body
       slot
     transition(enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut")
-      .menu(v-if='isOpen',v-on:click='innerClick',:style='{ top: bottom ? "calc(100% + 5px)" : 0, right: right ? "10px" : "auto", left: right ? "auto" : 0 }')
+      .menu(v-if='isOpen',v-on:click='innerClick',:style='{ width: width ? width : "100%" ,top: bottom ? "calc(100% + 5px)" : 0, right: right ? "10px" : "auto", left: right ? "auto" : 0 }')
         slot(name='menu')
 </template>
 <script>
 export default {
-  props: ['disableInnerClick', 'right', 'bottom'],
+  props: ['disableInnerClick', 'right', 'bottom', 'width'],
   name: 's-menu',
   data () {
     return {
@@ -39,8 +39,6 @@ export default {
     width: 100%
     height: 240px
     box-shadow: 0 2px 16px rgba(154,155,168,.12)
-    top: 0
-    left: 0
     background: #fff
     z-index: 2
 </style>

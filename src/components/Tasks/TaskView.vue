@@ -5,8 +5,6 @@
         i.la.icon 
         span ОТМЕТИТЬ КАК СДЕЛАННОЕ
       .spacer
-      .clock
-        i.la.icon &#xf18f;
       .delete(@click='deleteTask')
         i.la.icon &#xf34c;
       .close(@click='close')
@@ -30,6 +28,12 @@
           s-list(slot='menu')
             s-list-item(v-for='project in allProjects', @click='setTaskProject(project)') {{project.name}}
       AssignTabs
+      //- div
+      //-   date-pick(v-model="actualTask.start"
+      //-     :displayFormat="'DD.MM.YYYY'")
+      //-   span -
+      //-   date-pick(v-model="actualTask.end"
+      //-     :displayFormat="'DD.MM.YYYY'")
       .desc-input
         .headline Описание
         textarea-autosize(placeholder='Опишите вашу задачу' :value='actualTask.description' @input.native="updateDescription")

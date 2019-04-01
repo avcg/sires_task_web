@@ -31,7 +31,7 @@
             span Добавить
       .list
         div(v-for='item in projects', @click='getEl($event, true)')
-          router-link.list-item(:to='"/projects/" + item.name', active-class='active')
+          router-link.list-item(:to='"/projects/" + item.name', active-class='active', v-if='item.name!=="Входящие"')
             span {{ sidebarOpen ? item.name : item.name.match(/[A-ZА-Я]/g).slice(0,2).join('') }}
     .projects
       .headline

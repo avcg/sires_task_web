@@ -3,39 +3,65 @@
   .calendar
     .select
       s-menu
-        .month Апрель
+        .month {{getMonth}}
         template(v-slot:menu='')
           s-list
-            s-list-item(v-for='month in monthsTranslate') {{month}}
+            s-list-item( v-for='month, index in monthsTranslate', @click='changeMonth(index)') {{month}}
       s-menu
-        .year 2019
+        .year {{getYear}}
         template(v-slot:menu='')
           s-list
-            s-list-item 2019
-            s-list-item 2018
+            s-list-item(@click='changeYear(2019)') 2019
+            s-list-item(@click='changeYear(2018)') 2018
     .days
-      span.day(v-for='day in getDays') {{day}}
-  task-body
+      span.day(:class='{ "active" : getDay===day }' v-for='day in getDays' @click='changeDay(day)') {{day}}
+  task-body(:sortDate='date')
 </template>
 <script>
 /* eslint-disable */
 import format from 'date-fns/format'
 import TaskBody from '@/components/Tasks/TaskBody'
 import eachDay from 'date-fns/each_day'
+import setMonth from 'date-fns/set_month'
+import setYear from 'date-fns/set_year'
+import setDate from 'date-fns/set_date'
+import addMonths from 'date-fns/add_months'
 
 export default {
   components: { TaskBody },
-  computed: {
-    getDays: function() {
-      return eachDay(
-        new Date(2019, 3, 1),
-        new Date(2019, 4, 0)
-      ).map(item=>format(item,'D'))
+  methods: {
+    changeMonth: function (index) {
+      this.date = setMonth(this.date, index)
     },
+    changeYear: function (val) {
+      this.date = setYear(this.date, val)
+    },
+    changeDay: function (val) {
+      this.date = setDate(this.date, val)
+    },
+  },
+  computed: {
+    getDays: function () {
+      let month = eachDay(
+        format(this.date, 'YYYY-MM'),
+        addMonths(format(this.date, 'YYYY-MM'), 1)
+      ).map(item=>format(item,'D'))
+      month.pop()
+      return month
+    },
+    getMonth: function () {
+      return format(this.date,'MMMM')
+    },
+    getYear: function () {
+      return format(this.date, 'YYYY')
+    },
+    getDay: function () {
+      return format(this.date, 'D')
+    }
   },
   data () {
     return {
-      date: '2019-01-01',
+      date: new Date(),
       weekdaysTranslate: [
         'Пн',
         'Вт',
@@ -75,6 +101,7 @@ export default {
       width: fit-content
       margin: 0 auto
       display: flex
+      
       .day
         margin: 0 2px
         width: 29px
@@ -88,7 +115,10 @@ export default {
           color: #fff
           background-color: #99b4fe
           cursor: pointer
-        .active
+      .active
+        color: #fff
+        background-color: $primary-color
+        &:hover
           color: #fff
           background-color: $primary-color
 </style>
