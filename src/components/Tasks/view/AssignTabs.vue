@@ -118,8 +118,8 @@ export default {
 
 <style lang="sass" scoped>
 .tabs
-  margin-top: 25px
-  margin-bottom: 25px
+  margin-top: 15px
+  margin-bottom: 15px
   &-head
     display: flex
     &-item

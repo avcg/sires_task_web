@@ -11,11 +11,13 @@ import SComponents from './components/common'
 import DatePick from 'vue-date-pick'
 import ru from '../node_modules/date-fns/locale/ru'
 import { format } from 'date-fns'
-import VueRangedatePicker from 'vue-rangedate-picker'
+import Antd from 'ant-design-vue'
+import "ant-design-vue/dist/antd.css";
+import moment from 'moment'
 
-Vue.component('vue-rangedate-picker', VueRangedatePicker)
+Vue.prototype.moment = moment
 // import store from './store'
-
+Vue.use(Antd)
 SComponents.forEach(component => {
   Vue.component(component.name, component)
 })
@@ -71,6 +73,9 @@ const store = new Vuex.Store({
     }
   },
   mutations: {
+    updateTaskDates (state, dates) {
+      state.tasks.filter(task => task.id === state.actualTaskId)[0].dates = dates
+    },
     addTaskLabel (state, label) {
       let labels = state.tasks.filter(task => task.id === state.actualTaskId)[0].labels
       labels.push(label)
@@ -200,8 +205,10 @@ const store = new Vuex.Store({
           name: 'Входящие'
         },
         deadline: null,
-        start: new Date(),
-        end: new Date(),
+        dates: [
+          new Date(),
+          new Date()
+        ],
         labels: [],
         assigned: {
           responsible: null,

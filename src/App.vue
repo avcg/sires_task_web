@@ -58,6 +58,26 @@ body
   font-size: 22px
 a
   text-decoration: none
+  &:active
+    text-decoration: none
+.bar-label
+  font-weight: 400!important
+.bar-proj
+  pointer-events: none
+  .bar-progress
+    fill: #4e6abe
+.bar-task
+  pointer-events: none
+  .bar-progress
+    fill: #7191ef
+.gantt-node
+  box-sizing: border-box
+  padding: 0!important
+  background: #fff
+  span
+    line-height: 35px!important
+    height: 35px!important
+    box-sizing: border-box
 p
   margin: 0
 input, textarea

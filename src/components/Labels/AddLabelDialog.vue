@@ -1,7 +1,7 @@
 <template lang="pug">
-  s-dialog(:open='open', title='Добавить лейбл', @close='closeDialog')
+  s-dialog(:open='open', title='Добавить тег', @close='closeDialog')
     template
-      s-input(v-model='name', label='Название лейбла')
+      a-input(v-model='name', placeholder='Название тега')
     template(v-slot:actions='')
       .spacer
       s-btn(:disabled='!name', @click='addLabel') Добавить

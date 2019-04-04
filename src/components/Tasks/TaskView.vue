@@ -12,28 +12,24 @@
     .divider
     .body
       .labels
-        .label(v-for='taskLabel in actualTask.labels') {{taskLabel.name}}
-        s-menu(bottom, right)
-          .add-label
-            i.la.icon &#xf2c2;
-          s-list(slot='menu')
-            s-list-item(v-for='label in allLabels', @click='addTaskLabel(label)') {{label.name}}
+        a-tag(v-for='taskLabel in actualTask.labels', color="orange") {{taskLabel.name}}
+        a-popover(placement='bottomLeft',title="Добавить тег")
+          a-tag(@click='tagPopover=true') +
+          div()
+            a-tag(v-for='taskLabel in actualTask.labels', color="orange") {{taskLabel.name}}
       .head-input
         input.input-name(placeholder='Название задачи' :value="actualTask.name" @input="updateName" @keyup.enter='parseForLabelAndProj')
-        s-menu(bottom,)
-          .proj
-            span(v-if='actualTask.project') {{actualTask.project.name}}
-            span(v-else) Выбрать проект
-            i.la.icon &#xf110;
-          s-list(slot='menu')
-            s-list-item(v-for='project in allProjects', @click='setTaskProject(project)') {{project.name}}
+      .fl-jsb
+        a-select( defaultValue='Входящие' @change='setTaskProject')
+          a-select-option(v-for='proj in allProjects',:value='proj', :key='proj.name') {{proj.name}}
+        a-locale-provider(:locale='locale')
+          a-range-picker(
+            format='DD MMM YYYY',
+            :allowClear="false",
+            :value='[moment(actualTask.dates[0], "YYYY-MM-DD"), moment(actualTask.dates[1], "YYYY-MM-DD")]',
+            @change='dateChange'
+          )
       AssignTabs
-      //- div
-      //-   date-pick(v-model="actualTask.start"
-      //-     :displayFormat="'DD.MM.YYYY'")
-      //-   span -
-      //-   date-pick(v-model="actualTask.end"
-      //-     :displayFormat="'DD.MM.YYYY'")
       .desc-input
         .headline Описание
         textarea-autosize(placeholder='Опишите вашу задачу' :value='actualTask.description' @input.native="updateDescription")
@@ -64,6 +60,7 @@
 import AssignTabs from './view/AssignTabs.vue'
 import AddComment from './view/AddComment.vue'
 import Activity from './view/Activity.vue'
+import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU'
 
 export default {
   components: { AssignTabs, AddComment, Activity },
@@ -79,6 +76,12 @@ export default {
     }
   },
   methods: {
+    changeProj: function (val) {
+      console.log(val)
+    },
+    dateChange: function (val) {
+      this.$store.commit('updateTaskDates', val)
+    },
     parseForLabelAndProj: function (e) {
       this.projects = [ ...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig) ]
       this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''))
@@ -130,6 +133,7 @@ export default {
   },
   data () {
     return {
+      locale: ruRU,
       projects: [],
       weekdaysTranslate: [
         'Пн',
@@ -151,6 +155,10 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.fl-jsb
+  display: flex
+  justify-content: space-between
+  width: 100%
 .add
   height: calc(100vh - 172px)
   background-color: #ffffff
@@ -309,6 +317,7 @@ export default {
           font-size: 16px
           padding-right: 10px
     .head-input
+      margin-bottom: 15px
       .input-name
         border: 0
         font-size: 20px
