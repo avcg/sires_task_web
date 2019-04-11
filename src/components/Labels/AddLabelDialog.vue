@@ -1,10 +1,6 @@
 <template lang="pug">
-  s-dialog(:open='open', title='Добавить тег', @close='closeDialog')
-    template
-      a-input(v-model='name', placeholder='Название тега')
-    template(v-slot:actions='')
-      .spacer
-      s-btn(:disabled='!name', @click='addLabel') Добавить
+  a-modal(:visible="open", title='Добавить тег',@ok='addLabel' @cancel='closeDialog' okText="Добавить" cancelText="Отменить")
+    a-input(v-model='name', placeholder='Название проекта', size='large')
 </template>
 <script>
 export default {
@@ -18,10 +14,7 @@ export default {
       this.$store.commit('closeLabelDialog')
     },
     addLabel: function () {
-      const body = {
-        name: this.name
-      }
-      this.$store.commit('addLabel', body)
+      this.$store.dispatch('addTag', this.name)
       this.closeDialog()
     }
   },

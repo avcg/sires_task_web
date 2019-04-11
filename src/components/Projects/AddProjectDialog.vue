@@ -1,40 +1,6 @@
 <template lang="pug">
-  s-dialog(:open='open', title='Добавить проект', @close='closeDialog')
-    template
-      s-input(v-model='name', label='Название проекта')
-      s-select(label='Пригласить участников', :items='users')
-      .block
-        .label Срок прокета
-        .fl
-          s-menu.date-cont(disableInnerClick, right)
-            .date
-              span(v-if='dateStart') {{dateStart.split('-').reverse().join('.')}}
-              span(v-else) Дата начала
-              i.la.icon 
-            template(v-slot:menu='')
-              date-pick(
-                @input='updateStart'
-                :hasInputElement="false",
-                nextMonthCaption='След месяц',
-                prevMonthCaption=' Пред месяц',
-                :weekdays='weekdaysTranslate',
-                :months='monthsTranslate')
-          s-menu.date-cont(disableInnerClick, right)
-            .date
-              span(v-if='dateEnd') {{dateEnd.split('-').reverse().join('.')}}
-              span(v-else) Дата конца
-              i.la.icon 
-            template(v-slot:menu='')
-              date-pick(
-                @input='updateDeadline'
-                :hasInputElement="false",
-                nextMonthCaption='След месяц',
-                prevMonthCaption=' Пред месяц',
-                :weekdays='weekdaysTranslate',
-                :months='monthsTranslate')
-    template(v-slot:actions='')
-      .spacer
-      s-btn(:disabled='!name&&!dateStart&&!dateEnd', @click='addProject') Добавить
+  a-modal(:visible="open", title='Добавить проект',@ok='addProject' @cancel='closeDialog' okText="Добавить" cancelText="Отменить")
+    a-input(v-model='name', placeholder='Название проекта', size='large')
 </template>
 <script>
 export default {
@@ -47,19 +13,8 @@ export default {
     closeDialog: function () {
       this.$store.commit('closeProjectDialog')
     },
-    updateDeadline: function (val) {
-      this.dateEnd = val
-    },
-    updateStart: function (val) {
-      this.dateStart = val
-    },
     addProject: function () {
-      const body = {
-        name: this.name,
-        deadline: this.dateEnd,
-        start: this.dateStart
-      }
-      this.$store.commit('addProject', body)
+      this.$store.dispatch('addProject', this.name)
       this.closeDialog()
     }
   },

@@ -14,6 +14,17 @@ export default {
       addTask: false
     }
   },
+  mounted() {
+    this.$store.commit('cleanTasks')
+    switch (this.$route.name) {
+      case 'Входящие':
+        this.$store.dispatch('getInbox')
+        break
+      default:
+        this.$store.dispatch('getTasks')
+        break
+    }
+  },
   methods: {
     openAddTask: function () {
       this.addTask = !this.addTask

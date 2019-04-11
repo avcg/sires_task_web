@@ -4,9 +4,9 @@
       .filter
         i.la.icon 
         span.name СОРТИРОВКА:
-        .select
-          span А-Я
-          i.la.icon 
+        a-select.select(defaultValue='datedesc')
+          a-select-option(value='datedesc') По дате добавления
+          a-select-option(value='alphdesc') от А до Я
       //- .filter
       //-   i.la.icon 
       //-   span.name ПРОЕКТ:
@@ -22,7 +22,7 @@
 export default {
   methods: {
     addTask () {
-      this.$store.commit('addTask')
+      this.$store.dispatch('addTask')
     }
   }
 }
@@ -59,14 +59,5 @@ export default {
       .name
         color: #778ca2
         margin-left: 6px
-      .select
-        display: flex
-        margin-left: 15px
-        align-items: center
-        &:hover
-          cursor: pointer
-        i
-          margin-left: 12px
-          transform: translateY(-1px)
-          font-size: 16px
+        margin-right: 10px
 </style>

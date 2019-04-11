@@ -1,14 +1,14 @@
 <template lang='pug'>
-div
-  add-label-dialog
-  add-project-dialog
-  #app(:style='{ filter: isDialogOpen ? "blur(2px)" : "none", pointerEvents: isDialogOpen ? "none" : "auto" }')
+div(v-if="$auth.ready()")
+  add-label-dialog(v-if='$auth.check()')
+  add-project-dialog(v-if='$auth.check()')
+  #app
     transition(name="tool" enter-active-class="animated slideInDown" leave-active-class="animated slideOutUp" mode="out-in")
-      Toolbar(v-if='isLoggined')
+      Toolbar(v-if='$auth.check()')
     .fl
       transition(name="side" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutRight" mode="out-in")
-        SideMenu(v-if='isLoggined')
-      .router-cont
+        SideMenu(v-if='$auth.check()')
+      .router-cont(v-if='$store.state.user')
         transition(name="route" enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
           router-view
 </template>
@@ -30,14 +30,17 @@ export default {
       return state.labelDialog || state.projectDialog
     }
   },
+  mounted(){
+    if(this.$route.name!=='login'){
+      this.$store.dispatch('getProjects')
+      this.$store.dispatch('getTags')
+      this.$store.dispatch('getUser')
+      this.$store.dispatch('getUsers')
+    }
+  },
   data () {
     return {
       inVal: ''
-    }
-  },
-  mounted () {
-    if (!this.isLoggined) {
-      this.$router.replace({ name: 'login' })
     }
   }
 }
@@ -51,7 +54,9 @@ body
   display: flex
 #app
   color: #2c3e50
-  transition: filter .3s
+  height: 100vh
+  width: 100vw
+  overflow: hidden
 .icon
   color: #778ca2
   transition: color .3s

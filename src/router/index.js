@@ -6,6 +6,7 @@ import Tasks from '@/components/Tasks'
 import Gantt from '@/components/Gantt'
 import Login from '@/components/Login'
 import Calendar from '@/components/Calendar'
+import Project from '@/components/Projects'
 
 Vue.use(Router)
 
@@ -16,41 +17,35 @@ export default new Router({
       path: '/inbox',
       name: 'Входящие',
       component: Tasks,
-      props: {
-        sortByProj: true
-      }
+      meta: { auth: true }
     }, {
       path: '/today',
       name: 'Сегодня',
+      meta: { auth: true },
       component: Tasks
     }, {
       path: '/gantt',
       name: 'Гантт',
       component: Gantt,
-      props: {
-        sortByProj: true
-      }
+      meta: { auth: true }
     }, {
       path: '/calendar',
       name: 'Календарь',
-      component: Calendar,
-      props: {
-        sortByProj: true
-      }
+      meta: { auth: true },
+      component: Calendar
     }, {
       path: '/week',
       name: 'Неделя',
       component: Tasks,
-      props: {
-        sortByProj: true
-      }
+      meta: { auth: true }
     }, {
       path: '/login',
       name: 'login',
       component: Login
     }, {
       path: '/project/:id',
-      component: Tasks
+      component: Project,
+      meta: { auth: true },
     }
   ]
 })

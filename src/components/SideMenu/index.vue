@@ -1,7 +1,7 @@
 <template lang="pug">
   .sidebar(:style='{ width: sidebarOpen? "242px" : "77px" }')
     .menu
-      .active-line(:style=' { top: top + "px", height: isProj ? "46px" : "64px" } ')
+      //- .active-line(:style=' { top: top + "px", height: isProj ? "46px" : "64px" } ')
       div(@click='getEl')
         router-link.menu-item(to='/inbox', active-class='active')
           i.la.icon &#xf247;
@@ -31,7 +31,7 @@
             span Добавить
       .list
         div(v-for='item in projects', @click='getEl($event, true)')
-          router-link.list-item(:to='"/projects/" + item.name', active-class='active', v-if='item.name!=="Входящие"')
+          router-link.list-item(:to='"/project/" + item.id', active-class='active', v-if='item.name!=="Входящие"')
             span {{ sidebarOpen ? item.name : item.name.match(/[A-ZА-Я]/g).slice(0,2).join('') }}
     .projects
       .headline
@@ -114,10 +114,11 @@ export default {
       width: 2px
       background-color: $primary-color
       transition: top .5s, height .5s
-    .menu-item
+    &-item
       height: 64px
       display: flex
       align-items: center
+      text-decoration: none
       padding-left: 28px
       transition: background-color .3s
       user-select: none

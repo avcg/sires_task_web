@@ -1,69 +1,41 @@
 <template lang="pug">
   transition-group.task-list(name="list-complete", tag="div")
-    .task(v-for='item, index in getTasks', :key='item.id', @click='showTask(item.id)', :class='{ "completed": item.completed }')
+    .task(v-for='item, index in tasks', :key='item.id', @click='showTask(item.id)', :class='{ "completed": item.done }')
       .task-inner
-        .check(@click='checkClick($event,index)', :style='{ backgroundColor: item.completed ? "$primary-color" : "#e8ecef" }')
-          i.la.icon(v-if='item.completed') &#xf17b;
+        .check(@click='checkClick($event, item.id, item.done)')
+          i.la.icon(v-if='item.done') &#xf17b;
         span {{item.name}}
         .spacer
-        .label BIM
+        span {{fDate(item.finish_time)}}
       .task-divider
 </template>
 <script>
-import {differenceInCalendarDays, isThisWeek} from 'date-fns'
+import { format } from 'date-fns'
+
 export default {
-  props: [ 'sortDate' ],
-  computed: {
-    getTasks: function () {
-      if(this.$route.name==='Входящие'){
-        return this.$store.state.tasks.filter(item=> item.project.name==='Входящие')
-      }
-      if(this.$route.name==='Сегодня'){
-        return this.$store.state.tasks.filter(item=> {
-          if(
-            differenceInCalendarDays(item.start,new Date())>=0
-            &&
-            differenceInCalendarDays(item.end,new Date())<=0
-          ) return item
-        })
-      }
-      if(this.$route.name==='Неделя'){
-        return this.$store.state.tasks.filter(item=> {
-          if(
-            isThisWeek(item.start)
-            &&
-            isThisWeek(item.end)
-          ) return item
-        })
-      }
-      if(this.sortDate){
-        return this.$store.state.tasks.filter(item=>{
-          if(
-            differenceInCalendarDays(item.start,this.sortDate)>=0
-            &&
-            differenceInCalendarDays(item.end,this.sortDate)<=0
-          ) return item
-        })
-      }else {
-        return this.$store.state.tasks
+  props: [ 'tasks' ],
+  methods: {
+    fDate(val) {
+      return format(val, 'DD-MM-YYYY')
+    },
+    checkClick: function (e, id, done) {
+      e.stopPropagation()
+      if(done){
+        this.$store.dispatch('toggleTaskUndone', id)
+      }else{
+        this.$store.dispatch('toggleTaskDone', id)
       }
       
-    }
-  },
-  methods: {
-    checkClick: function (e, index) {
-      e.stopPropagation()
-      this.$store.commit('toggleTask', index)
     },
     showTask: function (id) {
-      this.$store.commit('showTaskView', id)
+      this.$store.dispatch('showTask', id)
     }
   }
 }
 </script>
 <style lang="sass" scoped>
   .task-list
-    height: calc(100% - 21px)
+    height: calc(100vh - 172px)
     background: #fff
     padding: 10px 4px
     box-sizing: border-box
@@ -95,6 +67,7 @@ export default {
           border-radius: 3px
           width: 20px
           height: 20px
+          background-color: #e8ecef
           display: flex
           align-items: center
           justify-content: center
@@ -114,6 +87,8 @@ export default {
         width: 100%
         transition: background-color .3s
     .completed
+      .check
+        background-color: $primary-color
       span
         color: #778ca2
 </style>

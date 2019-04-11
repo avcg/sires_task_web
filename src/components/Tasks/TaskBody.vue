@@ -2,7 +2,7 @@
   .body
     .cont(:style='{ width: viewTask ? "50%" : "100%", paddingRight: viewTask ? "28px" : 0 }')
       transition(name='task-list' enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
-        task-list(v-if='haveTasks', :sortDate='sortDate')
+        task-list(v-if='getTasks', :tasks='getTasks' :sortDate='sortDate')
         task-empty(v-else)
     .cont(:style='{ width: viewTask ? "50%" : 0 }')
       transition(name='task-view' enter-active-class="animated fast slideInRight" leave-active-class="animated fast slideOutRight" mode="out-in")
@@ -17,8 +17,8 @@ export default {
   props: [ 'sortDate' ],
   components: { TaskEmpty, TaskList, TaskView },
   computed: {
-    haveTasks: function () {
-      return this.$store.state.tasks.length > 0
+    getTasks: function () {
+      return this.$store.state.tasks
     },
     actualTaskId: function () {
       return this.$store.state.actualTaskId
