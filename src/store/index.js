@@ -102,9 +102,19 @@ const store = new Vuex.Store({
         commit('updateProjects', res.data.projects)
       })
     },
+    getWeekTasks: ({commit}) => {
+      axios.get('/tasks?hot=true').then(res=>{
+        commit('updateTasks', res.data.tasks)
+      })
+    },
+    getTodayTasks: ({commit}) => {
+      axios.get('/tasks?finish_date=' + format(new Date(), 'YYYY-MM-DD')).then(res=>{
+        commit('updateTasks', res.data.tasks)
+      })
+    },
     getTasks: ({commit}) => {
       axios.get('/tasks').then(res=>{
-        commit('updateTasks', res.data)
+        commit('updateTasks', res.data.tasks)
       })
     },
     deleteAssigned: ({commit}, payload) => {
@@ -187,51 +197,11 @@ const store = new Vuex.Store({
     toggleSidebar (state) {
       state.sidebarOpen = !state.sidebarOpen
     },
-    assignToTask (state, assigned) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].assigned = assigned
-    },
-    updateDescription (state, description) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].description = description
-    },
-    addDocument (state, doc) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].docs.push(doc)
-    },
-    updateCheckName (state, payload) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0]
-        .checks.filter(check => check.id === payload.checkId)[0].name = payload.val
-    },
-    checkSubtask (state, checkId) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].checks.filter(check => check.id === checkId)[0].checked = !state.tasks.filter(task => task.id === state.actualTaskId)[0].checks.filter(check => check.id === checkId)[0].checked
-    },
-    addCheck (state) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].checks.push({
-        name: '',
-        id: Math.random() + 'subtask' + state.actualTaskId,
-        checked: false
-      })
-    },
-    assignResposible (state, responsible) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].assigned.responsible = responsible
-    },
-    assignSubcontractor (state, subcontractor) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].assigned.subcontractors.push(subcontractor)
-    },
-    assignDirector (state, director) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].assigned.director = director
-    },
-    assignWatcher (state, watcher) {
-      state.tasks.filter(task => task.id === state.actualTaskId)[0].assigned.watchers.push(watcher)
-    },
     updateTasks (state, payload) {
       state.tasks = payload
     },
     toggleTask (state, payload) {
       state.tasks[payload].completed = !state.tasks[payload].completed
-    },
-    deleteTask (state) {
-      state.viewTask = false
-      state.tasks = state.tasks.filter(task => task.id !== state.actualTaskId)
-      state.actualTaskId = null
     }
   }
 })

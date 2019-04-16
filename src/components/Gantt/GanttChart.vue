@@ -17,9 +17,9 @@
           .task(v-for='bar in getGanttItems')
             a-popover(placement='top', :title="bar.name")
               .bar(:style='{ width: bar.width + "px", marginLeft: bar.margin + "px" }')
-              template(slot='content')
-                div 
-                  a-avatar A
+              //- template(slot='content')
+              //-   div 
+              //-     a-avatar A
 </template>
 <script>
 /* eslint-disable */

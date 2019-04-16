@@ -2,7 +2,7 @@
   .body
     .cont(:style='{ width: viewTask ? "50%" : "100%", paddingRight: viewTask ? "28px" : 0 }')
       transition(name='task-list' enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
-        task-list(v-if='getTasks', :tasks='getTasks' :sortDate='sortDate')
+        task-list(v-if='getTasks', :tasks='getTasks')
         task-empty(v-else)
     .cont(:style='{ width: viewTask ? "50%" : 0 }')
       transition(name='task-view' enter-active-class="animated fast slideInRight" leave-active-class="animated fast slideOutRight" mode="out-in")
@@ -14,11 +14,44 @@ import TaskList from './TaskList.vue'
 import TaskView from './TaskView.vue'
 
 export default {
-  props: [ 'sortDate' ],
+  props: [ 'sortBy' ],
   components: { TaskEmpty, TaskList, TaskView },
   computed: {
     getTasks: function () {
-      return this.$store.state.tasks
+      let tasks = this.$store.state.tasks
+      switch (this.sortBy.type) {
+        case 'date':
+          if(this.sortBy.desc) {
+            tasks.sort(function(a,b){
+              return new Date(b.finish_time) - new Date(a.finish_time);
+            });
+          }else {
+            tasks.sort(function(a,b){
+              return new Date(a.finish_time) - new Date(b.finish_time);
+            });
+          }
+        case 'alphabet':
+          if(this.sortBy.desc) {
+            tasks.sort(function compare(a, b) {
+              if (b.name < a.name)
+                return -1;
+              if (b.name > a.name)
+                return 1;
+              return 0;
+            });
+            
+          } else {
+            tasks.sort(function compare(a, b) {
+              if (a.name < b.name)
+                return -1;
+              if (a.name > b.name)
+                return 1;
+              return 0;
+            });
+          }
+          break;
+      }
+      return tasks
     },
     actualTaskId: function () {
       return this.$store.state.actualTaskId

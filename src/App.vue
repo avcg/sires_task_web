@@ -10,7 +10,7 @@ div(v-if="$auth.ready()")
         SideMenu(v-if='$auth.check()')
       .router-cont(v-if='$store.state.user')
         transition(name="route" enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
-          router-view
+          router-view(:key="$route.fullPath")
 </template>
 <script>
 import Toolbar from './components/Toolbar'

@@ -1,22 +1,18 @@
 <template lang="pug">
   .add
     .header
-      .title
-        i.la.icon 
-        span ОТМЕТИТЬ КАК СДЕЛАННОЕ
+      a-tag(v-for='tagSelected in actualTask.tags', color="orange") {{tagSelected.name}}
+      a-popover(placement='bottomLeft',title="Добавить тег")
+        a-tag(@click='tagPopover=true') +
+        div(slot='content')
+          a-tag(v-for='tag in allTags', color="orange", @click='addTag(tag)') {{tag.name}}
       .spacer
       .delete(@click='deleteTask')
-        i.la.icon &#xf34c;
+        a-icon(type='delete')
       .close(@click='close')
-        i.la.icon &#xf191;
+        a-icon(type='close')
     .divider
     .body
-      .labels
-        a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
-        a-popover(placement='bottomLeft',title="Добавить тег")
-          a-tag(@click='tagPopover=true') +
-          div()
-            a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
       .head-input
         input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj')
       AssignTabs(
@@ -94,39 +90,27 @@ export default {
     allTags: function () {
       return this.$store.state.tags
     },
+    taskMembers () { return this.$store.state.actualTask.members},
     assignor: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'assignor') {
-          return i.user.id
-        }
-      })
+      return this.filterByRole('assignor')
     },
     responsible: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'responsible') {
-          return i.user.id
-        }
-      })
+      return this.filterByRole('responsible')
     },
     coresponsibles: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'co-responsible') {
-          return i.user.id
-        }
-      })
+      return this.filterByRole('co-responsible')
     },
     observers: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'observer') {
-          return i.user.id
-        }
-      })
+      return this.filterByRole('observer')
     }
   },
   mounted() {
-    this.updateMembers(this.actualTask.id)
+    this.updateMembers(this.actualTask.project.id)
   },
   methods: {
+    filterByRole: function (type) {
+      return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)
+    },
     handleSendFile(file, fileList) {
       const json = JSON.stringify(this.actualTask);
       const blob = new Blob([json], {
@@ -163,9 +147,6 @@ export default {
       this.projects = [ ...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig) ]
       this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''))
     },
-    addTaskLabel: function (label) {
-      this.$store.commit('addTaskLabel', label)
-    },
     setTaskProject: function (id) {
       this.$store.dispatch('setTaskProject', id)
       this.updateMembers(id)
@@ -180,34 +161,18 @@ export default {
         this.users = res.data.project.members
       })
     },
-    getUrl: function (file) {
-      var blob = new Blob([file])
-      var url = URL.createObjectURL(blob)
-      return url
-    },
-    checkSubtask: function (checkId) {
-      this.$store.commit('checkSubtask', checkId)
-    },
-    updateCheckName: function (e, checkId) {
-      this.$store.commit('updateCheckName', {val: e.target.value, checkId})
-    },
-    assignToTask: function (val) {
-      this.$store.commit('assignToTask', val)
+    addTag: function (tag) {
+      console.log(tag)
+      this.$store.dispatch('addTagTask', tag)
     },
     close: function () {
       this.$store.commit('closeTaskViewAndAdd')
     },
-    updateDeadline: function (val) {
-      this.$store.commit('updateDeadline', val)
-    },
     deleteTask: function () {
-      this.$store.commit('deleteTask')
+      this.$store.dispatch('deleteTask')
     },
     updateDescription: function (e) {
       this.$store.commit('updateDescription', e.target.value)
-    },
-    addCheck: function () {
-      this.$store.commit('addCheck')
     },
   },
   data () {

@@ -1,4 +1,12 @@
 export default {
+  addTaskTag (state, tag) {
+    state.actualTask.tags.push(tag)
+  },
+  deleteTask (state) {
+    state.viewTask = false
+    state.tasks = state.tasks.filter(task => task.id !== state.actualTask.id)
+    state.actualTask = null
+  },
   addComment (state, comment) {
     state.actualTask.comments.push(comment)
   },

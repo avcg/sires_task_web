@@ -29,10 +29,10 @@
           .add(@click='openAddProj')
             i.la.icon 
             span Добавить
-      .list
+      .list(v-if='sidebarOpen')
         div(v-for='item in projects', @click='getEl($event, true)')
           router-link.list-item(:to='"/project/" + item.id', active-class='active', v-if='item.name!=="Входящие"')
-            span {{ sidebarOpen ? item.name : item.name.match(/[A-ZА-Я]/g).slice(0,2).join('') }}
+            span {{item.name}}
     .projects
       .headline
         .headline-inner(v-if='sidebarOpen')
@@ -40,10 +40,10 @@
           .add(@click='openAddLabel')
             i.la.icon 
             span Добавить
-      .list
-        div(v-for='item in labels', @click='getEl($event, true)')
+      .list(v-if='sidebarOpen')
+        div(v-for='tag in tags', @click='getEl($event, true)')
           .list-item(active-class='active')
-            span {{ sidebarOpen ? item.name : item.name.match(/[A-ZА-Я]/g).slice(0,2).join('') }}
+            span {{ tag.name }}
 </template>
 <script>
 export default {
@@ -71,8 +71,8 @@ export default {
     projects: function () {
       return this.$store.state.projects
     },
-    labels: function () {
-      return this.$store.state.labels
+    tags: function () {
+      return this.$store.state.tags
     },
     sidebarOpen: function () {
       return this.$store.state.sidebarOpen
@@ -132,14 +132,19 @@ export default {
         font-size: 14px
         letter-spacing: 0.3px
         color: #778ca2
+      i
+        font-size: 18px
   .projects
     .list
+      max-height: 158px
+      overflow: auto
       &-item
         height: 46px
         display: flex
         align-items: center
         transition: background-color .3s
         position: relative
+        text-decoration: none
         user-select: none
         *
           pointer-events: none

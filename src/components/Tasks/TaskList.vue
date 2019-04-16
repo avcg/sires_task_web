@@ -16,7 +16,7 @@ export default {
   props: [ 'tasks' ],
   methods: {
     fDate(val) {
-      return format(val, 'DD-MM-YYYY')
+      return format(val, 'DD.MM.YYYY')
     },
     checkClick: function (e, id, done) {
       e.stopPropagation()

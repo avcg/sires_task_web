@@ -10,6 +10,19 @@ var saveDebounced = _.wrap(_.memoize(function () {
 });
 
 export default {
+  addTagTask: ({state, commit}, tag) => {
+    commit('addTaskTag', tag)
+    const payload = {
+      id: state.actualTask.id,
+      task: state.actualTask
+    }
+    payload.task.tag_ids = payload.task.tags.map(tag=>tag.id)
+    saveDebounced(payload)
+  },
+  deleteTask: ({state, commit}) => {
+    commit('deleteTask')
+    axios.delete('/tasks/' + state.actualTask.id)
+  },
   addTaskComment: ({state, commit}, comment) => {
     let commentWithUser = Object.assign({}, comment)
     commentWithUser.author = state.user
@@ -38,7 +51,9 @@ export default {
   },
   setTaskProject: ({state, commit}, id) => {
     commit('setTaskProject', id)
-    axios.put('/tasks/' + state.actualTask.id, { task: state.actualTask })
+    const newTask = Object.assign({}, state.actualTask)
+    newTask.project_id = id
+    axios.put('/tasks/' + state.actualTask.id, { task: newTask })
   },
   addTask: ({state, commit}) => {
     commit('fullTaskIsLoading')
