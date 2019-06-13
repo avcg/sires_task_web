@@ -20,8 +20,8 @@ export default {
     saveDebounced(payload)
   },
   deleteTask: ({state, commit}) => {
-    commit('deleteTask')
     axios.delete('/tasks/' + state.actualTask.id)
+    commit('deleteTask')
   },
   addTaskComment: ({state, commit}, comment) => {
     let commentWithUser = Object.assign({}, comment)
@@ -31,7 +31,7 @@ export default {
   },
   addTaskAttachment: ({state, commit}, file) => {
     commit('addTaskAttachment', file)
-    axios.put('/tasks/' + state.actualTask.id, { task: state.actualTask })
+    // axios.put('/tasks/' + state.actualTask.id, { task: state.actualTask })
   },
   updateTaskDates: ({state, commit}, val) => {
     commit('updateTaskDates', val)

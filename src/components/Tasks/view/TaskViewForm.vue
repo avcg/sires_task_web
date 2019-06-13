@@ -7,8 +7,9 @@
         div(slot='content')
           a-tag(v-for='tag in allTags', color="orange", @click='addTag(tag)') {{tag.name}}
       .spacer
-      .delete(@click='deleteTask')
-        a-icon(type='delete')
+      a-popconfirm( placement="bottomRight" title='Вы точно хотите удалить задачу?' @confirm='deleteTask' okText='Да' cancelText='Нет')
+        .delete
+          a-icon(type='delete')
       .close(@click='close')
         a-icon(type='close')
     .divider
@@ -49,7 +50,7 @@
       //-       .name Добавить
       .attachments
         .headline Приложения
-        a-upload-dragger(name='file', :multiple='true', :customRequest='handleSendFile', @change='handleChangeUpload')
+        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile')
           p.ant-upload-drag-icon
             a-icon(type='inbox')
           p.ant-upload-text Нажмите или перетащите файл в эту область
@@ -84,6 +85,15 @@ export default {
     actualTask: function () {
       return this.$store.state.actualTask
     },
+    getAttach: function () {
+      return this.$store.state.actualTask.attachments.map(i => {
+        let attach = i.last_version
+        attach.name = decodeURIComponent(attach.url).split('/').pop()
+        attach.uid = attach.id
+        attach.url = 'http://147.135.234.170:4000/' + attach.url
+        return attach
+      })
+    },
     allProjects: function () {
       return this.$store.state.projects
     },
@@ -111,18 +121,13 @@ export default {
     filterByRole: function (type) {
       return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)
     },
-    handleSendFile(file, fileList) {
-      const json = JSON.stringify(this.actualTask);
-      const blob = new Blob([json], {
-        type: 'application/json'
-      });
-      const data = new FormData();
-      data.append("file",file)
-      data.append("task", blob);
+    handleSendFile(payload) {
+      let body = new FormData()
+      body.set('task[attachments][1][file]', payload.file)
       axios({
         method: 'put',
         url: '/tasks/' +  this.actualTask.id,
-        data: data,
+        data: body,
         header: {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
