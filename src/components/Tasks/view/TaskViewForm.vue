@@ -90,7 +90,7 @@ export default {
         let attach = i.last_version
         attach.name = decodeURIComponent(attach.url).split('/').pop()
         attach.uid = attach.id
-        attach.url = 'http://147.135.234.170:4000/' + attach.url
+        attach.url = 'https://api.avcg.ru/' + attach.url
         return attach
       })
     },

@@ -12,7 +12,7 @@ import mutationsTask from './mutations/task'
 import mutationsCalendar from './mutations/calendar'
 
 Vue.use(VueAxios, axios);
-Vue.axios.defaults.baseURL = 'http://147.135.234.170:4000/api/v1';
+Vue.axios.defaults.baseURL = 'https://api.avcg.ru/api/v1';
 
 Vue.use(Vuex)
 
