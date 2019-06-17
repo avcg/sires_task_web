@@ -10,30 +10,25 @@
     a-popover(:title="getFullName",  placement="bottomRight")
       .cont(slot="content")
         .popover-link(@click='profileModal = true') Профиль
-        a-modal(title='Профиль' v-model='profileModal' @ok='profileModal = false' okText="Сохранить" cancelText="Отменить")
+        a-modal(title='Профиль' v-model='profileModal' @ok='updateProfile' okText="Сохранить" cancelText="Отменить")
           a-row
             a-col
               input.inp(type='file', @change='handleChange')
+          a-row.mb
+            a-col(:span='11')
+              a-input(placeholder="Ваше имя", v-model='name')
+            a-col(:span='11', :offset='2')
+              a-input(placeholder="Ваша фамилия", v-model='surname')
           a-row
             a-col(:span='11')
-              a-input(placeholder="Ваше имя", :defaultValue='getName', @change='changeName')
-            a-col(:span='11', :offset='2')
-              a-input(placeholder="Ваша фамилия", :defaultValue='getSurname', @change='changeSurname')
+              a-input(placeholder="Должность", v-model='position')
         .popover-link.popover-link-red(@click='logout') Выйти
       .avatar
         a-avatar(v-if='getAvatar' :src='getAvatar')
         a-avatar(icon="user", v-else)
-    // .logout(@click='logout')
-    //   a-icon(type='logout')
-    // .search-input
-    //   a-icon(type="search")
-    //   input(placeholder='Поиск по задачам и тп.')
-    // .msg
-    //   i.la.icon 
-    // .notifications
-    //   a-icon(type="bell")
 </template>
 <script>
+import axios from 'axios'
 function getBase64 (img, callback) {
   const reader = new FileReader()
   reader.addEventListener('load', () => callback(reader.result))
@@ -44,12 +39,16 @@ export default {
     return {
       loading: false,
       imageUrl: '',
-      profileModal: false
+      ava: '',
+      profileModal: false,
+      name: this.getName,
+      surname: this.getSurname,
+      position: this.getPosition
     }
   },
   methods: {
     handleChange (e) {
-      // console.log(e.target.files[0])
+      this.ava = e.target.files[0]
       getBase64(e.target.files[0], (imageUrl) => {
         this.imageUrl = imageUrl
         let obj = JSON.parse(localStorage[this.$store.state.user.email])
@@ -75,15 +74,22 @@ export default {
     logout: function () {
       this.$auth.logout()
     },
-    changeName: function (e) {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      obj.name = e.target.value
-      localStorage[this.$store.state.user.email] = JSON.stringify(obj)
-    },
-    changeSurname: function (e) {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      obj.surname = e.target.value
-      localStorage[this.$store.state.user.email] = JSON.stringify(obj)
+    updateProfile: function() {
+      let body = new FormData()
+      body.set('user[first_name]', this.name)
+      body.set('user[last_name]', this.surname)
+      body.set('user[avatar]', this.ava)
+      body.set('user[position]', this.position)
+      axios({
+        method: 'put',
+        url: '/users/' +  this.$store.state.user.id,
+        data: body,
+        header: {
+          'Accept': 'application/json',
+          'Content-Type': 'multipart/form-data',
+        }
+      })
+      this.profileModal = false
     }
   },
   computed: {
@@ -91,21 +97,24 @@ export default {
       return this.$store.state.sidebarOpen
     },
     getAvatar: function () {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      return obj.img
+      return "https://api.avcg.ru" + this.$store.state.user.avatar
     },
     getName: function () {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      return obj.name
+      return this.$store.state.user.first_name
     },
     getSurname: function () {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      return obj.surname
+      return this.$store.state.user.last_name
+    },
+    getPosition: function () {
+      return this.$store.state.user.position
     },
     getFullName: function () {
-      let obj = JSON.parse(localStorage[this.$store.state.user.email])
-      const toTitleCase = s => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase()
-      return toTitleCase(obj.name) + " " + toTitleCase(obj.surname)
+      if(this.getName&&this.getSurname){
+        const toTitleCase = s => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase()
+        return toTitleCase(this.getName) + " " + toTitleCase(this.getSurname)
+      }else{
+        return null
+      }
     }
   }
 }
@@ -120,6 +129,8 @@ export default {
 </style>
 
 <style lang="sass" scoped>
+  .mb
+    margin-bottom: 10px
   .inp
     margin-bottom: 15px
   .toolbar
