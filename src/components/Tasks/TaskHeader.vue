@@ -6,13 +6,13 @@
         span.name СОРТИРОВКА:
         a-select.select(:defaultValue='0', @change='changeSort')
           a-select-option(v-for='sortType,index in sort' :value='index') {{sortType.name}}
-      .filter(v-if='$route.name!=="Входящие"')
-        a-icon(type='project')
-        span.name Проект:
-        a-select.select(defaultValue='datedesc')
-          a-select-option(value='datedesc') Любой
-          a-select-option(value='alphdesc') от А до Я
-          a-select-option(value='alphdesc') от Я до А
+      //- .filter(v-if='$route.name!=="Входящие"')
+      //-   a-icon(type='project')
+      //-   span.name Проект:
+      //-   a-select.select(defaultValue='datedesc')
+      //-     a-select-option(value='datedesc') Любой
+      //-     a-select-option(value='alphdesc') от А до Я
+      //-     a-select-option(value='alphdesc') от Я до А
     .spacer
     .add(@click='addTask')
       i.la.icon 

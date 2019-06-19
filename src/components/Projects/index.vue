@@ -5,30 +5,42 @@
         TaskList(:tasks='tasks', v-if='tasks')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
-          a-row
-            a-col(:span='10' :offset='14')
-              a-button(type='primary', @click='openDrawer = true') Добавить задачу
+          //- a-row
+          //-   a-col(:span='10' :offset='14')
+          //-     a-button(type='primary', @click='openDrawer = true') Добавить задачу
           a-row
             a-col
               .headline Админ
           a-row
             a-col
-              a-select(:defaultValue='project.members.filter(i=>i.role==="admin")[0].user.email')
-                a-select-option(v-for='member in project.members' :value='member.user.id') {{member.user.email}}
+              a-select(:defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
+                a-select-option(v-for='member in project.members' :value='member.user.id') 
+                  .inner-opt
+                    a-avatar.ava(:size='24', v-if='getAvatar(member.user)' :src='getAvatar(member.user)')
+                    a-avatar.ava(icon="user", v-else)
+                    |{{getFullName(member.user)}}
           a-row
             a-col
               .headline Наблюдатели
           a-row
             a-col
-              a-select(mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
-                a-select-option(v-for='user in getFilteredUsers' :value='user.id') {{user.email}}
+              a-select(:defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
+                a-select-option(v-for='user in getFilteredUsers' :value='user.id')
+                  .inner-opt
+                    a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
+                    a-avatar.ava(icon="user", v-else)
+                    |{{getFullName(user)}}
           a-row
             a-col
               .headline Участники
           a-row
             a-col
-              a-select(:defaultValue='projectMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
-                a-select-option(v-for='user in getFilteredUsers' :value='user.id') {{user.email}}
+              a-select(:defaultValue='getMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
+                a-select-option(v-for='user in getFilteredUsers' :value='user.id')
+                  .inner-opt
+                    a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
+                    a-avatar.ava(icon="user", v-else)
+                    |{{getFullName(user)}}
     Loading(v-else)
     add-task-drawer(:open='openDrawer', @close='openDrawer = false')
 </template>
@@ -52,11 +64,36 @@ export default {
     }
   },
   computed: {
+    getGuests: function () {
+      if(this.project){
+        return this.project.members.filter(i => i.role == "guest").map(i => i.user.id)
+      }else {
+        return []
+      }
+    },
+    getMembers: function () {
+      if(this.project){
+        return this.project.members.filter(i => i.role != "guest").map(i => i.user.id)
+      }else {
+        return []
+      }
+    },
     getFilteredUsers: function () {
       return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id))
     }
   },
   methods: {
+    getAvatar: function (obj) {
+      return "https://api.avcg.ru" + obj.avatar
+    },
+    getFullName: function (obj) {
+      let name = obj.first_name
+      let surname = obj.last_name
+      const toTitleCase = s => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase()
+      if(name&&surname){
+        return toTitleCase(name) + " " + toTitleCase(surname)
+      }else return obj.email
+    },
     handleChangeGuests: function (selectedGuests) {
       this.selectedGuests = selectedGuests
     },
@@ -98,6 +135,12 @@ export default {
 }
 </script>
 <style lang="sass" scoped>
+.inner-opt
+  display: flex
+  align-items: center
+  height: 100%
+  .ava
+    margin-right: 10px
 .cont
   height: 100%
 .headline

@@ -2,7 +2,7 @@
   .body
     .cont(:style='{ width: viewTask ? "50%" : "100%", paddingRight: viewTask ? "28px" : 0 }')
       transition(name='task-list' enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
-        task-list(v-if='getTasks', :tasks='getTasks')
+        task-list(v-if='getTasks.length>0', :tasks='getTasks')
         task-empty(v-else)
     .cont(:style='{ width: viewTask ? "50%" : 0 }')
       transition(name='task-view' enter-active-class="animated fast slideInRight" leave-active-class="animated fast slideOutRight" mode="out-in")

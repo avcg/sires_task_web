@@ -41,9 +41,9 @@ export default {
       imageUrl: '',
       ava: '',
       profileModal: false,
-      name: this.getName,
-      surname: this.getSurname,
-      position: this.getPosition
+      name: this.$store.state.user.first_name,
+      surname: this.$store.state.user.last_name,
+      position: this.$store.state.user.position
     }
   },
   methods: {
@@ -73,6 +73,7 @@ export default {
     },
     logout: function () {
       this.$auth.logout()
+      window.location = '/'
     },
     updateProfile: function() {
       let body = new FormData()
@@ -88,8 +89,15 @@ export default {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
         }
+      }).then(res => {
+        this.$store.commit('changeUser', res.data.user)
       })
       this.profileModal = false
+    }
+  },
+  watch: {
+    getName: function(){
+      this.name = this.getName
     }
   },
   computed: {

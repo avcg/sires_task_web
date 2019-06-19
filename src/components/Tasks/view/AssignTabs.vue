@@ -46,7 +46,7 @@ export default {
       let surname = obj.last_name
       const toTitleCase = s => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase()
       if(name&&surname){
-        return toTitleCase(obj.name) + " " + toTitleCase(obj.surname)
+        return toTitleCase(name) + " " + toTitleCase(surname)
       }else return obj.email
     },
     changeResponsible: function (id) {
