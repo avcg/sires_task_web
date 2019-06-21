@@ -33,7 +33,7 @@ export default {
     return {
       email: '',
       password: '',
-      regModal: true,
+      regModal: false,
       regEmail: '',
       regPass: '',
       regName: '',
