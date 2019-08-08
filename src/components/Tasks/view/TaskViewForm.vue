@@ -36,7 +36,7 @@
       
       .desc-input
         .headline Описание
-        a-textarea(placeholder='Опишите вашу задачу' autosize :value='actualTask.description' @change="updateDescription")
+        a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc')
       //- .check-input
       //-   .headline Чек-лист
       //-   transition-group(name="list-complete", enter-active-class="animated fast slideInRight")
@@ -74,6 +74,14 @@ import axios from 'axios'
 export default {
   components: { AssignTabs, AddComment, Activity },
   computed: {
+    taskDesc: {
+      get(){
+        return this.actualTask.description
+      },
+      set(val) {
+        this.$store.dispatch('updateDescription', val)
+      }
+    },
     taskName: {
       get() {
         return this.actualTask.name
@@ -136,9 +144,6 @@ export default {
     },
     handleChangeUpload(info) {
       const status = info.file.status;
-      if (status !== 'uploading') {
-        console.log(info.file, info.fileList);
-      }
       if (status === 'done') {
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === 'error') {
@@ -167,7 +172,6 @@ export default {
       })
     },
     addTag: function (tag) {
-      console.log(tag)
       this.$store.dispatch('addTagTask', tag)
     },
     close: function () {
@@ -175,10 +179,7 @@ export default {
     },
     deleteTask: function () {
       this.$store.dispatch('deleteTask')
-    },
-    updateDescription: function (e) {
-      this.$store.commit('updateDescription', e.target.value)
-    },
+    }
   },
   data () {
     return {

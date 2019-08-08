@@ -27,6 +27,11 @@ export default {
     // show change in taskList
     state.tasks.filter(i => i.id === state.actualTask.id)[0].name = taskName
   },
+  updateDescription (state, taskDesc) {
+    state.actualTask.description = taskDesc
+    // show change in taskList
+    state.tasks.filter(i => i.id === state.actualTask.id)[0].description = taskDesc
+  },
   setTaskProject (state, id) {
     state.actualTask.project = state.projects.filter(i=>i.id===id)[0]
   },

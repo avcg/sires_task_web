@@ -49,6 +49,14 @@ export default {
     }
     saveDebounced(payload)
   },
+  updateDescription: ({state, commit}, name) => {
+    commit('updateDescription', name)
+    const payload = {
+      id: state.actualTask.id,
+      task: state.actualTask
+    }
+    saveDebounced(payload)
+  },
   setTaskProject: ({state, commit}, id) => {
     commit('setTaskProject', id)
     const newTask = Object.assign({}, state.actualTask)
