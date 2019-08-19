@@ -3,6 +3,9 @@
     .menu
       //- .active-line(:style=' { top: top + "px", height: isProj ? "46px" : "64px" } ')
       div(@click='getEl')
+        router-link.menu-item(to='/')
+          span(v-if='sidebarOpen') S I R E S
+      div(@click='getEl')
         router-link.menu-item(to='/inbox', active-class='active')
           i.la.icon &#xf247;
           span(v-if='sidebarOpen') Входящие
