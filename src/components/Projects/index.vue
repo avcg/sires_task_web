@@ -5,9 +5,9 @@
         TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
-          //- a-row
-          //-   a-col(:span='10' :offset='14')
-          //-     a-button(type='primary' @click='addTask') Добавить задачу
+          a-row
+            a-col(:span='10' :offset='14')
+              a-button(type='primary' @click='addTask') Добавить задачу
           a-row
             a-col
               .headline Админ
@@ -68,10 +68,6 @@ export default {
     tasks(){
       return this.$store.state.tasks
     },
-    addTask: function (){
-      this.$store.dispatch('addTask', this.$route.params.id )
-      this.openViewDrawer = true
-    },
     getGuests: function () {
       if(this.project){
         return this.project.members.filter(i => i.role == "guest").map(i => i.user.id)
@@ -91,6 +87,10 @@ export default {
     }
   },
   methods: {
+    addTask: function (){
+      this.$store.dispatch('addTask', this.$route.params.id )
+      this.openViewDrawer = true
+    },
     closeDrawer(){
       this.openViewDrawer = false
     },
