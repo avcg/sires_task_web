@@ -2,12 +2,12 @@
   .cont
     a-row(:gutter="16", v-if='project')
       a-col(:span='15')
-        TaskList(:tasks='tasks', v-if='tasks')
+        TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
           //- a-row
           //-   a-col(:span='10' :offset='14')
-          //-     a-button(type='primary', @click='openDrawer = true') Добавить задачу
+          //-     a-button(type='primary' @click='addTask') Добавить задачу
           a-row
             a-col
               .headline Админ
@@ -42,28 +42,36 @@
                     a-avatar.ava(icon="user", v-else)
                     |{{getFullName(user)}}
     Loading(v-else)
-    add-task-drawer(:open='openDrawer', @close='openDrawer = false')
+    task-drawer(:open='openViewDrawer', @close='closeDrawer')
 </template>
 <script>
 import AddTaskDrawer from './AddTaskDrawer.vue'
+import TaskDrawer from './ViewTaskDrawer'
 import TaskList from '../Tasks/TaskList.vue'
 import Loading from '../Loading/index.vue'
 import axios from 'axios'
 
 export default {
-  components: { AddTaskDrawer, TaskList, Loading },
+  components: { AddTaskDrawer, TaskList, Loading, TaskDrawer },
   data() {
     return {
       openDrawer: false,
+      openViewDrawer: false,
       project: null,
       users: null,
-      tasks: null,
       projectMembers: null,
       selectedGuests: [],
       selectedMembers: []
     }
   },
   computed: {
+    tasks(){
+      return this.$store.state.tasks
+    },
+    addTask: function (){
+      this.$store.dispatch('addTask', this.$route.params.id )
+      this.openViewDrawer = true
+    },
     getGuests: function () {
       if(this.project){
         return this.project.members.filter(i => i.role == "guest").map(i => i.user.id)
@@ -83,6 +91,9 @@ export default {
     }
   },
   methods: {
+    closeDrawer(){
+      this.openViewDrawer = false
+    },
     getAvatar: function (obj) {
       return "https://api.avcg.ru" + obj.avatar
     },
@@ -128,9 +139,8 @@ export default {
       this.project = res.data.project
       this.projectMembers = res.data.project.members.map(i => i.user.id)
     })
-    axios.get('/tasks?project_id=' + this.$route.params.id).then(res => {
-      this.tasks = res.data.tasks
-    })
+    this.$store.dispatch('getProjectTasks', this.$route.params.id)
+    
   }
 }
 </script>

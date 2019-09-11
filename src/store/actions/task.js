@@ -63,21 +63,37 @@ export default {
     newTask.project_id = id
     axios.put('/tasks/' + state.actualTask.id, { task: newTask })
   },
-  addTask: ({state, commit}) => {
+  addTask: ({state, commit}, id) => {
     commit('fullTaskIsLoading')
     commit('showTaskView')
-    axios.post('/tasks',{
-      task: {
-        finish_time: endOfDay(new Date()).toISOString(),
-        name: "Новая задача",
-        project_id: state.user.inbox_project_id,
-        start_time: startOfDay(new Date()).toISOString()
-      }
-    }).then(res => {
-      commit('addTask', res.data.task)
-      commit('changeActualTask', res.data.task)
-      commit('fullTaskIsLoaded')
-    })
+    if(id){
+      axios.post('/tasks',{
+        task: {
+          finish_time: endOfDay(new Date()).toISOString(),
+          name: "Новая задача",
+          project_id: id,
+          start_time: startOfDay(new Date()).toISOString()
+        }
+      }).then(res => {
+        commit('addTask', res.data.task)
+        commit('changeActualTask', res.data.task)
+        commit('fullTaskIsLoaded')
+      })
+    }else{
+      axios.post('/tasks',{
+        task: {
+          finish_time: endOfDay(new Date()).toISOString(),
+          name: "Новая задача",
+          project_id: state.user.inbox_project_id,
+          start_time: startOfDay(new Date()).toISOString()
+        }
+      }).then(res => {
+        commit('addTask', res.data.task)
+        commit('changeActualTask', res.data.task)
+        commit('fullTaskIsLoaded')
+      })
+    }
+    
   },
   toggleTaskDone: ({commit}, id) => {
     axios.post('/tasks/' + id + '/mark_done')
@@ -94,5 +110,10 @@ export default {
       commit('fullTaskIsLoaded')
       commit('changeActualTask', res.data.task)
     })
-  }
+  },
+  showTaskProj: ({commit}, id) => {
+    axios.get('/tasks/' + id).then((res) => {
+      commit('changeActualTask', res.data.task)
+    })
+  },
 }

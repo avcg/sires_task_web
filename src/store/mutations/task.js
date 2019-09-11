@@ -24,7 +24,6 @@ export default {
   },
   updateName (state, taskName) {
     state.actualTask.name = taskName
-    // show change in taskList
     state.tasks.filter(i => i.id === state.actualTask.id)[0].name = taskName
   },
   updateDescription (state, taskDesc) {

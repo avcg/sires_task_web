@@ -1,6 +1,6 @@
 <template lang="pug">
   .add
-    .header
+    .header(:style='{ paddingTop: proj?"0px": "22px"}')
       a-tag(v-for='tagSelected in actualTask.tags', color="orange") {{tagSelected.name}}
       a-popover(placement='bottomLeft',title="Добавить тег")
         a-tag(@click='tagPopover=true') +
@@ -10,7 +10,7 @@
       a-popconfirm( placement="bottomRight" title='Вы точно хотите удалить задачу?' @confirm='deleteTask' okText='Да' cancelText='Нет')
         .delete
           a-icon(type='delete')
-      .close(@click='close')
+      .close(@click='close' v-if='!proj')
         a-icon(type='close')
     .divider
     .body
@@ -37,17 +37,7 @@
       .desc-input
         .headline Описание
         a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc')
-      //- .check-input
-      //-   .headline Чек-лист
-      //-   transition-group(name="list-complete", enter-active-class="animated fast slideInRight")
-      //-     .check-item(v-for='item,index in actualTask.checks', :key='item.id')
-      //-       .check(@click='checkSubtask(item.id)', :style='{ backgroundColor: item.checked ? "$primary-color" : "#e8ecef" }')
-      //-         i.la.icon(v-if='item.checked') &#xf17b;
-      //-       .name
-      //-         input(:value='item.name' @input='updateCheckName($event, item.id)' placeholder='Введите название подзадачи')
-      //-     .check-item.add-check(@click='addCheck', key='add123')
-      //-       i.la.icon 
-      //-       .name Добавить
+
       .attachments
         .headline Приложения
         a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile')
@@ -72,6 +62,7 @@ import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU'
 import axios from 'axios'
 
 export default {
+  props: ['proj'],
   components: { AssignTabs, AddComment, Activity },
   computed: {
     taskDesc: {
@@ -90,7 +81,7 @@ export default {
         this.$store.dispatch('updateName', val)
       }
     },
-    actualTask: function () {
+    actualTask() {
       return this.$store.state.actualTask
     },
     getAttach: function () {

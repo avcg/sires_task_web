@@ -1,12 +1,13 @@
 <template lang="pug">
-.task-view
-  task-view-form(v-if='isLoaded')
+.task-view(:style='{ height: proj?"100%":"calc(100vh - 172px)" }')
+  task-view-form(v-if='isLoaded', :proj='proj')
   .loading(v-else)
     a-icon(type='loading')
 </template>
 <script>
 import TaskViewForm from './view/TaskViewForm.vue'
 export default {
+  props: ['proj'],
   components: {
     TaskViewForm
   },
@@ -20,7 +21,6 @@ export default {
 
 <style lang="sass" scoped>
 .task-view
-  height: calc(100vh - 172px)
   background-color: #ffffff
   transition: width .5s
   .loading

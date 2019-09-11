@@ -45,11 +45,6 @@ const store = new Vuex.Store({
     tasks: [
     ]
   },
-  getters: {
-    actualTask: state => {
-      return state.tasks.filter(task => task.id === state.actualTaskId)[0]
-    }
-  },
   actions: {
     ...actionsTask,
     ...actionsCalendar,

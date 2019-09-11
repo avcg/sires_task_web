@@ -13,7 +13,7 @@
 import { format } from 'date-fns'
 
 export default {
-  props: [ 'tasks' ],
+  props: [ 'tasks', 'proj' ],
   methods: {
     fDate(val) {
       return format(val, 'DD.MM.YYYY')
@@ -28,6 +28,9 @@ export default {
       
     },
     showTask: function (id) {
+      if(this.proj){
+        this.$emit('selectTask')
+      }
       this.$store.dispatch('showTask', id)
     }
   }
