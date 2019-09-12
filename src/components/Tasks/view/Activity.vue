@@ -1,7 +1,7 @@
 <template lang="pug">
   .activity
     .activity-body
-      a-list.comment-list(:header='`${items.length} ответ`', itemlayout='horizontal', :dataSource='items')
+      a-list.comment-list(:header='`${items.length} ответ`', itemLayout='horizontal', :dataSource='items')
         a-list-item(slot='renderItem', slot-scope='item, index')
           a-comment(:author='item.author.email')
             p(slot='content') {{item.text}}

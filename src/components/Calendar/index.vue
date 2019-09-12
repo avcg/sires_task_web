@@ -5,7 +5,7 @@
       a-button(@click='subMonth')
         a-icon(type='left')
       a-select.select-month(:value='monthsTranslate[getMonth - 1]', @change='changeMonth')
-        a-select-option(v-for='month, index in monthsTranslate', :value='index') {{month}}
+        a-select-option(v-for='month, index in monthsTranslate', :value='index', :key='"month" + index') {{month}}
       a-select.select-year(:value='getYear')
         a-select-option(value='2018') 2018
         a-select-option(value='2019') 2019
@@ -14,12 +14,14 @@
     .days
       a-badge(v-for='day in getDays' :count='getCalendar[day] ? getCalendar[day].length : 0', :offset='[-16, 35]')
         span.day(:class='{ "active" : getDay===day, "disabled" : !getCalendar[day] }' @click='changeDay(day)') {{day}}
-    task-list(v-if='getCalendar', :tasks='getCalendar[fDay(date)]')
+    task-drawer(:open='openViewDrawer', ,@close='openViewDrawer = false')
+    task-list(v-if='getCalendar',:proj='true', @selectTask='openViewDrawer = true', :tasks='tasks')
     .loading(v-else)
       a-icon(type='loading')
 </template>
 <script>
 /* eslint-disable */
+import TaskDrawer from '@/components/Projects/ViewTaskDrawer.vue'
 import TaskList from '@/components/Tasks/TaskList'
 import {
   format,
@@ -32,7 +34,7 @@ import {
 } from 'date-fns'
 
 export default {
-  components: { TaskList },
+  components: { TaskList, TaskDrawer },
   methods: {
     fDay: function (date) {
       return format(date, 'D')
@@ -43,6 +45,7 @@ export default {
         month: format(this.date, 'M')
       }
       this.$store.dispatch('getCalendar', payload)
+      this.$store.dispatch('getDateTasks', this.date)
     },
     subMonth: function () {
       this.date = subMonths(this.date, 1)
@@ -62,11 +65,15 @@ export default {
     },
     changeDay: function (val) {
       this.date = setDate(this.date, val)
+      this.$store.dispatch('getDateTasks', this.date)
     },
   },
   computed: {
     getCalendar: function () {
       return this.$store.state.calendar
+    },
+    tasks(){
+      return this.$store.state.tasks
     },
     getDays: function () {
       let month = eachDay(
@@ -91,6 +98,7 @@ export default {
   },
   data () {
     return {
+      openViewDrawer: false,
       date: new Date(),
       weekdaysTranslate: [
         'Пн',

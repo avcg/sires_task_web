@@ -5,7 +5,8 @@
         a-select(:defaultValue="inboxId", style="width: 100%", @change="projectChange")
           a-select-option(v-for='proj in projects', :key='proj.id') {{proj.name}}
       .tasks-tree
-        .tasks-tree-task(v-for='task in tasks') {{task.name}}
+        task-drawer(:open='openViewDrawer', @close='closeDrawer')
+        .tasks-tree-task(v-for='task in tasks' @click='openTask(task.id)') {{task.name}}
     .gantt(ref='ganttCont')
       .ganttBody#ganttBody(:style='{ width: ganttWidth + "px" }')
         .head
@@ -15,7 +16,7 @@
               .date(:class='{ "today" : isToday(day)}' v-for='day in month.days') {{fDay(day)}}
         .body
           .task(v-for='bar in getGanttItems')
-            a-popover(placement='top', :title="bar.name")
+            a-tooltip(placement='top', :title="bar.name")
               .bar(:style='{ width: bar.width + "px", marginLeft: bar.margin + "px" }')
               //- template(slot='content')
               //-   div 
@@ -24,6 +25,7 @@
 <script>
 /* eslint-disable */
 import { uniqBy } from 'lodash'
+import TaskDrawer from '../Projects/ViewTaskDrawer'
 import { 
   min,
   max,
@@ -45,13 +47,22 @@ var ruLocale = require('date-fns/locale/ru')
 const dayWidth = 35
 
 export default {
+  components: { TaskDrawer },
   props: [ 'tasks', 'projects' ],
   data(){
     return {
-      expandProj: []
+      expandProj: [],
+      openViewDrawer: false
     }
   },
   methods: {
+    openTask(id){
+      this.$store.dispatch('showTask', id)
+      this.openViewDrawer = true
+    },
+    closeDrawer(){
+      this.openViewDrawer = false
+    },
     isToday: function (date) {
       return isToday(date)
     },
@@ -216,6 +227,10 @@ export default {
         line-height: 35px
         font-size: 12px
         border-bottom: 1px solid #E9ECEF
+        transition: background .3s
+        &:hover
+          cursor: pointer
+          background: #F5F5F5
         &:last-child
           border-bottom: 0
   .gantt

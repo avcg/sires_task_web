@@ -3,7 +3,7 @@
 //-coressponsible
 //-observer
 //- assignor
-a-tabs.tabs(defaultactivekey='1')
+a-tabs.tabs(defaultActiveKey='1')
   a-tab-pane.tab(tab='Ответственный', key='1')
     a-select.select(size='large' :defaultValue='responsible', @change='changeResponsible')
       a-select-option(v-for='user in users', :value='user.user.id') 

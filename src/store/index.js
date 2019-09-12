@@ -97,6 +97,11 @@ const store = new Vuex.Store({
         commit('updateProjects', res.data.projects)
       })
     },
+    getDateTasks: ({commit}, date) => {
+      axios.get('/tasks?finish_date=' + format(date, 'YYYY-MM-DD')).then(res=>{
+        commit('updateTasks', res.data.tasks)
+      })
+    },
     getWeekTasks: ({commit}) => {
       axios.get('/tasks?hot=true').then(res=>{
         commit('updateTasks', res.data.tasks)

@@ -1,6 +1,6 @@
 <template lang="pug">
   .cont
-    a-row(:gutter="16", v-if='project')
+    a-row(:gutter="16", v-if='!isLoading&&project!=null')
       a-col(:span='15')
         TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
@@ -17,7 +17,7 @@
                 a-select-option(v-for='member in project.members' :value='member.user.id') 
                   .inner-opt
                     a-avatar.ava(:size='24', v-if='getAvatar(member.user)' :src='getAvatar(member.user)')
-                    a-avatar.ava(icon="user", v-else)
+                    a-avatar.ava(:size='24', icon="user", v-else)
                     |{{getFullName(member.user)}}
           a-row
             a-col
@@ -28,7 +28,7 @@
                 a-select-option(v-for='user in getFilteredUsers' :value='user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
-                    a-avatar.ava(icon="user", v-else)
+                    a-avatar.ava(:size='18',icon="user", v-else)
                     |{{getFullName(user)}}
           a-row
             a-col
@@ -39,10 +39,10 @@
                 a-select-option(v-for='user in getFilteredUsers' :value='user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
-                    a-avatar.ava(icon="user", v-else)
+                    a-avatar.ava(:size='18',icon="user", v-else)
                     |{{getFullName(user)}}
     Loading(v-else)
-    task-drawer(:open='openViewDrawer', @close='closeDrawer')
+    task-drawer(:open='openViewDrawer', @close='closeDrawer' v-if='!isLoading&&project!=null')
 </template>
 <script>
 import AddTaskDrawer from './AddTaskDrawer.vue'
@@ -59,6 +59,7 @@ export default {
       openViewDrawer: false,
       project: null,
       users: null,
+      isLoading: false,
       projectMembers: null,
       selectedGuests: [],
       selectedMembers: []
@@ -83,7 +84,12 @@ export default {
       }
     },
     getFilteredUsers: function () {
-      return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id))
+      if(this.users){
+        return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id))
+      }else {
+        return []
+      }
+      
     }
   },
   methods: {
@@ -95,7 +101,12 @@ export default {
       this.openViewDrawer = false
     },
     getAvatar: function (obj) {
-      return "https://api.avcg.ru" + obj.avatar
+      if(obj.avatar){
+        return "https://api.avcg.ru" + obj.avatar
+      }else {
+        return ''
+      }
+      
     },
     getFullName: function (obj) {
       let name = obj.first_name
@@ -135,8 +146,10 @@ export default {
     axios.get('/users').then(res => {
       this.users = res.data.users
     })
+    this.isLoading = true
     axios.get('/projects/' + this.$route.params.id).then(res => {
       this.project = res.data.project
+      this.isLoading = false
       this.projectMembers = res.data.project.members.map(i => i.user.id)
     })
     this.$store.dispatch('getProjectTasks', this.$route.params.id)

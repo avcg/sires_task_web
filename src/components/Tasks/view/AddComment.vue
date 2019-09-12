@@ -5,7 +5,7 @@
         a-form-item
           a-textarea(:rows='4', v-model='text')
         a-form-item
-          a-button(htmltype='submit', @click='sendComment', type='primary')
+          a-button(htmlType='submit', @click='sendComment', type='primary')
             | Добавить комментарий
 </template>
 <script>

@@ -37,7 +37,7 @@
       .headline
         .headline-inner(v-if='sidebarOpen')
           span Теги
-          .add(@click='openAddLabel')
+          .add(@click='openAddLabel' v-if="$auth.check('admin')")
             i.la.icon 
             span Добавить
       .list(v-if='sidebarOpen')
