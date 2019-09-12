@@ -93,7 +93,7 @@ const store = new Vuex.Store({
       })
     },
     getProjects: ({commit}) => {
-      axios.get('/projects').then(res=>{
+      axios.get('/projects?limit=100').then(res=>{
         commit('updateProjects', res.data.projects)
       })
     },

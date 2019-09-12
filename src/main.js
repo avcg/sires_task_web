@@ -49,7 +49,11 @@ Vue.use(require('../node_modules/@websanova/vue-auth'), {
   loginData: {
     url: 'sign_in'
   },
+  rolesVar: 'role',
   fetchData: {url: 'current_user', method: 'GET', enabled: true},
+  parseUserData: function (data) {
+      return data.user;
+  },
   refreshData: {url: 'current_user', method: 'GET', enabled: true, interval: 30},
   http: require('../node_modules/@websanova/vue-auth/drivers/http/axios.1.x.js'),
   router: require('../node_modules/@websanova/vue-auth/drivers/router/vue-router.2.x.js'),
