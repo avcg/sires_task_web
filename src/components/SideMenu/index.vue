@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     projects: function () {
-      return this.$store.state.projects
+      return this.$store.state.projects.filter(it => it.name != "Inbox")
     },
     tags: function () {
       return this.$store.state.tags

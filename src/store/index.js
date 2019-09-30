@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import { format } from 'date-fns'
-import ru from '../../node_modules/date-fns/locale/ru'
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 
@@ -78,7 +77,7 @@ const store = new Vuex.Store({
       })
     },
     getUsers: ({commit}) => {
-      axios.get('/users').then(res=>{
+      axios.get('/users?limit=100').then(res=>{
         commit('updateUsers', res.data.users)
       })      
     },

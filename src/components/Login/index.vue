@@ -4,10 +4,10 @@
       h2.title SIRES
       form.form
         span.mb.caption Ваша почта
-        input.mb(name="email" v-model='email')
+        input.mb(name="email" v-model='email' @keyup.enter='logIn')
         span.mb.caption Ваш пароль
-        input.mb(name="password" v-model='password', type='password')
-        a-button.mb.mt(:disabled='!email&&!password' type='primary' size='large' @click='logIn') Вход
+        input.mb(name="password" v-model='password', type='password' @keyup.enter='logIn')
+        a-button.mb.mt(:disabled='!email&&!password' type='primary' size='large' @click='logIn' :loading='loading') Вход
         a-button(@click='regModal = true') Регистрация
       a-modal(title='Регистрация', v-model='regModal', @ok='register', :okButtonProps='{props:{disabled: !(regModal&&regEmail&&regPass&&regName&&regLastn&&regPos&&regAva)}}',okText='Регистрация', cancelText='Отменить')
         a-row.mb(:gutter="16" type="flex" align="middle")
@@ -28,9 +28,11 @@
             input.inp(type='file', @change='handleChange')
 </template>
 <script>
+import axios from 'axios';
 export default {
   data() {
     return {
+      loading: false,
       email: '',
       password: '',
       regModal: false,
@@ -79,20 +81,24 @@ export default {
       });
     },
     logIn: function () {
-      this.$auth.login({
-        data: {
-          email: this.email,
-          password: this.password
-        },
-        success: (res) => {
-          this.$store.commit('changeUser', res.data.user)
-        },
-        headers: {
-          "Content-Type": "application/json"
-        },
-        rememberMe: true,
-        redirect: '/inbox',
-      });
+      if(this.email&&this.password) {
+        this.loading = true
+        this.$auth.login({
+          data: {
+            email: this.email,
+            password: this.password
+          },
+          success: (res) => {
+            this.loading = false
+            this.$store.commit('changeUser', res.data.user)
+          },
+          headers: {
+            "Content-Type": "application/json"
+          },
+          rememberMe: true,
+          redirect: '/inbox',
+        });
+      } 
     }
   }
 }

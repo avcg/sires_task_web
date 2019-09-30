@@ -143,7 +143,7 @@ export default {
     }
   },
   mounted() {
-    axios.get('/users').then(res => {
+    axios.get('/users?limit=100').then(res => {
       this.users = res.data.users
     })
     this.isLoading = true
