@@ -46,6 +46,19 @@ export default {
   fullTaskIsLoaded (state) {
     state.fullTaskLoading = false
   },
+  updateAssign (state, payload) {
+    const type = payload[0]
+    const ids = payload[1]
+    state.actualTask.members = state.actualTask.members.filter(t => t.role != type)
+    if (Array.isArray(ids)) {
+      ids.forEach(id => {
+        state.actualTask.members.push({user: {id}, role: type})
+      })
+    }else {
+      state.actualTask.members.push({user: {id: ids}, role: type})
+    }
+    
+  },
   showTaskView (state) {
     state.viewTask = true
   },

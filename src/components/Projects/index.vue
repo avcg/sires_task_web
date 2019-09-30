@@ -5,7 +5,7 @@
         TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
-          a-row
+          a-row(v-if='project.members.filter(i=>i.role==="guest"&&i.user.id == user.id).length==0')
             a-col(:span='10' :offset='14')
               a-button(type='primary' @click='addTask') Добавить задачу
           a-row
@@ -13,7 +13,7 @@
               .headline Админ
           a-row
             a-col
-              a-select(:defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
+              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
                 a-select-option(v-for='member in project.members' :value='member.user.id') 
                   .inner-opt
                     a-avatar.ava(:size='24', v-if='getAvatar(member.user)' :src='getAvatar(member.user)')
@@ -24,7 +24,7 @@
               .headline Наблюдатели
           a-row
             a-col
-              a-select(:defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
+              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
                 a-select-option(v-for='user in getFilteredUsers' :value='user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
@@ -35,7 +35,7 @@
               .headline Участники
           a-row
             a-col
-              a-select(:defaultValue='getMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
+              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='getMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
                 a-select-option(v-for='user in getFilteredUsers' :value='user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
@@ -66,6 +66,9 @@ export default {
     }
   },
   computed: {
+    user() {
+      return this.$store.state.user
+    },
     tasks(){
       return this.$store.state.tasks
     },

@@ -12,9 +12,11 @@ var saveDebounced = _.wrap(_.memoize(function () {
 export default {
   addTagTask: ({state, commit}, tag) => {
     commit('addTaskTag', tag)
+    let newTask = state.actualTask
+    delete newTask['attachments']
     const payload = {
       id: state.actualTask.id,
-      task: state.actualTask
+      task: newTask
     }
     payload.task.tag_ids = payload.task.tags.map(tag=>tag.id)
     saveDebounced(payload)
@@ -33,27 +35,43 @@ export default {
     commit('addTaskAttachment', file)
     // axios.put('/tasks/' + state.actualTask.id, { task: state.actualTask })
   },
+  updateAssign: ({state, commit}, payload) => {
+    commit('updateAssign', payload)
+    let newTask = state.actualTask
+    delete newTask['attachments']
+    const body = {
+      id: state.actualTask.id,
+      task: newTask
+    }
+    saveDebounced(body)
+  },
   updateTaskDates: ({state, commit}, val) => {
     commit('updateTaskDates', val)
+    let newTask = state.actualTask
+    delete newTask['attachments']
     const payload = {
       id: state.actualTask.id,
-      task: state.actualTask
+      task: newTask
     }
     saveDebounced(payload)
   },
   updateName: ({state, commit}, name) => {
     commit('updateName', name)
+    let newTask = state.actualTask
+    delete newTask['attachments']
     const payload = {
       id: state.actualTask.id,
-      task: state.actualTask
+      task: newTask
     }
     saveDebounced(payload)
   },
   updateDescription: ({state, commit}, name) => {
     commit('updateDescription', name)
+    let newTask = state.actualTask
+    delete newTask['attachments']
     const payload = {
       id: state.actualTask.id,
-      task: state.actualTask
+      task: newTask
     }
     saveDebounced(payload)
   },

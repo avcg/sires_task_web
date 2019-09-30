@@ -22,6 +22,7 @@
         :coresponsibles='coresponsibles',
         :observers='observers',
         :responsible='responsible'
+        @changeAssign='updateAssign'
       )
       .fl-jsb
         a-select(:defaultValue='actualTask.project.id' @change='setTaskProject')
@@ -117,6 +118,9 @@ export default {
     this.updateMembers(this.actualTask.project.id)
   },
   methods: {
+    updateAssign(type, id) {
+      this.$store.dispatch('updateAssign', [type, id])
+    },
     filterByRole: function (type) {
       return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)
     },

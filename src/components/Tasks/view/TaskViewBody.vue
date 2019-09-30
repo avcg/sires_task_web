@@ -14,6 +14,7 @@
       :coresponsibles='coresponsibles',
       :observers='observers',
       :responsible='responsible'
+      @changeAssign='updateAssign'
     )
     .fl-jsb
       a-select(:defaultValue='actualTask.project.id' @change='setTaskProject')
@@ -116,6 +117,12 @@ export default {
     this.updateMembers(this.actualTask.id)
   },
   methods: {
+    updateAssign(type, id) {
+      console.log('hi')
+      console.log(type)
+      console.log(id)
+      // this.$store.dispatch('')
+    },
     handleSendFile(file, fileList) {
       const json = JSON.stringify(this.actualTask);
       const blob = new Blob([json], {

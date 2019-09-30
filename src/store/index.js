@@ -12,7 +12,6 @@ import mutationsCalendar from './mutations/calendar'
 
 Vue.use(VueAxios, axios);
 Vue.axios.defaults.baseURL = 'https://api.avcg.ru/api/v1';
-
 Vue.use(Vuex)
 
 const store = new Vuex.Store({

@@ -50,16 +50,16 @@ export default {
       }else return obj.email
     },
     changeResponsible: function (id) {
-      this.$emit('responsible', id)
+      this.$emit('changeAssign','responsible', id)
     },
     changeCoresponsibles: function (ids) {
-      this.$emit('coresposibles', ids)
+      this.$emit('changeAssign','coresposibles', ids)
     },
     changeObservers: function (ids) {
-      this.$emit('observers', ids)
+      this.$emit('changeAssign','observers', ids)
     },
     changeAssignor: function (id) {
-      this.$emit('assignor', id)
+      this.$emit('changeAssign','assignor', id)
     }
   },
   mounted() {
