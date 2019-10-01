@@ -35,16 +35,6 @@ export default {
     commit('addTaskAttachment', file)
     // axios.put('/tasks/' + state.actualTask.id, { task: state.actualTask })
   },
-  updateAssign: ({state, commit}, payload) => {
-    commit('updateAssign', payload)
-    let newTask = state.actualTask
-    delete newTask['attachments']
-    const body = {
-      id: state.actualTask.id,
-      task: newTask
-    }
-    saveDebounced(body)
-  },
   updateTaskDates: ({state, commit}, val) => {
     commit('updateTaskDates', val)
     let newTask = state.actualTask
@@ -54,6 +44,10 @@ export default {
       task: newTask
     }
     saveDebounced(payload)
+  },
+  updateAssign: ({state, commit}, {task_id, user_ids, role}) => {
+    
+    axios.put(`/tasks/${task_id}/members/roles/${role}`, {user_ids})
   },
   updateName: ({state, commit}, name) => {
     commit('updateName', name)

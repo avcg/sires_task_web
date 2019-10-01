@@ -102,7 +102,7 @@ export default {
     },
     taskMembers () { return this.$store.state.actualTask.members},
     assignor: function () {
-      return this.filterByRole('assignor')
+      return this.filterByRole('assignator')
     },
     responsible: function () {
       return this.filterByRole('responsible')
@@ -119,7 +119,16 @@ export default {
   },
   methods: {
     updateAssign(type, id) {
-      this.$store.dispatch('updateAssign', [type, id])
+      let body = {
+        task_id: this.actualTask.id,
+        role: type,
+      }
+      if (Array.isArray(id)) {
+        body.user_ids = id.map(i => (i))
+      }else {
+        body.user_ids = [id]
+      }
+      this.$store.dispatch('updateAssign', body)
     },
     filterByRole: function (type) {
       return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)

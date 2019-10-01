@@ -5,7 +5,7 @@
         TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
-          a-row(v-if='project.members.filter(i=>i.role==="guest"&&i.user.id == user.id).length==0')
+          a-row(v-if='!isDisabled')
             a-col(:span='10' :offset='14')
               a-button(type='primary' @click='addTask') Добавить задачу
           a-row
@@ -13,7 +13,7 @@
               .headline Админ
           a-row
             a-col
-              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
+              a-select(:disabled='isDisabled' :defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
                 a-select-option(v-for='member in project.members' :value='member.user.id') 
                   .inner-opt
                     a-avatar.ava(:size='24', v-if='getAvatar(member.user)' :src='getAvatar(member.user)')
@@ -24,8 +24,8 @@
               .headline Наблюдатели
           a-row
             a-col
-              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
-                a-select-option(v-for='user in getFilteredUsers' :value='user.id')
+              a-select(:filterOption='filterMember' :disabled='isDisabled' :defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
+                a-select-option(v-for='user in getFilteredUsers' :value='user.id' :key='user.first_name + " " + user.last_name + " " + user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
                     a-avatar.ava(:size='18',icon="user", v-else)
@@ -35,8 +35,8 @@
               .headline Участники
           a-row
             a-col
-              a-select(:disabled='user.role!="admin"||project.members.filter(i=>i.role==="admin")[0].user.id != user.id' :defaultValue='getMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
-                a-select-option(v-for='user in getFilteredUsers' :value='user.id')
+              a-select(:filterOption='filterMember' :disabled='isDisabled' :defaultValue='getMembers',@change="handleChangeMembers", @select='addMember', @deselect='removeMember' mode="multiple", placeholder="Участники", style='width: 100%')
+                a-select-option(v-for='user in getFilteredUsers' :value='user.id' :key='user.first_name + " " + user.last_name + " " + user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
                     a-avatar.ava(:size='18',icon="user", v-else)
@@ -66,6 +66,15 @@ export default {
     }
   },
   computed: {
+    isDisabled() {
+      if(this.user) {
+        if(this.user.role=="admin") return false
+        if(this.project&&this.project.members && this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id != this.user.id) {
+          return false
+        }
+      }
+      return true
+    },
     user() {
       return this.$store.state.user
     },
@@ -96,6 +105,9 @@ export default {
     }
   },
   methods: {
+    filterMember(val, comp) {
+      return comp.key.toLowerCase().includes(val.toLowerCase())
+    },
     addTask: function (){
       this.$store.dispatch('addTask', this.$route.params.id )
       this.openViewDrawer = true
@@ -122,6 +134,9 @@ export default {
     handleChangeGuests: function (selectedGuests) {
       this.selectedGuests = selectedGuests
     },
+    handleSearch (value) {
+      console.log(value)
+    },
     handleChangeMembers: function (selectedMembers) {
       this.selectedMembers = selectedMembers
     },
@@ -146,6 +161,7 @@ export default {
     }
   },
   mounted() {
+    
     axios.get('/users?limit=100').then(res => {
       this.users = res.data.users
     })

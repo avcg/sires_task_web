@@ -3,7 +3,7 @@
     .activity-body
       a-list.comment-list(:header='`${items.length} ответ`', itemLayout='horizontal', :dataSource='items')
         a-list-item(slot='renderItem', slot-scope='item, index')
-          a-comment(:author='item.author.email')
+          a-comment(:author='item.author.first_name + " " + item.author.middle_name + " " + item.author.last_name')
             p(slot='content') {{item.text}}
             a-tooltip(slot='datetime', :title="moment(item.inserted_at).format('DD-MM-YYYY HH:mm:ss')")
               span {{moment(item.inserted_at).fromNow()}}

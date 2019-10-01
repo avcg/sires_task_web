@@ -53,13 +53,13 @@ export default {
       this.$emit('changeAssign','responsible', id)
     },
     changeCoresponsibles: function (ids) {
-      this.$emit('changeAssign','coresposibles', ids)
+      this.$emit('changeAssign','co-responsible', ids)
     },
     changeObservers: function (ids) {
-      this.$emit('changeAssign','observers', ids)
+      this.$emit('changeAssign','observer', ids)
     },
     changeAssignor: function (id) {
-      this.$emit('changeAssign','assignor', id)
+      this.$emit('changeAssign','assignator', id)
     }
   },
   mounted() {
