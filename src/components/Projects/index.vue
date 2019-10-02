@@ -69,7 +69,7 @@ export default {
     isDisabled() {
       if(this.user) {
         if(this.user.role=="admin") return false
-        if(this.project&&this.project.members && this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id != this.user.id) {
+        if(this.project&&this.project.members && this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) {
           return false
         }
       }
