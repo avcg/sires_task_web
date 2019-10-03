@@ -115,6 +115,11 @@ export default {
     axios.post('/tasks/' + id + '/mark_undone')
     commit('makeUndoneTask', id)
   },
+  reloadTask: ({commit}, id) => {
+    axios.get('/tasks/' + id).then((res) => {
+      commit('changeActualTask', res.data.task)
+    })
+  },
   showTask: ({commit}, id) => {
     commit('fullTaskIsLoading')
     commit('showTaskView')

@@ -133,10 +133,10 @@ export default {
     filterByRole: function (type) {
       return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)
     },
-    handleSendFile(payload) {
+    handleSendFile({ onSuccess, onError, file }) {
       let body = new FormData()
-      body.set('task[attachments][1][file]', payload.file)
-      axios({
+      body.set(`task[attachments][${this.getAttach.length}][file]`, file)
+      return axios({
         method: 'put',
         url: '/tasks/' +  this.actualTask.id,
         data: body,
@@ -144,6 +144,11 @@ export default {
           'Accept': 'application/json',
           'Content-Type': 'multipart/form-data',
         }
+      }).then(()=> {
+        onSuccess(null, file)
+        this.$store.dispatch('reloadTask', this.actualTask.id)
+      }).catch(err=> {
+        onError(err)
       })
     },
     handleChangeUpload(info) {
