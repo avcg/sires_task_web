@@ -17,6 +17,7 @@
       .head-input
         input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj' :disabled='!isTaskAdmin')
       AssignTabs(
+        v-if='actualTask.project.name != "Inbox" && actualTask.project.name != "Входящие"'
         :users='users',
         :assignor='assignor',
         :coresponsibles='coresponsibles',

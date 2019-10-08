@@ -6,28 +6,28 @@
 a-tabs.tabs(defaultActiveKey='1')
   a-tab-pane.tab(tab='Ответственный', key='1')
     a-select.select(size='large' :defaultValue='responsible', @change='changeResponsible' :disabled='!isAssignor')
-      a-select-option(v-for='user in users', :value='user.user.id') 
+      a-select-option(v-for='user in filteredUsers', :value='user.user.id') 
         .inner-opt
           a-avatar.ava(:size='32', v-if='getAvatar(user.user)' :src='getAvatar(user.user)')
           a-avatar.ava(icon="user", v-else)
           |{{getFullName(user.user)}}
   a-tab-pane.tab(tab='Соисполнители', key='2')
     a-select.select(size='large' :defaultValue='coresponsibles', mode="multiple", @change='changeCoresponsibles' :disabled='!isAssignor')
-      a-select-option(v-for='user in users', :value='user.user.id') 
+      a-select-option(v-for='user in filteredUsers', :value='user.user.id') 
         .inner-opt
           a-avatar.ava(:size='32', v-if='getAvatar(user.user)' :src='getAvatar(user.user)')
           a-avatar.ava(icon="user", v-else)
           |{{getFullName(user.user)}}
   a-tab-pane.tab(tab='Наблюдатели', key='3')
     a-select.select(size='large' :defaultValue='observers', mode="multiple", @change='changeObservers' :disabled='!isAssignor')
-      a-select-option(v-for='user in users', :value='user.user.id') 
+      a-select-option(v-for='user in filteredUsers', :value='user.user.id') 
         .inner-opt
           a-avatar.ava(:size='32', v-if='getAvatar(user.user)' :src='getAvatar(user.user)')
           a-avatar.ava(icon="user", v-else)
           |{{getFullName(user.user)}}
   a-tab-pane.tab(tab='Постановщик ', key='4')
     a-select.select(size='large' :defaultValue='assignor', @change='changeAssignor' :disabled='!isAssignor')
-      a-select-option(v-for='user in users', :value='user.user.id') 
+      a-select-option(v-for='user in filteredUsers', :value='user.user.id') 
         .inner-opt
           a-avatar.ava(:size='32', v-if='getAvatar(user.user)' :src='getAvatar(user.user)')
           a-avatar.ava(icon="user", v-else)
@@ -42,6 +42,11 @@ export default {
       if (this.$store.state.role == 'admin') return true
       if (this.assignor && this.assignor[0] == this.$store.state.user.id) return true
       return false
+    }
+  },
+  users: {
+    filteredUsers() {
+      return this.users.filter(i => i.id != this.$store.state.user.id)
     }
   },
   methods: {
