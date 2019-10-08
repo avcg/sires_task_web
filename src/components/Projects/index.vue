@@ -105,14 +105,14 @@ export default {
     },
     getMembers: function () {
       if(this.project){
-        return this.project.members.filter(i => i.role != "guest").map(i => i.user.id)
+        return this.project.members.filter(i => i.role != "guest"&&i.user.id != this.user.id).map(i => i.user.id)
       }else {
         return []
       }
     },
     getFilteredUsers: function () {
       if(this.users){
-        return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id))
+        return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id)&&item.id!=this.user.id)
       }else {
         return []
       }

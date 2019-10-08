@@ -43,7 +43,7 @@
 
       .attachments
         .headline Приложения
-        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin')
+        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin' :remove='this.deleteFile')
           p.ant-upload-drag-icon
             a-icon(type='inbox')
           p.ant-upload-text Нажмите или перетащите файл в эту область
@@ -129,6 +129,9 @@ export default {
     this.updateMembers(this.actualTask.project.id)
   },
   methods: {
+    deleteFile(file) {
+      this.axios.post(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions`)
+    },
     updateAssign(type, id) {
       let body = {
         task_id: this.actualTask.id,

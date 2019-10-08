@@ -42,11 +42,9 @@ export default {
       if (this.$store.state.role == 'admin') return true
       if (this.assignor && this.assignor[0] == this.$store.state.user.id) return true
       return false
-    }
-  },
-  users: {
+    },
     filteredUsers() {
-      return this.users.filter(i => i.id != this.$store.state.user.id)
+      return this.users.filter(i => i.user.id != this.$store.state.user.id)
     }
   },
   methods: {
