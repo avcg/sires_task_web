@@ -32,7 +32,7 @@
       .list(v-if='sidebarOpen')
         div(v-for='item in projects', @click='getEl($event, true)')
           router-link.list-item(:to='"/project/" + item.id', active-class='active')
-            span {{item.name}}
+            span {{item.name.length > 21 ? item.name.substring(0, 21) + '...' : item.name}}
     .projects
       .headline
         .headline-inner(v-if='sidebarOpen')
@@ -41,7 +41,7 @@
             i.la.icon 
             span Добавить
       .list(v-if='sidebarOpen')
-        div(v-for='tag in tags', @click='getEl($event, true)')
+        div(v-for='tag in tags', @click='deleteTag(tag.id)')
           .list-item(active-class='active')
             span {{ tag.name }}
 </template>
@@ -54,6 +54,9 @@ export default {
     }
   },
   methods: {
+    deleteTag: function(id) {
+      this.axios.delete("/tags/" + id)
+    },
     openAddProj: function () {
       this.$store.commit('openProjectDialog')
     },

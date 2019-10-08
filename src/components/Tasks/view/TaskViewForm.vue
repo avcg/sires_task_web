@@ -2,12 +2,12 @@
   .add
     .header(:style='{ paddingTop: proj?"0px": "22px"}')
       a-tag(v-for='tagSelected in actualTask.tags', color="orange") {{tagSelected.name}}
-      a-popover(placement='bottomLeft',title="Добавить тег")
+      a-popover(placement='bottomLeft',title="Добавить тег" v-if='isTaskAdmin')
         a-tag(@click='tagPopover=true') +
         div(slot='content')
           a-tag(v-for='tag in allTags', color="orange", @click='addTag(tag)') {{tag.name}}
       .spacer
-      a-popconfirm( placement="bottomRight" title='Вы точно хотите удалить задачу?' @confirm='deleteTask' okText='Да' cancelText='Нет')
+      a-popconfirm( placement="bottomRight" title='Вы точно хотите удалить задачу?' @confirm='deleteTask' okText='Да' cancelText='Нет' v-if='isTaskAdmin')
         .delete
           a-icon(type='delete')
       .close(@click='close' v-if='!proj')
@@ -15,7 +15,7 @@
     .divider
     .body
       .head-input
-        input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj')
+        input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj' :disabled='!isTaskAdmin')
       AssignTabs(
         :users='users',
         :assignor='assignor',
@@ -25,10 +25,11 @@
         @changeAssign='updateAssign'
       )
       .fl-jsb
-        a-select(:defaultValue='actualTask.project.id' @change='setTaskProject')
+        a-select(:defaultValue='actualTask.project.id' @change='setTaskProject' :disabled='!isTaskAdmin')
           a-select-option(v-for='proj in allProjects',:value='proj.id', :key='proj.id') {{proj.name}}
         a-locale-provider(:locale='locale')
           a-range-picker(
+            :disabled='!isTaskAdmin'
             format='DD MMM YYYY',
             :allowClear="false",
             :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
@@ -37,11 +38,11 @@
       
       .desc-input
         .headline Описание
-        a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc')
+        a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc' :disabled='!isTaskAdmin')
 
       .attachments
         .headline Приложения
-        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile')
+        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin')
           p.ant-upload-drag-icon
             a-icon(type='inbox')
           p.ant-upload-text Нажмите или перетащите файл в эту область
@@ -66,6 +67,15 @@ export default {
   props: ['proj'],
   components: { AssignTabs, AddComment, Activity },
   computed: {
+    isTaskAdmin() {
+      if (this.$store.state.user.role == 'admin') return true
+      if (this.actualTask.members.length>0 && this.actualTask.members.filter(i => i.role == "assignator").length>0) {
+        return this.actualTask.members.filter(i => i.role == "assignator")[0].user.id == this.$store.state.user.id
+      }else {
+        return false
+      }
+
+    },
     taskDesc: {
       get(){
         return this.actualTask.description

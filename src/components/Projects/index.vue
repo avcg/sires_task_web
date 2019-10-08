@@ -5,9 +5,11 @@
         TaskList(:tasks='tasks', v-if='tasks', :proj='true', @selectTask='openViewDrawer = true')
       a-col(:span='9')
         a-card(:title='project.name', :bodyStyle=' {maxHeight: "100%"} ')
-          a-row(v-if='!isDisabled')
-            a-col(:span='10' :offset='14')
+          a-row
+            a-col(:span='10' v-if='!isGuest')
               a-button(type='primary' @click='addTask') Добавить задачу
+            a-col(:span='10' :offset='4' v-if='!isDisabled')
+              a-button(type='danger' @click='deleteProject') Удалить проект
           a-row
             a-col
               .headline Админ
@@ -66,6 +68,19 @@ export default {
     }
   },
   computed: {
+    isGuest() {
+      if(this.user) {
+        if(this.user.role=="admin") return false
+        if(
+          this.project
+          && this.project.members 
+          && ( (this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) || (this.project.members.filter(i=>i.role==="regular").length>0 && this.project.members.filter(i=>i.role==="regular")[0].user.id === this.user.id) )
+        ) {
+          return false
+        }
+      }
+      return true
+    },
     isDisabled() {
       if(this.user) {
         if(this.user.role=="admin") return false
@@ -105,6 +120,12 @@ export default {
     }
   },
   methods: {
+    deleteProject(){
+      this.axios.delete("/projects/" + this.project.id).then(()=> {
+        this.$store.dispatch('getProjects')
+        this.$router.push('/')
+      })
+    },
     filterMember(val, comp) {
       return comp.key.toLowerCase().includes(val.toLowerCase())
     },

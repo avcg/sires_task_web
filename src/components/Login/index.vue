@@ -95,6 +95,12 @@ export default {
           headers: {
             "Content-Type": "application/json"
           },
+          error: (err) => {
+            if (err.response.status == 401) {
+              this.loading = false
+              this.$message.error("Неправильный логин или пароль")
+            }
+          },
           rememberMe: true,
           redirect: '/inbox',
         });
