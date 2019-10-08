@@ -69,6 +69,7 @@ export default {
   components: { AssignTabs, AddComment, Activity },
   computed: {
     isTaskAdmin() {
+      if (this.users&&this.users.filter(u => u.role=='admin').length>0&&this.users.filter(u => u.role=='admin')[0].user.id == this.$store.state.user.id) return true
       if (this.$store.state.user.role == 'admin') return true
       if (this.actualTask.members.length>0 && this.actualTask.members.filter(i => i.role == "assignator").length>0) {
         return this.actualTask.members.filter(i => i.role == "assignator")[0].user.id == this.$store.state.user.id

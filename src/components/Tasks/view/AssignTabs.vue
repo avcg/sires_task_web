@@ -39,6 +39,7 @@ export default {
   props: ['users', 'assignor', 'coresponsibles', 'observers', 'responsible'],
   computed: {
     isAssignor() {
+      if (this.users&&this.users.filter(u => u.role=='admin').length>0&&this.users.filter(u => u.role=='admin')[0].user.id == this.$store.state.user.id) return true
       if (this.$store.state.role == 'admin') return true
       if (this.assignor && this.assignor[0] == this.$store.state.user.id) return true
       return false
