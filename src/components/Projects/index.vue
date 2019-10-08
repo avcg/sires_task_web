@@ -74,7 +74,10 @@ export default {
         if(
           this.project
           && this.project.members 
-          && ( (this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) || (this.project.members.filter(i=>i.role==="regular").length>0 && this.project.members.filter(i=>i.role==="regular")[0].user.id === this.user.id) )
+          && ( 
+            (this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) 
+            || (this.project.members.filter(i=>i.role==="regular").length>0 && this.project.members.filter(i=>i.role==="regular").map(u => u.user.id).includes(this.user.id)) 
+            )
         ) {
           return false
         }
