@@ -131,7 +131,8 @@ export default {
   },
   methods: {
     deleteFile(file) {
-      this.axios.post(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions`)
+      const version = this.actualTask.attachments.filter(f => f.id == file.id)[0].last_version.id
+      this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`)
     },
     updateAssign(type, id) {
       let body = {
