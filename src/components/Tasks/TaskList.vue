@@ -25,7 +25,6 @@ export default {
       }else{
         this.$store.dispatch('toggleTaskDone', id)
       }
-      
     },
     showTask: function (id) {
       if(this.proj){

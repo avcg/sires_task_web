@@ -1,6 +1,7 @@
 <template lang="pug">
   .add
     .header(:style='{ paddingTop: proj?"0px": "22px"}')
+      a-button.mr-10(size='small' @click='openPrev', v-if='this.actualTask.parent_references && this.actualTask.parent_references.length>0') Назад
       a-tag(v-for='tagSelected in actualTask.tags', color="orange") {{tagSelected.name}}
       a-popover(placement='bottomLeft',title="Добавить тег" v-if='isTaskAdmin')
         a-tag(@click='tagPopover=true') +
@@ -36,14 +37,24 @@
             :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
             @change='dateChange'
           )
-      
+      .desc-input
+        .headline Подзадачи
+          a-button(@click='addSubtask' v-if='isTaskAdmin') Добавить подзадачу
+        .task(v-for='item, index in actualTask.child_references', :key='item.task.id', @click='showTask(item.task.id)', :class='{ "completed": item.task.done }')
+          .task-inner
+            .check(@click='checkClick($event, item.task.id, item.task.done)')
+              i.la.icon(v-if='item.task.done') &#xf17b;
+            span {{item.task.name}}
+            .spacer
+            span {{fDate(item.task.finish_time)}}
+          .task-divider
       .desc-input
         .headline Описание
         a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc' :disabled='!isTaskAdmin')
 
       .attachments
         .headline Приложения
-        a-upload-dragger(name='file',:defaultFileList="getAttach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin' :remove='this.deleteFile')
+        a-upload-dragger(name='file',:fileList="attach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin' :remove='deleteFile')
           p.ant-upload-drag-icon
             a-icon(type='inbox')
           p.ant-upload-text Нажмите или перетащите файл в эту область
@@ -63,6 +74,8 @@ import AddComment from './AddComment.vue'
 import Activity from './Activity.vue'
 import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU'
 import axios from 'axios'
+import { startOfDay, endOfDay } from 'date-fns'
+import { format } from 'date-fns'
 
 export default {
   props: ['proj'],
@@ -83,7 +96,9 @@ export default {
         return this.actualTask.description
       },
       set(val) {
-        this.$store.dispatch('updateDescription', val)
+        if(val != this.actualTask.description){
+          this.$store.dispatch('updateDescription', val)
+        }
       }
     },
     taskName: {
@@ -91,20 +106,13 @@ export default {
         return this.actualTask.name
       },
       set(val) {
-        this.$store.dispatch('updateName', val)
+        if(val != this.actualTask.name){
+          this.$store.dispatch('updateName', val)
+        }
       }
     },
     actualTask() {
       return this.$store.state.actualTask
-    },
-    getAttach: function () {
-      return this.$store.state.actualTask.attachments.map(i => {
-        let attach = i.last_version
-        attach.name = decodeURIComponent(attach.url).split('/').pop()
-        attach.uid = attach.id
-        attach.url = 'https://api.avcg.ru/' + attach.url
-        return attach
-      })
     },
     allProjects: function () {
       return this.$store.state.projects
@@ -128,8 +136,54 @@ export default {
   },
   mounted() {
     this.updateMembers(this.actualTask.project.id)
+    this.attach = this.$store.state.actualTask.attachments.map(i => {
+      let attach = i.last_version
+      attach.name = decodeURIComponent(attach.url).split('/').pop()
+      attach.uid = attach.id
+      attach.url = 'https://api.avcg.ru/' + attach.url
+      return attach
+    })
   },
   methods: {
+    checkClick: function (e, id, done) {
+      e.stopPropagation()
+      if(done){
+        this.$store.dispatch('toggleTaskUndone', id)
+      }else{
+        this.$store.dispatch('toggleTaskDone', id)
+      }
+    },
+    showTask: function (id) {
+      if(this.proj){
+        this.$emit('selectTask')
+      }
+      this.$store.dispatch('showTask', id)
+    },
+    fDate(val) {
+      return format(val, 'DD.MM.YYYY')
+    },
+    addSubtask(){
+      this.axios.post('/tasks',{
+        task: {
+          finish_time: endOfDay(new Date()).toISOString(),
+          name: "Новая подзадача",
+          project_id: this.actualTask.project.id,
+          start_time: startOfDay(new Date()).toISOString()
+        }
+      }).then(res => {
+        this.axios.post('/tasks/' + res.data.task.id + '/references', {
+          reference: {
+            reference_type: "subtask",
+            task_id: this.actualTask.id
+          }
+        }).then(() => {
+          this.$store.dispatch('showTask', this.actualTask.id)
+        })
+      })
+    },
+    openPrev(){
+      this.$store.dispatch('showTask', this.actualTask.parent_references[0].task.id)
+    },
     deleteFile(file) {
       const version = this.actualTask.attachments.filter(f => f.id == file.id)[0].last_version.id
       this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`)
@@ -151,7 +205,7 @@ export default {
     },
     handleSendFile({ onSuccess, onError, file }) {
       let body = new FormData()
-      body.set(`task[attachments][${this.getAttach.length}][file]`, file)
+      body.set(`task[attachments][0][file]`, file)
       return axios({
         method: 'put',
         url: '/tasks/' +  this.actualTask.id,
@@ -204,10 +258,25 @@ export default {
     },
     deleteTask: function () {
       this.$store.dispatch('deleteTask')
+      this.$emit('close')
+    }
+  },
+  watch: {
+    'actualTask.attachments': function(val) {
+      if (val) {
+        this.attach = this.$store.state.actualTask.attachments.map(i => {
+          let attach = i.last_version
+          attach.name = decodeURIComponent(attach.url).split('/').pop()
+          attach.uid = attach.id
+          attach.url = 'https://api.avcg.ru/' + attach.url
+          return attach
+        })
+      }
     }
   },
   data () {
     return {
+      attach: [],
       users: [],
       locale: ruRU,
       projects: [],
@@ -231,6 +300,58 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.mr-10
+  margin-right: 10px
+.task
+  height: 48px
+  width: 100%
+  transition: all .5s
+  padding: 0 10px
+  box-sizing: border-box
+  &:hover
+    cursor: pointer
+    background-color: #F8FAFB
+  &-inner
+    display: flex
+    width: 100%
+    box-sizing: border-box
+    height: 100%
+    align-items: center
+    .label
+      background-color: #FEF9EF
+      border-radius: 5px
+      padding: 8px 19px
+      box-sizing: border-box
+      color: #ffab2b
+      font-size: 14px
+    .check
+      border-radius: 3px
+      width: 20px
+      height: 20px
+      background-color: #e8ecef
+      display: flex
+      align-items: center
+      justify-content: center
+      user-select: none
+      transition: background-color .3s
+      i
+        color: #fff
+        font-size: 16px
+    span
+      transition: color .3s
+      font-size: 16px
+      color: #252631
+      margin-left: 12px
+  &-divider
+    height: 1px
+    background-color: #E8ECEF
+    width: 100%
+    transition: background-color .3s
+.completed
+  .check
+    background-color: $primary-color
+  span
+    color: #778ca2
 .fl-jsb
   display: flex
   justify-content: space-between
@@ -254,6 +375,9 @@ export default {
     .headline
       font-size: 18px
       color: #252631
+      display: flex
+      justify-content: space-between
+      width: 100%
     .attachments
       margin-top: 25px
       .headline

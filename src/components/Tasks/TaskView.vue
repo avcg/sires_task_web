@@ -1,6 +1,6 @@
 <template lang="pug">
 .task-view(:style='{ height: proj?"100%":"calc(100vh - 172px)" }')
-  task-view-form(v-if='isLoaded', :proj='proj')
+  task-view-form(v-if='isLoaded', :proj='proj' @close='close')
   .loading(v-else)
     a-icon(type='loading')
 </template>
@@ -10,6 +10,11 @@ export default {
   props: ['proj'],
   components: {
     TaskViewForm
+  },
+  methods: {
+    close() {
+      this.$emit('close')
+    }
   },
   computed: {
     isLoaded: function () {

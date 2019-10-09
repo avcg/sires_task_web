@@ -5,7 +5,7 @@
     :visible='open'
     width='700'
   )
-    task-view(:proj='true')
+    task-view(:proj='true' @close='close')
 </template>
 <script>
 import TaskView from '../Tasks/TaskView'
