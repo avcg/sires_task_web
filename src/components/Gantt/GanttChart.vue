@@ -2,26 +2,27 @@
   .cont
     .side
       .select-proj
-        a-select(:defaultValue="inboxId", style="width: 100%", @change="projectChange")
-          a-select-option(v-for='proj in projects', :key='proj.id') {{proj.name}}
+        a-select(:defaultValue="inboxId" style="width: 100%" @change="projectChange")
+          a-select-option(v-for='proj in projects' :key='proj.id') {{proj.name}}
       .tasks-tree
-        task-drawer(:open='openViewDrawer', @close='closeDrawer')
+        task-drawer(:open='openViewDrawer' @close='closeDrawer')
         .tasks-tree-task(v-for='task in tasks' @click='openTask(task.id)') {{task.name}}
     .gantt(ref='ganttCont')
-      .ganttBody#ganttBody(:style='{ width: ganttWidth + "px" }')
+      .ganttBody#ganttBody(:style='{ width: `${ganttWidth}px` }')
         .head
           .month(v-for='month in getGanttMonths')
-            .month-name {{fMonth(month.start)}}
+            .month-name {{ fMonth(month.start) }}
             .dates
-              .date(:class='{ "today" : isToday(day)}' v-for='day in month.days') {{fDay(day)}}
+              .date(:class="{ 'today' : isToday(day)}" v-for='day in month.days') {{ fDay(day) }}
         .body
           .task(v-for='bar in getGanttItems')
             a-tooltip(placement='top', :title="bar.name")
-              .bar(:style='{ width: bar.width + "px", marginLeft: bar.margin + "px" }')
+              .bar(:style='{ width: `${bar.width}px`, marginLeft: `${bar.margin}px` }')
               //- template(slot='content')
-              //-   div 
+              //-   div
               //-     a-avatar A
 </template>
+
 <script>
 /* eslint-disable */
 import { uniqBy } from 'lodash'

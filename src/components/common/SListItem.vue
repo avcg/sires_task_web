@@ -1,19 +1,20 @@
 <template lang="pug">
-  .list-item(@click="callback($event)" :class='{ "active" : active }')
-    slot
-    .spacer
-    i.la.icon(v-if='active') &#xf17b;
+.list-item(@click="callback($event)" :class='{ "active" : active }')
+  slot
+  .spacer
+  i.la.icon(v-if='active') &#xf17b;
 </template>
+
 <script>
 export default {
   name: 's-list-item',
   props: ['active'],
   methods: {
-    callback: function (e) {
-      this.$emit('click', e)
-    }
-  }
-}
+    callback(e) {
+      this.$emit('click', e);
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

@@ -1,19 +1,21 @@
 <template lang="pug">
-  div
-    .label(v-if='label') {{label}}
-    input.input(:value='value', @input='change')
+div
+  .label(v-if='label') {{ label }}
+  input.input(:value='value' @input='change')
 </template>
+
 <script>
 export default {
   props: ['value', 'label'],
   name: 's-input',
   methods: {
-    change: function (e) {
-      this.$emit('input', e.target.value)
-    }
-  }
-}
+    change(e) {
+      this.$emit('input', e.target.value);
+    },
+  },
+};
 </script>
+
 <style lang="sass" scoped>
   .label
     font-size: 14px

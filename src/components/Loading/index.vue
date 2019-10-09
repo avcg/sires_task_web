@@ -1,7 +1,8 @@
 <template lang="pug">
-  .loading
-    a-icon(type='loading')
+.loading
+  a-icon(type='loading')
 </template>
+
 <style lang="sass" scoped>
 .loading
   width: 100%

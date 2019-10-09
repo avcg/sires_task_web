@@ -8,26 +8,27 @@
           a-button(htmlType='submit', @click='sendComment', type='primary')
             | Добавить комментарий
 </template>
+
 <script>
-import ru from '../../../../node_modules/date-fns/locale/ru'
-import { format } from 'date-fns'
+import { format } from 'date-fns';
+import ru from '../../../../node_modules/date-fns/locale/ru';
 
 export default {
-  data () {
+  data() {
     return {
-      text: ''
-    }
+      text: '',
+    };
   },
   methods: {
-    sendComment: function () {
+    sendComment() {
       const body = {
-        text: this.text
-      }
-      this.$store.dispatch('addTaskComment', body)
-      this.text = ''
-    }
-  }
-}
+        text: this.text,
+      };
+      this.$store.dispatch('addTaskComment', body);
+      this.text = '';
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

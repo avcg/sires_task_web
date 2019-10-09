@@ -1,3 +1,3 @@
 <template lang="pug">
-  div dashboard
+div dashboard
 </template>

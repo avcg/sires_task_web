@@ -4,8 +4,9 @@
       .filter
         a-icon(type='filter')
         span.name СОРТИРОВКА:
-        a-select.select(:defaultValue='0', @change='changeSort')
-          a-select-option(v-for='sortType,index in sort' :value='index') {{sortType.name}}
+        a-select.select(:defaultValue='0' @change='changeSort')
+          a-select-option(v-for='(sortType, i) in sort' :key="`type${i}`"
+                          :value='i') {{ sortType.name }}
       //- .filter(v-if='$route.name!=="Входящие"')
       //-   a-icon(type='project')
       //-   span.name Проект:
@@ -18,40 +19,41 @@
       i.la.icon 
       span НОВАЯ ЗАДАЧА
 </template>
+
 <script>
 export default {
-  data () {
+  data() {
     return {
       sort: [
         {
           name: 'По возрастанию дедлайна',
           type: 'date',
-          desc: true
-        },{
+          desc: true,
+        }, {
           name: 'По убыванию дедлайна',
           type: 'date',
-          desc: false
-        },{
+          desc: false,
+        }, {
           name: 'от А до Я',
           type: 'alphabet',
-          desc: false
-        },{
+          desc: false,
+        }, {
           name: 'от Я до А',
           type: 'alphabet',
-          desc: true
+          desc: true,
         },
-      ]
-    }
+      ],
+    };
   },
   methods: {
-    changeSort (index) {
-      this.$emit('sort', this.sort[index])
+    changeSort(index) {
+      this.$emit('sort', this.sort[index]);
     },
-    addTask () {
-      this.$store.dispatch('addTask')
-    }
-  }
-}
+    addTask() {
+      this.$store.dispatch('addTask');
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

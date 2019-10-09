@@ -1,37 +1,38 @@
 <template lang="pug">
-  transition(name='dialog')
-    .dialog(v-if='open')
-      .outside(@click='close')
-      .cont
-        .close(@click='close')
-          i.la.icon 
-        .header(v-if='title')
-          .title {{title}}
-        .body
-          slot
-        .actions(@close='close')
-          slot(name='actions')
+transition(name='dialog')
+  .dialog(v-if='open')
+    .outside(@click='close')
+    .cont
+      .close(@click='close')
+        i.la.icon 
+      .header(v-if='title')
+        .title {{title}}
+      .body
+        slot
+      .actions(@close='close')
+        slot(name='actions')
 </template>
+
 <script>
 export default {
   props: ['open', 'title'],
   name: 's-dialog',
-  data () {
+  data() {
     return {
-      isOpen: false
-    }
+      isOpen: false,
+    };
   },
   watch: {
-    open: function () {
-      this.isOpen = !this.isOpen
-    }
+    open() {
+      this.isOpen = !this.isOpen;
+    },
   },
   methods: {
-    close (e) {
-      this.$emit('close')
-    }
-  }
-}
+    close(e) {
+      this.$emit('close');
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

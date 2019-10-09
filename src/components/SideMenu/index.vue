@@ -47,53 +47,53 @@
 </template>
 <script>
 export default {
-  data () {
+  data() {
     return {
       top: 65,
-      isProj: false
-    }
+      isProj: false,
+    };
   },
   methods: {
-    deleteTag: function(id) {
-      this.axios.delete("/tags/" + id)
+    deleteTag(id) {
+      this.axios.delete(`/tags/${id}`);
     },
-    openAddProj: function () {
-      this.$store.commit('openProjectDialog')
+    openAddProj() {
+      this.$store.commit('openProjectDialog');
     },
-    openAddLabel: function () {
-      this.$store.commit('openLabelDialog')
+    openAddLabel() {
+      this.$store.commit('openLabelDialog');
     },
-    getEl: function (e, proj) {
-      e.stopPropagation()
-      if (proj) this.isProj = true
-      else this.isProj = false
-      this.top = e.target.getBoundingClientRect().top
-    }
+    getEl(e, proj) {
+      e.stopPropagation();
+      if (proj) this.isProj = true;
+      else this.isProj = false;
+      this.top = e.target.getBoundingClientRect().top;
+    },
   },
   computed: {
-    projects: function () {
-      return this.$store.state.projects.filter(it => it.name != "Inbox")
+    projects() {
+      return this.$store.state.projects.filter((it) => it.name != 'Inbox');
     },
-    tags: function () {
-      return this.$store.state.tags
+    tags() {
+      return this.$store.state.tags;
     },
-    sidebarOpen: function () {
-      return this.$store.state.sidebarOpen
+    sidebarOpen() {
+      return this.$store.state.sidebarOpen;
     },
-    activeItem: function () {
+    activeItem() {
       switch (this.$route.name) {
         case 'Входящие':
-          return 0
+          return 0;
         case 'Сегодня':
-          return 1
+          return 1;
         case 'Неделя':
-          return 2
+          return 2;
         default:
-          return 0
+          return 0;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

@@ -2,30 +2,33 @@
   .cont(@click='isOpen = true', v-click-outside='closeMenu')
     .body
       slot
-    transition(enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut")
-      .menu(v-if='isOpen',v-on:click='innerClick',:style='{ width: width ? width : "100%" ,top: bottom ? "calc(100% + 5px)" : 0, right: right ? "10px" : "auto", left: right ? "auto" : 0 }')
+    transition(enter-active-class="animated fast fadeIn"
+              leave-active-class="animated fast fadeOut")
+      .menu(v-if='isOpen' v-on:click='innerClick'
+            :style='{ width: width ? width : "100%", top: bottom ? "calc(100% + 5px)" : 0, right: right ? "10px" : "auto", left: right ? "auto" : 0 }')
         slot(name='menu')
 </template>
+
 <script>
 export default {
   props: ['disableInnerClick', 'right', 'bottom', 'width'],
   name: 's-menu',
-  data () {
+  data() {
     return {
-      isOpen: false
-    }
+      isOpen: false,
+    };
   },
   methods: {
-    innerClick: function () {
+    innerClick() {
       if (!this.disableInnerClick) {
-        this.isOpen = false
+        this.isOpen = false;
       }
     },
-    closeMenu: function () {
-      this.isOpen = false
-    }
-  }
-}
+    closeMenu() {
+      this.isOpen = false;
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

@@ -1,55 +1,52 @@
 <template lang="pug">
   .body
     .labels
-      a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
-      a-popover(placement='bottomLeft',title="Добавить тег")
+      a-tag(v-for='taskLabel in actualTask.tags' color="orange") {{ taskLabel.name }}
+      a-popover(placement='bottomLeft' title="Добавить тег")
         a-tag(@click='tagPopover=true') +
         div()
-          a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
+          a-tag(v-for='taskLabel in actualTask.tags' color="orange") {{ taskLabel.name }}
     .head-input
-      input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj')
-    AssignTabs(
-      :users='users',
-      :assignor='assignor',
-      :coresponsibles='coresponsibles',
-      :observers='observers',
-      :responsible='responsible'
-      @changeAssign='updateAssign'
-    )
+      input.input-name(placeholder='Название задачи' v-model='taskName'
+                      @keyup.enter='parseForLabelAndProj')
+    AssignTabs(:users='users' :assignor='assignor' :coresponsibles='coresponsibles'
+              :observers='observers' :responsible='responsible' @changeAssign='updateAssign')
     .fl-jsb
       a-select(:defaultValue='actualTask.project.id' @change='setTaskProject')
-        a-select-option(v-for='proj in allProjects',:value='proj.id', :key='proj.id') {{proj.name}}
+        a-select-option(v-for='proj in allProjects' :key='proj.id'
+                        :value='proj.id') {{ proj.name }}
       a-locale-provider(:locale='locale')
-        a-range-picker(
-          format='DD MMM YYYY',
-          :allowClear="false",
-          :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
-          @change='dateChange'
-        )
-    
+        a-range-picker(format='DD MMM YYYY' :allowClear="false"
+                      :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]'
+                      @change='dateChange')
     .desc-input
       .headline Описание
-      a-textarea(placeholder='Опишите вашу задачу' autosize :value='actualTask.description' @change="updateDescription")
+      a-textarea(placeholder='Опишите вашу задачу' autosize
+                :value='actualTask.description' @change="updateDescription")
     //- .check-input
     //-   .headline Чек-лист
     //-   transition-group(name="list-complete", enter-active-class="animated fast slideInRight")
-    //-     .check-item(v-for='item,index in actualTask.checks', :key='item.id')
-    //-       .check(@click='checkSubtask(item.id)', :style='{ backgroundColor: item.checked ? "$primary-color" : "#e8ecef" }')
+    //-     .check-item(v-for='item, index in actualTask.checks' :key='item.id')
+    //-       .check(@click='checkSubtask(item.id)'
+                    :style='{ backgroundColor: item.checked ? "$primary-color" : "#e8ecef" }')
     //-         i.la.icon(v-if='item.checked') &#xf17b;
     //-       .name
-    //-         input(:value='item.name' @input='updateCheckName($event, item.id)' placeholder='Введите название подзадачи')
-    //-     .check-item.add-check(@click='addCheck', key='add123')
+    //-         input(:value='item.name' @input='updateCheckName($event, item.id)'
+                      placeholder='Введите название подзадачи')
+    //-     .check-item.add-check(@click='addCheck' key='add123')
     //-       i.la.icon 
     //-       .name Добавить
     .attachments
       .headline Приложения
-      a-upload-dragger(name='file', :multiple='true', :customRequest='handleSendFile', @change='handleChangeUpload')
+      a-upload-dragger(name='file' :multiple='true'
+                      :customRequest='handleSendFile' @change='handleChangeUpload')
         p.ant-upload-drag-icon
           a-icon(type='inbox')
         p.ant-upload-text Нажмите или перетащите файл в эту область
-      //- a.attachment(v-for='item in actualTask.attachments' :href='getUrl(item.file)' :download='item.name')
+      //- a.attachment(v-for='item in actualTask.attachments' :key='item.name'
+                      :href='getUrl(item.file)' :download='item.name')
       //-   i.la.icon &#xf1ec;
-      //-   span {{item.name}}
+      //-   span {{ item.name }}
       //- input(type="file" @change='addDoc' ref="file" style="display: none")
       //- .addAttach(@click="$refs.file.click()")
       //-   i.la.icon 
@@ -57,92 +54,93 @@
     activity(:items='actualTask.comments')
     add-comment
 </template>
+
 <script>
-import AssignTabs from './AssignTabs.vue'
-import AddComment from './AddComment.vue'
-import Activity from './Activity.vue'
-import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU'
-import axios from 'axios'
+import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU';
+import axios from 'axios';
+import AssignTabs from './AssignTabs.vue';
+import AddComment from './AddComment.vue';
+import Activity from './Activity.vue';
 
 export default {
   components: { AssignTabs, AddComment, Activity },
   computed: {
     taskName: {
       get() {
-        return this.actualTask.name
+        return this.actualTask.name;
       },
       set(val) {
-        this.$store.dispatch('updateName', val)
-      }
+        this.$store.dispatch('updateName', val);
+      },
     },
-    actualTask: function () {
-      return this.$store.state.actualTask
+    actualTask() {
+      return this.$store.state.actualTask;
     },
-    allProjects: function () {
-      return this.$store.state.projects
+    allProjects() {
+      return this.$store.state.projects;
     },
-    allTags: function () {
-      return this.$store.state.tags
+    allTags() {
+      return this.$store.state.tags;
     },
-    assignor: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'assignor') {
-          return i.user.id
+    assignor() {
+      return this.$store.state.actualTask.members.map((i) => {
+        if (i.role === 'assignor') {
+          return i.user.id;
         }
-      })
+      });
     },
-    responsible: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'responsible') {
-          return i.user.id
+    responsible() {
+      return this.$store.state.actualTask.members.map((i) => {
+        if (i.role === 'responsible') {
+          return i.user.id;
         }
-      })
+      });
     },
-    coresponsibles: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'co-responsible') {
-          return i.user.id
+    coresponsibles() {
+      return this.$store.state.actualTask.members.map((i) => {
+        if (i.role === 'co-responsible') {
+          return i.user.id;
         }
-      })
+      });
     },
-    observers: function () {
-      return this.$store.state.actualTask.members.map(i => {
-        if(i.role === 'observer') {
-          return i.user.id
+    observers() {
+      return this.$store.state.actualTask.members.map((i) => {
+        if (i.role === 'observer') {
+          return i.user.id;
         }
-      })
-    }
+      });
+    },
   },
   mounted() {
-    this.updateMembers(this.actualTask.id)
+    this.updateMembers(this.actualTask.id);
   },
   methods: {
     updateAssign(type, id) {
-      console.log('hi')
-      console.log(type)
-      console.log(id)
+      console.log('hi');
+      console.log(type);
+      console.log(id);
       // this.$store.dispatch('')
     },
     handleSendFile(file, fileList) {
       const json = JSON.stringify(this.actualTask);
       const blob = new Blob([json], {
-        type: 'application/json'
+        type: 'application/json',
       });
       const data = new FormData();
-      data.append("file",file)
-      data.append("task", blob);
+      data.append('file', file);
+      data.append('task', blob);
       axios({
         method: 'put',
-        url: '/tasks/' +  this.actualTask.id,
-        data: data,
+        url: `/tasks/${this.actualTask.id}`,
+        data,
         header: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
-        }
-      })
+        },
+      });
     },
     handleChangeUpload(info) {
-      const status = info.file.status;
+      const { status } = info.file;
       if (status !== 'uploading') {
         console.log(info.file, info.fileList);
       }
@@ -152,61 +150,61 @@ export default {
         this.$message.error(`${info.file.name} file upload failed.`);
       }
     },
-    dateChange: function (val) {
-      this.$store.dispatch('updateTaskDates', val)
+    dateChange(val) {
+      this.$store.dispatch('updateTaskDates', val);
     },
-    parseForLabelAndProj: function (e) {
-      this.projects = [ ...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig) ]
-      this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''))
+    parseForLabelAndProj(e) {
+      this.projects = [...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig)];
+      this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''));
     },
-    addTaskLabel: function (label) {
-      this.$store.commit('addTaskLabel', label)
+    addTaskLabel(label) {
+      this.$store.commit('addTaskLabel', label);
     },
-    setTaskProject: function (id) {
-      this.$store.dispatch('setTaskProject', id)
-      this.updateMembers(id)
+    setTaskProject(id) {
+      this.$store.dispatch('setTaskProject', id);
+      this.updateMembers(id);
     },
-    addDoc: function (e) {
+    addDoc(e) {
       this.$store.dispatch('addTaskAttachment', {
-        file: e.target.files[0]
-      })
+        file: e.target.files[0],
+      });
     },
-    updateMembers: function (id) {
-      axios.get('/projects/' + id).then(res => {
-        this.users = res.data.project.members
-      })
+    updateMembers(id) {
+      axios.get(`/projects/${id}`).then((res) => {
+        this.users = res.data.project.members;
+      });
     },
-    getUrl: function (file) {
-      var blob = new Blob([file])
-      var url = URL.createObjectURL(blob)
-      return url
+    getUrl(file) {
+      const blob = new Blob([file]);
+      const url = URL.createObjectURL(blob);
+      return url;
     },
-    checkSubtask: function (checkId) {
-      this.$store.commit('checkSubtask', checkId)
+    checkSubtask(checkId) {
+      this.$store.commit('checkSubtask', checkId);
     },
-    updateCheckName: function (e, checkId) {
-      this.$store.commit('updateCheckName', {val: e.target.value, checkId})
+    updateCheckName(e, checkId) {
+      this.$store.commit('updateCheckName', { val: e.target.value, checkId });
     },
-    assignToTask: function (val) {
-      this.$store.commit('assignToTask', val)
+    assignToTask(val) {
+      this.$store.commit('assignToTask', val);
     },
-    close: function () {
-      this.$store.commit('closeTaskViewAndAdd')
+    close() {
+      this.$store.commit('closeTaskViewAndAdd');
     },
-    updateDeadline: function (val) {
-      this.$store.commit('updateDeadline', val)
+    updateDeadline(val) {
+      this.$store.commit('updateDeadline', val);
     },
-    deleteTask: function () {
-      this.$store.commit('deleteTask')
+    deleteTask() {
+      this.$store.commit('deleteTask');
     },
-    updateDescription: function (e) {
-      this.$store.commit('updateDescription', e.target.value)
+    updateDescription(e) {
+      this.$store.commit('updateDescription', e.target.value);
     },
-    addCheck: function () {
-      this.$store.commit('addCheck')
+    addCheck() {
+      this.$store.commit('addCheck');
     },
   },
-  data () {
+  data() {
     return {
       users: [],
       locale: ruRU,
@@ -218,16 +216,16 @@ export default {
         'Чт',
         'Пт',
         'Сб',
-        'Вс'
+        'Вс',
       ],
       monthsTranslate: [
         'Январь', 'Февраль', 'Март', 'Апрель',
         'Май', 'Июнь', 'Июль', 'Август',
-        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-      ]
-    }
-  }
-}
+        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+      ],
+    };
+  },
+};
 </script>
 <style lang="sass" scoped>
 .fl-jsb

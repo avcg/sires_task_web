@@ -1,24 +1,27 @@
 <template lang="pug">
-  a-modal(:visible="open", title='Добавить проект',@ok='addProject' @cancel='closeDialog' okText="Добавить" cancelText="Отменить")
-    a-input(v-model='name', placeholder='Название проекта', size='large')
+  a-modal(:visible="open" title='Добавить проект'
+          cancelText="Отменить" okText="Добавить"
+          @cancel='closeDialog' @ok='addProject')
+    a-input(v-model='name' placeholder='Название проекта' size='large')
 </template>
+
 <script>
 export default {
   computed: {
-    open: function () {
-      return this.$store.state.projectDialog
-    }
+    open() {
+      return this.$store.state.projectDialog;
+    },
   },
   methods: {
-    closeDialog: function () {
-      this.$store.commit('closeProjectDialog')
+    closeDialog() {
+      this.$store.commit('closeProjectDialog');
     },
-    addProject: function () {
-      this.$store.dispatch('addProject', this.name)
-      this.closeDialog()
-    }
+    addProject() {
+      this.$store.dispatch('addProject', this.name);
+      this.closeDialog();
+    },
   },
-  data () {
+  data() {
     return {
       name: '',
       dateStart: '',
@@ -30,23 +33,24 @@ export default {
         'Чт',
         'Пт',
         'Сб',
-        'Вс'
+        'Вс',
       ],
       monthsTranslate: [
         'Январь', 'Февраль', 'Март', 'Апрель',
         'Май', 'Июнь', 'Июль', 'Август',
-        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
       ],
       users: [
         'Максим Зуевский',
         'Владимир Трояновский',
         'Антон Подосинников',
-        'Анастасия Хвостова'
-      ]
-    }
-  }
-}
+        'Анастасия Хвостова',
+      ],
+    };
+  },
+};
 </script>
+
 <style lang="sass" scoped>
   .label
     font-size: 14px

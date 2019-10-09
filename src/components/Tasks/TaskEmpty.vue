@@ -1,14 +1,16 @@
 <template lang="pug">
-  .empty
-    .cont
-      img(src='@/assets/img/tasks-empty.svg')
-      h2 Не нашли задач?
-      p Попробуйте назначить больше задач для сотрудников или создать проект
+.empty
+  .cont
+    img(src="@/assets/img/tasks-empty.svg")
+    h2 Не нашли задач?
+    p Попробуйте назначить больше задач для сотрудников или создать проект
 </template>
+
 <script>
 export default {
-}
+};
 </script>
+
 <style lang="sass" scoped>
 .empty
   height: calc(100% - 21px)

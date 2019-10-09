@@ -1,6 +1,7 @@
 <template lang="pug">
   transition-group.task-list(name="list-complete", tag="div")
-    .task(v-for='item, index in tasks', :key='item.id', @click='showTask(item.id)', :class='{ "completed": item.done }')
+    .task(v-for='item, index in tasks' :key='item.id'
+          :class='{ "completed": item.done }' @click='showTask(item.id)')
       .task-inner
         .check(@click='checkClick($event, item.id, item.done)')
           i.la.icon(v-if='item.done') &#xf17b;
@@ -9,31 +10,32 @@
         span {{fDate(item.finish_time)}}
       .task-divider
 </template>
+
 <script>
-import { format } from 'date-fns'
+import { format } from 'date-fns';
 
 export default {
-  props: [ 'tasks', 'proj' ],
+  props: ['tasks', 'proj'],
   methods: {
     fDate(val) {
-      return format(val, 'DD.MM.YYYY')
+      return format(val, 'DD.MM.YYYY');
     },
-    checkClick: function (e, id, done) {
-      e.stopPropagation()
-      if(done){
-        this.$store.dispatch('toggleTaskUndone', id)
-      }else{
-        this.$store.dispatch('toggleTaskDone', id)
+    checkClick(e, id, done) {
+      e.stopPropagation();
+      if (done) {
+        this.$store.dispatch('toggleTaskUndone', id);
+      } else {
+        this.$store.dispatch('toggleTaskDone', id);
       }
     },
-    showTask: function (id) {
-      if(this.proj){
-        this.$emit('selectTask')
+    showTask(id) {
+      if (this.proj) {
+        this.$emit('selectTask');
       }
-      this.$store.dispatch('showTask', id)
-    }
-  }
-}
+      this.$store.dispatch('showTask', id);
+    },
+  },
+};
 </script>
 <style lang="sass" scoped>
   .task-list

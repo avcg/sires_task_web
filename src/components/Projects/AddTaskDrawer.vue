@@ -1,11 +1,6 @@
 <template lang="pug">
-  a-drawer(
-    title='Добавить таск'
-    placement='right'
-    @close='close'
-    :visible='open'
-    width='500'
-  )
+  a-drawer(title='Добавить таск' width='500' placement='right'
+          :visible='open' @close='close')
     a-row
       a-col
         a-input(placeholder='Название проекта', v-model='name')
@@ -34,30 +29,31 @@
           p.ant-upload-text Нажмите или перетащите файл в эту область
     .actions
       a-button.cancel(@click='close') Отменить
-      a-button(@click='onClose', type='primary', :disabled='!name', size='large') Добавить
-
+      a-button(@click='onClose' type='primary' :disabled='!name' size='large') Добавить
 </template>
+
 <script>
-import AssignTabs from '../Tasks/view/AssignTabs.vue'
+import AssignTabs from '../Tasks/view/AssignTabs.vue';
 
 export default {
-  props: [ 'open' ],
+  props: ['open'],
   components: { AssignTabs },
   data() {
     return {
       name: null,
-      dates: [new Date, new Date],
+      dates: [new Date(), new Date()],
       description: null,
 
-    }
+    };
   },
   methods: {
     close() {
-      this.$emit('close')
-    }
-  }
-}
+      this.$emit('close');
+    },
+  },
+};
 </script>
+
 <style lang="sass" scoped>
 .headline
   margin: 10px 0

@@ -4,34 +4,34 @@ div
   s-menu(disableInnerClick)
     .select
       .selected(v-for='chip, index in selected' v-if='index<2')
-        span {{chip}}
+        span {{ chip }}
       .arrow
         i.la.icon 
     template(v-slot:menu='')
       s-list
         template(v-for="(item, index) in items")
           s-list-item(@click='selectItem(item)' :active='selected.includes(item)')
-            span {{item}}
+            span {{ item }}
 </template>
 <script>
 export default {
   name: 's-select',
   props: ['label', 'items'],
-  data () {
+  data() {
     return {
-      selected: []
-    }
+      selected: [],
+    };
   },
   methods: {
-    selectItem: function (item) {
+    selectItem(item) {
       if (this.selected.includes(item)) {
-        this.selected.splice(this.selected.indexOf(item), 1)
+        this.selected.splice(this.selected.indexOf(item), 1);
       } else {
-        this.selected.push(item)
+        this.selected.push(item);
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>
