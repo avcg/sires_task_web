@@ -69,212 +69,209 @@
       add-comment
 </template>
 <script>
-import AssignTabs from './AssignTabs.vue'
-import AddComment from './AddComment.vue'
-import Activity from './Activity.vue'
-import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU'
-import axios from 'axios'
-import { startOfDay, endOfDay } from 'date-fns'
-import { format } from 'date-fns'
+import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU';
+import axios from 'axios';
+import { startOfDay, endOfDay, format } from 'date-fns';
+import Activity from './Activity.vue';
+import AddComment from './AddComment.vue';
+import AssignTabs from './AssignTabs.vue';
 
 export default {
   props: ['proj'],
   components: { AssignTabs, AddComment, Activity },
   computed: {
     isTaskAdmin() {
-      if (this.users&&this.users.filter(u => u.role=='admin').length>0&&this.users.filter(u => u.role=='admin')[0].user.id == this.$store.state.user.id) return true
-      if (this.$store.state.user.role == 'admin') return true
-      if (this.actualTask.members.length>0 && this.actualTask.members.filter(i => i.role == "assignator").length>0) {
-        return this.actualTask.members.filter(i => i.role == "assignator")[0].user.id == this.$store.state.user.id
-      }else {
-        return false
+      if (this.users && this.users.filter((u) => u.role == 'admin').length > 0 && this.users.filter((u) => u.role == 'admin')[0].user.id == this.$store.state.user.id) return true;
+      if (this.$store.state.user.role == 'admin') return true;
+      if (this.actualTask.members.length > 0 && this.actualTask.members.filter((i) => i.role == 'assignator').length > 0) {
+        return this.actualTask.members.filter((i) => i.role == 'assignator')[0].user.id == this.$store.state.user.id;
       }
-
+      return false;
     },
     taskDesc: {
-      get(){
-        return this.actualTask.description
+      get() {
+        return this.actualTask.description;
       },
       set(val) {
-        if(val != this.actualTask.description){
-          this.$store.dispatch('updateDescription', val)
+        if (val != this.actualTask.description) {
+          this.$store.dispatch('updateDescription', val);
         }
-      }
+      },
     },
     taskName: {
       get() {
-        return this.actualTask.name
+        return this.actualTask.name;
       },
       set(val) {
-        if(val != this.actualTask.name){
-          this.$store.dispatch('updateName', val)
+        if (val != this.actualTask.name) {
+          this.$store.dispatch('updateName', val);
         }
-      }
+      },
     },
     actualTask() {
-      return this.$store.state.actualTask
+      return this.$store.state.actualTask;
     },
-    allProjects: function () {
-      return this.$store.state.projects
+    allProjects() {
+      return this.$store.state.projects;
     },
-    allTags: function () {
-      return this.$store.state.tags
+    allTags() {
+      return this.$store.state.tags;
     },
-    taskMembers () { return this.$store.state.actualTask.members},
-    assignor: function () {
-      return this.filterByRole('assignator')
+    taskMembers() { return this.$store.state.actualTask.members; },
+    assignor() {
+      return this.filterByRole('assignator');
     },
-    responsible: function () {
-      return this.filterByRole('responsible')
+    responsible() {
+      return this.filterByRole('responsible');
     },
-    coresponsibles: function () {
-      return this.filterByRole('co-responsible')
+    coresponsibles() {
+      return this.filterByRole('co-responsible');
     },
-    observers: function () {
-      return this.filterByRole('observer')
-    }
+    observers() {
+      return this.filterByRole('observer');
+    },
   },
   mounted() {
-    this.updateMembers(this.actualTask.project.id)
-    this.attach = this.$store.state.actualTask.attachments.map(i => {
-      let attach = i.last_version
-      attach.name = decodeURIComponent(attach.url).split('/').pop()
-      attach.uid = attach.id
-      attach.url = 'https://api.avcg.ru/' + attach.url
-      return attach
-    })
+    this.updateMembers(this.actualTask.project.id);
+    this.attach = this.$store.state.actualTask.attachments.map((i) => {
+      const attach = i.last_version;
+      attach.name = decodeURIComponent(attach.url).split('/').pop();
+      attach.uid = attach.id;
+      attach.url = `https://api.avcg.ru/${attach.url}`;
+      return attach;
+    });
   },
   methods: {
-    checkClick: function (e, id, done) {
-      e.stopPropagation()
-      if(done){
-        this.$store.dispatch('toggleTaskUndone', id)
-      }else{
-        this.$store.dispatch('toggleTaskDone', id)
+    checkClick(e, id, done) {
+      e.stopPropagation();
+      if (done) {
+        this.$store.dispatch('toggleTaskUndone', id).then(() => this.$store.dispatch('showTask', this.actualTask.id));
+      } else {
+        this.$store.dispatch('toggleTaskDone', id).then(() => this.$store.dispatch('showTask', this.actualTask.id));
       }
     },
-    showTask: function (id) {
-      if(this.proj){
-        this.$emit('selectTask')
+    showTask(id) {
+      if (this.proj) {
+        this.$emit('selectTask');
       }
-      this.$store.dispatch('showTask', id)
+      this.$store.dispatch('showTask', id);
     },
     fDate(val) {
-      return format(val, 'DD.MM.YYYY')
+      return format(val, 'DD.MM.YYYY');
     },
-    addSubtask(){
-      this.axios.post('/tasks',{
+    addSubtask() {
+      this.axios.post('/tasks', {
         task: {
           finish_time: endOfDay(new Date()).toISOString(),
-          name: "Новая подзадача",
+          name: 'Новая подзадача',
           project_id: this.actualTask.project.id,
-          start_time: startOfDay(new Date()).toISOString()
-        }
-      }).then(res => {
-        this.axios.post('/tasks/' + res.data.task.id + '/references', {
+          start_time: startOfDay(new Date()).toISOString(),
+        },
+      }).then((res) => {
+        this.axios.post(`/tasks/${res.data.task.id}/references`, {
           reference: {
-            reference_type: "subtask",
-            task_id: this.actualTask.id
-          }
+            reference_type: 'subtask',
+            task_id: this.actualTask.id,
+          },
         }).then(() => {
-          this.$store.dispatch('showTask', this.actualTask.id)
-        })
-      })
+          this.$store.dispatch('showTask', this.actualTask.id);
+        });
+      });
     },
-    openPrev(){
-      this.$store.dispatch('showTask', this.actualTask.parent_references[0].task.id)
+    openPrev() {
+      this.$store.dispatch('showTask', this.actualTask.parent_references[0].task.id);
     },
     deleteFile(file) {
-      const version = this.actualTask.attachments.filter(f => f.id == file.id)[0].last_version.id
-      this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`)
+      const version = this.actualTask.attachments.filter((f) => f.id == file.id)[0].last_version.id;
+      this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`);
     },
     updateAssign(type, id) {
-      let body = {
+      const body = {
         task_id: this.actualTask.id,
         role: type,
-      }
+      };
       if (Array.isArray(id)) {
-        body.user_ids = id.map(i => (i))
-      }else {
-        body.user_ids = [id]
+        body.user_ids = id.map((i) => (i));
+      } else {
+        body.user_ids = [id];
       }
-      this.$store.dispatch('updateAssign', body)
+      this.$store.dispatch('updateAssign', body);
     },
-    filterByRole: function (type) {
-      return this.taskMembers.filter(i => i.role === type).map(i => i.user.id)
+    filterByRole(type) {
+      return this.taskMembers.filter((i) => i.role === type).map((i) => i.user.id);
     },
     handleSendFile({ onSuccess, onError, file }) {
-      let body = new FormData()
-      body.set(`task[attachments][0][file]`, file)
+      const body = new FormData();
+      body.set('attachment[file]', file);
       return axios({
-        method: 'put',
-        url: '/tasks/' +  this.actualTask.id,
+        method: 'post',
+        url: `/tasks/${this.actualTask.id}/attachments`,
         data: body,
         header: {
-          'Accept': 'application/json',
+          Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
-        }
-      }).then(()=> {
-        onSuccess(null, file)
-        this.$store.dispatch('reloadTask', this.actualTask.id)
-      }).catch(err=> {
-        onError(err)
-      })
+        },
+      }).then(() => {
+        onSuccess(null, file);
+        this.$store.dispatch('reloadTask', this.actualTask.id);
+      }).catch((err) => {
+        onError(err);
+      });
     },
     handleChangeUpload(info) {
-      const status = info.file.status;
+      const { status } = info.file;
       if (status === 'done') {
         this.$message.success(`${info.file.name} file uploaded successfully.`);
       } else if (status === 'error') {
         this.$message.error(`${info.file.name} file upload failed.`);
       }
     },
-    dateChange: function (val) {
-      this.$store.dispatch('updateTaskDates', val)
+    dateChange(val) {
+      this.$store.dispatch('updateTaskDates', val);
     },
-    parseForLabelAndProj: function (e) {
-      this.projects = [ ...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig) ]
-      this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''))
+    parseForLabelAndProj(e) {
+      this.projects = [...this.projects, ...e.target.value.match(/#[a-z\d-]+/ig)];
+      this.$store.commit('updateName', e.target.value.replace(/#[a-z\d-]+/ig, ''));
     },
-    setTaskProject: function (id) {
-      this.$store.dispatch('setTaskProject', id)
-      this.updateMembers(id)
+    setTaskProject(id) {
+      this.$store.dispatch('setTaskProject', id);
+      this.updateMembers(id);
     },
-    addDoc: function (e) {
+    addDoc(e) {
       this.$store.dispatch('addTaskAttachment', {
-        file: e.target.files[0]
-      })
+        file: e.target.files[0],
+      });
     },
-    updateMembers: function (id) {
-      axios.get('/projects/' + id).then(res => {
-        this.users = res.data.project.members
-      })
+    updateMembers(id) {
+      axios.get(`/projects/${id}`).then((res) => {
+        this.users = res.data.project.members;
+      });
     },
-    addTag: function (tag) {
-      this.$store.dispatch('addTagTask', tag)
+    addTag(tag) {
+      this.$store.dispatch('addTagTask', tag);
     },
-    close: function () {
-      this.$store.commit('closeTaskViewAndAdd')
+    close() {
+      this.$store.commit('closeTaskViewAndAdd');
     },
-    deleteTask: function () {
-      this.$store.dispatch('deleteTask')
-      this.$emit('close')
-    }
+    deleteTask() {
+      this.$store.dispatch('deleteTask');
+      this.$emit('close');
+    },
   },
   watch: {
-    'actualTask.attachments': function(val) {
+    'actualTask.attachments': function (val) {
       if (val) {
-        this.attach = this.$store.state.actualTask.attachments.map(i => {
-          let attach = i.last_version
-          attach.name = decodeURIComponent(attach.url).split('/').pop()
-          attach.uid = attach.id
-          attach.url = 'https://api.avcg.ru/' + attach.url
-          return attach
-        })
+        this.attach = this.$store.state.actualTask.attachments.map((i) => {
+          const attach = i.last_version;
+          attach.name = decodeURIComponent(attach.url).split('/').pop();
+          attach.uid = attach.id;
+          attach.url = `https://api.avcg.ru/${attach.url}`;
+          return attach;
+        });
       }
-    }
+    },
   },
-  data () {
+  data() {
     return {
       attach: [],
       users: [],
@@ -287,16 +284,16 @@ export default {
         'Чт',
         'Пт',
         'Сб',
-        'Вс'
+        'Вс',
       ],
       monthsTranslate: [
         'Январь', 'Февраль', 'Март', 'Апрель',
         'Май', 'Июнь', 'Июль', 'Август',
-        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-      ]
-    }
-  }
-}
+        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+      ],
+    };
+  },
+};
 </script>
 
 <style lang="sass" scoped>
