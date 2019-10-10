@@ -2,8 +2,11 @@
   .cont
     .side
       .select-proj
-        a-select(:defaultValue="inboxId", style="width: 100%", @change="projectChange")
+        a-select(:defaultValue="inboxId", style='flex: 1; margin-right: 10px;', @change="projectChange")
           a-select-option(v-for='proj in projects', :key='proj.id') {{proj.name}}
+        a-tooltip(title='Экспорт в Excel')
+          a-button(@click='exportExcel' type='primary')
+            a-icon(type="export")
       .tasks-tree
         task-drawer(:open='openViewDrawer', @close='closeDrawer')
         .tasks-tree-task(v-for='task in tasks' @click='openTask(task.id)') {{task.name}}
@@ -19,13 +22,15 @@
             a-tooltip(placement='top', :title="bar.name")
               .bar(:style='{ width: bar.width + "px", marginLeft: bar.margin + "px" }')
               //- template(slot='content')
-              //-   div 
+              //-   div
               //-     a-avatar A
 </template>
 <script>
 /* eslint-disable */
 import { uniqBy } from 'lodash'
 import TaskDrawer from '../Projects/ViewTaskDrawer'
+import ExcelJS from 'exceljs/dist/exceljs'
+import { saveAs } from 'file-saver'
 import { 
   min,
   max,
@@ -34,6 +39,7 @@ import {
   addMonths,
   startOfMonth,
   endOfMonth,
+  isWithinRange,
   differenceInMonths,
   getDaysInMonth,
   differenceInDays,
@@ -52,10 +58,82 @@ export default {
   data(){
     return {
       expandProj: [],
+      proj: this.inboxId,
       openViewDrawer: false
     }
   },
   methods: {
+    async exportExcel() {
+      let id = this.inboxId
+      if(this.proj) id = this.proj
+      const proj = this.projects.filter(p => p.id == id)[0]
+
+      const wb = new ExcelJS.Workbook()
+
+      const ws = wb.addWorksheet()
+      let headline = []
+      let days = []
+      
+      this.getGanttMonths.forEach((m, mI)=> {
+        if (mI == 0) end = 2
+        m.days.forEach((d, i) => {
+          if (i == 0) {
+            headline.push(this.fMonth(m.start))
+          } else {
+            headline.push('')
+          }
+          days.push(parseInt(this.fDay(d)))
+        })
+      })
+      ws.getColumn(2).width = 20
+      ws.addRow([])
+      ws.addRow(['', proj.name, ...headline])
+      ws.addRow(['', '', ...days])
+      let end 
+      this.getGanttMonths.forEach((m, mI)=> {
+        if (mI == 0) end = 3
+        ws.mergeCells(2,end,2, end + (m.days.length - 1))
+        ws.getCell(2, end).alignment = { vertical: 'middle', horizontal: 'center' };
+        end = end + m.days.length
+      })
+
+      this.tasks.forEach((t, tI) => {
+        let taskRow = ['', t.name]
+        this.getGanttMonths.forEach((m, mI)=> {
+          m.days.forEach((d, i) => {
+            days.push('')
+            
+          })
+        })
+        ws.addRow(taskRow)
+      })
+      ws.views = [
+        {state: 'frozen', xSplit: 2, ySplit: 3, topLeftCell: 'C4', activeCell: 'A1'}
+      ];
+      this.tasks.forEach((t, tI) => {
+        ws.getCell(tI + 3, 3).alignment = { wrapText: true }
+        this.getGanttMonths.forEach((m, mI)=> {
+          if (mI == 0) end = 3
+          m.days.forEach((d, i) => {
+            
+            let col  = ws.getColumn(end + i)
+            col.width = 4
+            if(isWithinRange(d, t.start_time, t.finish_time)) {
+              ws.getCell(4 + tI, end + i).fill = {
+              type: 'pattern',
+              pattern:'solid',
+              fgColor:{argb:'FF4090F7'}
+            };
+            }
+            
+          })
+          end = end + m.days.length
+        })
+      })
+      const buf = await wb.xlsx.writeBuffer()
+
+      saveAs(new Blob([buf]), 'abc.xlsx')
+    },
     openTask(id){
       this.$store.dispatch('showTask', id)
       this.openViewDrawer = true
@@ -67,6 +145,7 @@ export default {
       return isToday(date)
     },
     projectChange: function (id) {
+      this.proj = id
       this.$store.dispatch('getProjectTasks', id)
     },
     fMonth: function (date) {
