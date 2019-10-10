@@ -16,7 +16,7 @@
           a-row
             a-col
               a-select(:disabled='isDisabled' :defaultValue='project.members.filter(i=>i.role==="admin")[0].user.id')
-                a-select-option(v-for='member in project.members' :value='member.user.id') 
+                a-select-option(v-for='member in project.members' :value='member.user.id')
                   .inner-opt
                     a-avatar.ava(:size='24', v-if='getAvatar(member.user)' :src='getAvatar(member.user)')
                     a-avatar.ava(:size='24', icon="user", v-else)
@@ -26,7 +26,7 @@
               .headline Наблюдатели
           a-row
             a-col
-              a-select(:filterOption='filterMember' :disabled='isDisabled' :defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
+              a-select(:filterOption='filterMember' :disabled='isDisabled' :defaultValue='getGuests' mode="multiple",@change="handleChangeGuests", @deselect='removeGuest', @select='addObserver', placeholder="Наблюдатели", style='width: 100%')
                 a-select-option(v-for='user in getFilteredUsers' :value='user.id' :key='user.first_name + " " + user.last_name + " " + user.id')
                   .inner-opt
                     a-avatar.ava(:size='18', v-if='getAvatar(user)' :src='getAvatar(user)')
@@ -47,14 +47,16 @@
     task-drawer(:open='openViewDrawer', @close='closeDrawer' v-if='!isLoading&&project!=null')
 </template>
 <script>
-import AddTaskDrawer from './AddTaskDrawer.vue'
-import TaskDrawer from './ViewTaskDrawer'
-import TaskList from '../Tasks/TaskList.vue'
-import Loading from '../Loading/index.vue'
-import axios from 'axios'
+import axios from 'axios';
+import AddTaskDrawer from './AddTaskDrawer.vue';
+import TaskDrawer from './ViewTaskDrawer';
+import TaskList from '../Tasks/TaskList.vue';
+import Loading from '../Loading/index.vue';
 
 export default {
-  components: { AddTaskDrawer, TaskList, Loading, TaskDrawer },
+  components: {
+    AddTaskDrawer, TaskList, Loading, TaskDrawer,
+  },
   data() {
     return {
       openDrawer: false,
@@ -64,141 +66,136 @@ export default {
       isLoading: false,
       projectMembers: null,
       selectedGuests: [],
-      selectedMembers: []
-    }
+      selectedMembers: [],
+    };
   },
   computed: {
     isGuest() {
-      if(this.user) {
-        if(this.user.role=="admin") return false
-        if(
+      if (this.user) {
+        if (this.user.role == 'admin') return false;
+        if (
           this.project
-          && this.project.members 
-          && ( 
-            (this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) 
-            || (this.project.members.filter(i=>i.role==="regular").length>0 && this.project.members.filter(i=>i.role==="regular").map(u => u.user.id).includes(this.user.id)) 
-            )
+          && this.project.members
+          && (
+            (this.project.members.filter((i) => i.role === 'admin').length > 0 && this.project.members.filter((i) => i.role === 'admin')[0].user.id === this.user.id)
+            || (this.project.members.filter((i) => i.role === 'regular').length > 0 && this.project.members.filter((i) => i.role === 'regular').map((u) => u.user.id).includes(this.user.id))
+          )
         ) {
-          return false
+          return false;
         }
       }
-      return true
+      return true;
     },
     isDisabled() {
-      if(this.user) {
-        if(this.user.role=="admin") return false
-        if(this.project&&this.project.members && this.project.members.filter(i=>i.role==="admin").length>0 && this.project.members.filter(i=>i.role==="admin")[0].user.id === this.user.id) {
-          return false
+      if (this.user) {
+        if (this.user.role == 'admin') return false;
+        if (this.project && this.project.members && this.project.members.filter((i) => i.role === 'admin').length > 0 && this.project.members.filter((i) => i.role === 'admin')[0].user.id === this.user.id) {
+          return false;
         }
       }
-      return true
+      return true;
     },
     user() {
-      return this.$store.state.user
+      return this.$store.state.user;
     },
-    tasks(){
-      return this.$store.state.tasks
+    tasks() {
+      return this.$store.state.tasks;
     },
-    getGuests: function () {
-      if(this.project){
-        return this.project.members.filter(i => i.role == "guest").map(i => i.user.id)
-      }else {
-        return []
+    getGuests() {
+      if (this.project) {
+        return this.project.members.filter((i) => i.role == 'guest').map((i) => i.user.id);
       }
+      return [];
     },
-    getMembers: function () {
-      if(this.project){
-        return this.project.members.filter(i => i.role != "guest"&&i.user.id != this.user.id).map(i => i.user.id)
-      }else {
-        return []
+    getMembers() {
+      if (this.project) {
+        return this.project.members.filter((i) => i.role != 'guest' && i.user.id != this.user.id).map((i) => i.user.id);
       }
+      return [];
     },
-    getFilteredUsers: function () {
-      if(this.users){
-        return this.users.filter(item => !this.selectedGuests.includes(item.id)&&!this.selectedMembers.includes(item.id)&&item.id!=this.user.id)
-      }else {
-        return []
+    getFilteredUsers() {
+      if (this.users) {
+        return this.users.filter((item) => !this.selectedGuests.includes(item.id) && !this.selectedMembers.includes(item.id));
       }
-      
-    }
+      return [];
+    },
   },
   methods: {
-    deleteProject(){
-      this.axios.delete("/projects/" + this.project.id).then(()=> {
-        this.$store.dispatch('getProjects')
-        this.$router.push('/')
-      })
+    deleteProject() {
+      this.axios.delete(`/projects/${this.project.id}`).then(() => {
+        this.$store.dispatch('getProjects');
+        this.$router.push('/');
+      });
     },
     filterMember(val, comp) {
-      return comp.key.toLowerCase().includes(val.toLowerCase())
+      return comp.key.toLowerCase().includes(val.toLowerCase());
     },
-    addTask: function (){
-      this.$store.dispatch('addTask', this.$route.params.id )
-      this.openViewDrawer = true
+    addTask() {
+      this.$store.dispatch('addTask', this.$route.params.id);
+      this.openViewDrawer = true;
     },
-    closeDrawer(){
-      this.openViewDrawer = false
+    closeDrawer() {
+      this.openViewDrawer = false;
     },
-    getAvatar: function (obj) {
-      if(obj.avatar){
-        return "https://api.avcg.ru" + obj.avatar
-      }else {
-        return ''
+    getAvatar(obj) {
+      if (obj.avatar) {
+        return `https://api.avcg.ru${obj.avatar}`;
       }
-      
+      return '';
     },
-    getFullName: function (obj) {
-      let name = obj.first_name
-      let surname = obj.last_name
-      const toTitleCase = s => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase()
-      if(name&&surname){
-        return toTitleCase(name) + " " + toTitleCase(surname)
-      }else return obj.email
+    getFullName(obj) {
+      const name = obj.first_name;
+      const surname = obj.last_name;
+      const toTitleCase = (s) => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase();
+      if (name && surname) {
+        return `${toTitleCase(name)} ${toTitleCase(surname)}`;
+      } return obj.email;
     },
-    handleChangeGuests: function (selectedGuests) {
-      this.selectedGuests = selectedGuests
+    handleChangeGuests(selectedGuests) {
+      this.selectedGuests = selectedGuests;
     },
-    handleSearch (value) {
-      console.log(value)
+    handleSearch(value) {
+      console.log(value);
     },
-    handleChangeMembers: function (selectedMembers) {
-      this.selectedMembers = selectedMembers
+    handleChangeMembers(selectedMembers) {
+      this.selectedMembers = selectedMembers;
     },
-    addObserver: function (userId) {
-      axios.post('/projects/' + this.$route.params.id + '/members', {
+    addObserver(userId) {
+      axios.post(`/projects/${this.$route.params.id}/members`, {
         member: {
           role: 'guest',
-          user_id: userId
-        }
-      })
+          user_id: userId,
+        },
+      });
     },
-    addMember: function (userId) {
-      axios.post('/projects/' + this.$route.params.id + '/members', {
+    addMember(userId) {
+      axios.post(`/projects/${this.$route.params.id}/members`, {
         member: {
           role: 'regular',
-          user_id: userId
-        }
-      })
+          user_id: userId,
+        },
+      });
     },
-    removeMember: function (userId) {
-      axios.delete('/projects/' + this.$route.params.id + '/members/' + userId)
-    }
+    removeMember(userId) {
+      axios.delete(`/projects/${this.$route.params.id}/members/${userId}`);
+    },
+    removeGuest(userId) {
+      axios.delete(`/projects/${this.$route.params.id}/members/${userId}`);
+    },
   },
   mounted() {
-    
-    axios.get('/users?limit=100').then(res => {
-      this.users = res.data.users
-    })
-    this.isLoading = true
-    axios.get('/projects/' + this.$route.params.id).then(res => {
-      this.project = res.data.project
-      this.isLoading = false
-      this.projectMembers = res.data.project.members.map(i => i.user.id)
-    })
-    this.$store.dispatch('getProjectTasks', this.$route.params.id)
-    
-  }
-}
+    axios.get('/users?limit=100').then((res) => {
+      this.users = res.data.users;
+    });
+    this.isLoading = true;
+    axios.get(`/projects/${this.$route.params.id}`).then((res) => {
+      this.project = res.data.project;
+      this.isLoading = false;
+      this.projectMembers = res.data.project.members.map((i) => i.user.id);
+    });
+    this.$store.dispatch('getProjectTasks', this.$route.params.id);
+  },
+};
 </script>
 <style lang="sass" scoped>
 .inner-opt

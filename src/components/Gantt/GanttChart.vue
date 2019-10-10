@@ -5,7 +5,7 @@
         a-select(:defaultValue="inboxId", style='flex: 1; margin-right: 10px;', @change="projectChange")
           a-select-option(v-for='proj in projects', :key='proj.id') {{proj.name}}
         a-tooltip(title='Экспорт в Excel')
-          a-button(@click='exportExcel' type='primary')
+          a-button(@click='exportExcel' type='primary' :disabled='tasks.length ==0')
             a-icon(type="export")
       .tasks-tree
         task-drawer(:open='openViewDrawer', @close='closeDrawer')
