@@ -145,9 +145,9 @@ export default {
     checkClick(e, id, done) {
       e.stopPropagation();
       if (done) {
-        this.$store.dispatch('toggleTaskUndone', id).then(() => this.$store.dispatch('showTask', this.actualTask.id));
+        this.$store.dispatch('toggleTaskUndone', id).then(() => this.$store.dispatch('reloadTask', this.actualTask.id));
       } else {
-        this.$store.dispatch('toggleTaskDone', id).then(() => this.$store.dispatch('showTask', this.actualTask.id));
+        this.$store.dispatch('toggleTaskDone', id).then(() => this.$store.dispatch('reloadTask', this.actualTask.id));
       }
     },
     showTask(id) {
@@ -174,7 +174,7 @@ export default {
             task_id: this.actualTask.id,
           },
         }).then(() => {
-          this.$store.dispatch('showTask', this.actualTask.id);
+          this.$store.dispatch('reloadTask', this.actualTask.id);
         });
       });
     },
@@ -183,7 +183,9 @@ export default {
     },
     deleteFile(file) {
       const version = this.actualTask.attachments.filter((f) => f.id == file.id)[0].last_version.id;
-      this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`);
+      this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`).then((resp) => {
+        this.$store.dispatch('reloadTask', this.actualTask.id);
+      });
     },
     updateAssign(type, id) {
       const body = {
@@ -200,7 +202,9 @@ export default {
     filterByRole(type) {
       return this.taskMembers.filter((i) => i.role === type).map((i) => i.user.id);
     },
-    handleSendFile({ onSuccess, onError, file }) {
+    handleSendFile({
+      onSuccess, onError, file, onProgress,
+    }) {
       const body = new FormData();
       body.set('attachment[file]', file);
       return axios({
@@ -210,6 +214,9 @@ export default {
         header: {
           Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress: (e) => {
+          onProgress({ percent: (e.loaded / e.total) * 100 });
         },
       }).then(() => {
         onSuccess(null, file);
