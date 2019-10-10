@@ -132,7 +132,7 @@ export default {
       })
       const buf = await wb.xlsx.writeBuffer()
 
-      saveAs(new Blob([buf]), 'abc.xlsx')
+      saveAs(new Blob([buf]), `Сетевой_график_${proj.name}_${format(new Date(),"ss:mm:HH_D.M.YYYY")}.xlsx`)
     },
     openTask(id){
       this.$store.dispatch('showTask', id)
