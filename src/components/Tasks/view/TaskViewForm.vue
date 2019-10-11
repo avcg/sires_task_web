@@ -5,16 +5,15 @@
                     size='small' @click='openPrev') Назад
       a-tag(v-for='(tagSelected, i) in actualTask.tags' :key='`tagS${i}`'
             color="orange") {{ tagSelected.name }}
-      a-popover(placement='bottomLeft',title="Добавить тег" v-if='isTaskAdmin')
-        a-tag(@click='tagPopover=true') +
+      a-popover(placement='bottomLeft' title="Добавить тег" v-if='isTaskAdmin')
+        a-tag(@click='tagPopover = true') +
         div(slot='content')
           a-tag(v-for='(tag, i) in allTags' :key='`tag${i}`'
                 color="orange" @click='addTag(tag)') {{ tag.name }}
       .spacer
       a-popconfirm(v-if='isTaskAdmin' placement="bottomRight"
                   title='Вы точно хотите удалить задачу?'
-                  cancelText='Нет' okText='Да'
-                  @confirm='deleteTask')
+                  cancelText='Нет' okText='Да' @confirm='deleteTask')
         .delete
           a-icon(type='delete')
       .close(v-if='!proj' @click='close')
@@ -24,19 +23,16 @@
       .head-input
         input.input-name(placeholder='Название задачи' v-model='taskName'
                         :disabled='!isTaskAdmin' @keyup.enter='parseForLabelAndProj')
-      AssignTabs(
-        v-if='actualTask.project.name != "Inbox" && actualTask.project.name != "Входящие"'
-        :users='users' :assignor='assignor'
-        :coresponsibles='coresponsibles' :observers='observers'
-        :responsible='responsible' @changeAssign='updateAssign')
+      assign-tabs(v-if='actualTask.project.name != "Inbox" && actualTask.project.name != "Входящие"'
+                  :users='users' :assignor='assignor' :coresponsibles='coresponsibles'
+                  :observers='observers' :responsible='responsible' @changeAssign='updateAssign')
       .fl-jsb
         a-select(:defaultValue='actualTask.project.id'
                 @change='setTaskProject' :disabled='!isTaskAdmin')
           a-select-option(v-for='proj in allProjects' :key='proj.id'
                           :value='proj.id') {{ proj.name }}
         a-locale-provider(:locale='locale')
-          a-range-picker(
-            :disabled='!isTaskAdmin' format='DD MMM YYYY' :allowClear="false"
+          a-range-picker(:disabled='!isTaskAdmin' format='DD MMM YYYY' :allowClear="false"
             :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
             @change='dateChange')
       .desc-input
@@ -47,9 +43,9 @@
           .task-inner
             .check(@click='checkClick($event, item.task.id, item.task.done)')
               i.la.icon(v-if='item.task.done') &#xf17b;
-            span {{item.task.name}}
+            span {{ item.task.name }}
             .spacer
-            span {{fDate(item.task.finish_time)}}
+            span {{ fDate(item.task.finish_time) }}
           .task-divider
       .desc-input
         .headline Описание
@@ -63,7 +59,8 @@
           p.ant-upload-drag-icon
             a-icon(type='inbox')
           p.ant-upload-text Нажмите или перетащите файл в эту область
-        //- a.attachment(v-for='item in actualTask.attachments' :href='getUrl(item.file)' :download='item.name')
+        //- a.attachment(v-for='item in actualTask.attachments'
+                        :href='getUrl(item.file)' :download='item.name')
         //-   i.la.icon &#xf1ec;
         //-   span {{ item.name }}
         //- input(type="file" @change='addDoc' ref="file" style="display: none")
@@ -123,7 +120,9 @@ export default {
     allTags() {
       return this.$store.state.tags;
     },
-    taskMembers() { return this.$store.state.actualTask.members; },
+    taskMembers() {
+      return this.$store.state.actualTask.members;
+    },
     assignor() {
       return this.filterByRole('assignator');
     },

@@ -1,16 +1,16 @@
 <template lang="pug">
-  .body
-    .cont(:style='{ width: viewTask ? "50%" : "100%", paddingRight: viewTask ? "28px" : 0 }')
-      transition(name='task-list' mode="out-in"
-                enter-active-class="animated fast fadeIn"
-                leave-active-class="animated fast fadeOut")
-        task-list(v-if='getTasks.length > 0', :tasks='getTasks')
-        task-empty(v-else)
-    .cont(:style='{ width: viewTask ? "50%" : 0 }')
-      transition(name='task-view' mode="out-in"
-                enter-active-class="animated fast slideInRight"
-                leave-active-class="animated fast slideOutRight")
-        task-view(v-if='viewTask' :key='actualTaskId' :viewTask='viewTask')
+.body
+  .cont(:style='{ width: viewTask ? "50%" : "100%", paddingRight: viewTask ? "28px" : 0 }')
+    transition(name='task-list' mode="out-in"
+              enter-active-class="animated fast fadeIn"
+              leave-active-class="animated fast fadeOut")
+      task-list(v-if='getTasks.length > 0', :tasks='getTasks')
+      task-empty(v-else)
+  .cont(:style='{ width: viewTask ? "50%" : 0 }')
+    transition(name='task-view' mode="out-in"
+              enter-active-class="animated fast slideInRight"
+              leave-active-class="animated fast slideOutRight")
+      task-view(v-if='viewTask' :key='actualTaskId' :viewTask='viewTask')
 </template>
 
 <script>

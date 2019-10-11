@@ -1,18 +1,18 @@
 <template lang="pug">
 div(v-if="$auth.ready()")
-  add-label-dialog(v-if='$auth.check()')
-  add-project-dialog(v-if='$auth.check()')
+  add-label-dialog(v-if="$auth.check()")
+  add-project-dialog(v-if="$auth.check()")
   #app
     transition(name="tool" mode="out-in"
               enter-active-class="animated slideInDown"
               leave-active-class="animated slideOutUp")
-      Toolbar(v-if='$auth.check()')
+      Toolbar(v-if="$auth.check()")
     .fl
       transition(name="side" mode="out-in"
                 enter-active-class="animated slideInLeft"
                 leave-active-class="animated slideOutRight")
-        side-menu(v-if='$auth.check()')
-      .router-cont(v-if='$store.state.user')
+        side-menu(v-if="$auth.check()")
+      .router-cont(v-if="$store.state.user")
         transition(name="route" mode="out-in"
                   enter-active-class="animated fast fadeIn"
                   leave-active-class="animated fast fadeOut")

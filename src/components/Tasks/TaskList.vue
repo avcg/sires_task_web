@@ -1,14 +1,14 @@
 <template lang="pug">
-  transition-group.task-list(name="list-complete", tag="div")
-    .task(v-for='item, index in tasks' :key='item.id'
-          :class='{ "completed": item.done }' @click='showTask(item.id)')
-      .task-inner
-        .check(@click='checkClick($event, item.id, item.done)')
-          i.la.icon(v-if='item.done') &#xf17b;
-        span {{item.name}}
-        .spacer
-        span {{fDate(item.finish_time)}}
-      .task-divider
+transition-group.task-list(name="list-complete" tag="div")
+  .task(v-for='item, index in tasks' :key='item.id'
+        :class='{ "completed": item.done }' @click='showTask(item.id)')
+    .task-inner
+      .check(@click='checkClick($event, item.id, item.done)')
+        i.la.icon(v-if='item.done') &#xf17b;
+      span {{ item.name }}
+      .spacer
+      span {{ fDate(item.finish_time) }}
+    .task-divider
 </template>
 
 <script>

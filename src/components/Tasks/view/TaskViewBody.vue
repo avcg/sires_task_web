@@ -4,7 +4,7 @@
       a-tag(v-for='taskLabel in actualTask.tags' color="orange") {{ taskLabel.name }}
       a-popover(placement='bottomLeft' title="Добавить тег")
         a-tag(@click='tagPopover=true') +
-        div()
+        div
           a-tag(v-for='taskLabel in actualTask.tags' color="orange") {{ taskLabel.name }}
     .head-input
       input.input-name(placeholder='Название задачи' v-model='taskName'
