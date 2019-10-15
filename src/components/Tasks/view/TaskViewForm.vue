@@ -203,8 +203,13 @@ export default {
       return this.taskMembers.filter((i) => i.role === type).map((i) => i.user.id);
     },
     handleSendFile({
-      onSuccess, onError, file, onProgress,
+      onSuccess, onError, file,
     }) {
+      this.attach.push({
+        name: file.name,
+        status: 'uploading',
+        uid: 0,
+      });
       const body = new FormData();
       body.set('attachment[file]', file);
       return axios({
@@ -214,9 +219,6 @@ export default {
         header: {
           Accept: 'application/json',
           'Content-Type': 'multipart/form-data',
-        },
-        onUploadProgress: (e) => {
-          onProgress({ percent: (e.loaded / e.total) * 100 });
         },
       }).then(() => {
         onSuccess(null, file);
