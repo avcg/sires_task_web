@@ -1,99 +1,102 @@
 <template lang="pug">
-  .sidebar(:style='{ width: sidebarOpen? "242px" : "77px" }')
-    .menu
-      //- .active-line(:style=' { top: top + "px", height: isProj ? "46px" : "64px" } ')
-      div(@click='getEl')
-        router-link.menu-item(to='/inbox', active-class='active')
-          i.la.icon &#xf247;
-          span(v-if='sidebarOpen') Входящие
-      div(@click='getEl')
-        router-link.menu-item(to='/today', active-class='active')
-          i.la.icon &#xf26d;
-          span(v-if='sidebarOpen') Сегодня
-      div(@click='getEl')
-        router-link.menu-item(to='/week', active-class='active')
-          i.la.icon &#xf15d;
-          span(v-if='sidebarOpen') Неделя
-      div(@click='getEl')
-        router-link.menu-item(to='/gantt', active-class='active')
-          i.la.icon &#xf33b;
-          span(v-if='sidebarOpen') Гантт
-      div(@click='getEl')
-        router-link.menu-item(to='/calendar', active-class='active')
-          i.la.icon &#xf15f;
-          span(v-if='sidebarOpen') Календарь
-    .projects
-      .headline
-        .headline-inner(v-if='sidebarOpen')
-          span Проекты
-          .add(@click='openAddProj')
-            i.la.icon 
-            span Добавить
-      .list(v-if='sidebarOpen')
-        div(v-for='item in projects', @click='getEl($event, true)')
-          router-link.list-item(:to='"/project/" + item.id', active-class='active')
-            span {{item.name.length > 21 ? item.name.substring(0, 21) + '...' : item.name}}
-    .projects
-      .headline
-        .headline-inner(v-if='sidebarOpen')
-          span Теги
-          .add(@click='openAddLabel' v-if="$auth.check('admin')")
-            i.la.icon 
-            span Добавить
-      .list(v-if='sidebarOpen')
-        div(v-for='tag in tags', @click='deleteTag(tag.id)')
-          .list-item(active-class='active')
-            span {{ tag.name }}
+.sidebar(:style="{ width: sidebarOpen ? '242px' : '77px' }")
+  .menu
+    //- .active-line(:style=" { top: `${top}px`, height: isProj ? '46px' : '64px' } ")
+    div(@click="getEl")
+      router-link.menu-item(to="/inbox" active-class="active")
+        i.la.icon &#xf247;
+        span(v-if="sidebarOpen") Входящие
+    div(@click="getEl")
+      router-link.menu-item(to="/today" active-class="active")
+        i.la.icon &#xf26d;
+        span(v-if="sidebarOpen") Сегодня
+    div(@click="getEl")
+      router-link.menu-item(to="/week" active-class="active")
+        i.la.icon &#xf15d;
+        span(v-if="sidebarOpen") Неделя
+    div(@click="getEl")
+      router-link.menu-item(to="/gantt" active-class="active")
+        i.la.icon &#xf33b;
+        span(v-if="sidebarOpen") Гантт
+    div(@click="getEl")
+      router-link.menu-item(to="/calendar" active-class="active")
+        i.la.icon &#xf15f;
+        span(v-if="sidebarOpen") Календарь
+  .projects
+    .headline
+      .headline-inner(v-if="sidebarOpen")
+        span Проекты
+        .add(@click="openAddProj")
+          i.la.icon 
+          span Добавить
+    .list(v-if="sidebarOpen")
+      div(v-for="(item, i) in projects" :key="`item${i}`"
+          @click="getEl($event, true)")
+        router-link.list-item(:to="`/project/${item.id}`" active-class="active")
+          span {{item.name.length > 21 ? `${item.name.substring(0, 21)}...` : item.name}}
+  .projects
+    .headline
+      .headline-inner(v-if="sidebarOpen")
+        span Теги
+        .add(v-if="$auth.check('admin')" @click="openAddLabel")
+          i.la.icon 
+          span Добавить
+    .list(v-if="sidebarOpen")
+      div(v-for="(tag, i) in tags" :key="`tag${i}`"
+          @click="deleteTag(tag.id)")
+        .list-item(active-class="active")
+          span {{ tag.name }}
 </template>
+
 <script>
 export default {
-  data () {
+  data() {
     return {
       top: 65,
-      isProj: false
-    }
+      isProj: false,
+    };
   },
   methods: {
-    deleteTag: function(id) {
-      this.axios.delete("/tags/" + id)
+    deleteTag(id) {
+      this.axios.delete(`/tags/${id}`);
     },
-    openAddProj: function () {
-      this.$store.commit('openProjectDialog')
+    openAddProj() {
+      this.$store.commit('openProjectDialog');
     },
-    openAddLabel: function () {
-      this.$store.commit('openLabelDialog')
+    openAddLabel() {
+      this.$store.commit('openLabelDialog');
     },
-    getEl: function (e, proj) {
-      e.stopPropagation()
-      if (proj) this.isProj = true
-      else this.isProj = false
-      this.top = e.target.getBoundingClientRect().top
-    }
+    getEl(e, proj) {
+      e.stopPropagation();
+      if (proj) this.isProj = true;
+      else this.isProj = false;
+      this.top = e.target.getBoundingClientRect().top;
+    },
   },
   computed: {
-    projects: function () {
-      return this.$store.state.projects.filter(it => it.name != "Inbox")
+    projects() {
+      return this.$store.state.projects.filter((it) => it.name !== 'Inbox');
     },
-    tags: function () {
-      return this.$store.state.tags
+    tags() {
+      return this.$store.state.tags;
     },
-    sidebarOpen: function () {
-      return this.$store.state.sidebarOpen
+    sidebarOpen() {
+      return this.$store.state.sidebarOpen;
     },
-    activeItem: function () {
+    activeItem() {
       switch (this.$route.name) {
         case 'Входящие':
-          return 0
+          return 0;
         case 'Сегодня':
-          return 1
+          return 1;
         case 'Неделя':
-          return 2
+          return 2;
         default:
-          return 0
+          return 0;
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

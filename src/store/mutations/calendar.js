@@ -1,8 +1,8 @@
 export default {
   cleanCalendar: (state) => {
-    state.calendar = null
+    state.calendar = null;
   },
   updateCalendar: (state, calendar) => {
-    state.calendar = calendar
-  }
-}
+    state.calendar = calendar;
+  },
+};
