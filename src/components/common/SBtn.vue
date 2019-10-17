@@ -1,17 +1,18 @@
 <template lang="pug">
-  .btn(:class='{ "disabled" : disabled }', @click="callback($event)")
-    slot
+.btn(:class="{ 'disabled' : disabled }", @click="callback($event)")
+  slot
 </template>
+
 <script>
 export default {
   props: ['disabled'],
   name: 's-btn',
   methods: {
-    callback: function (e) {
-      this.$emit('click', e)
-    }
-  }
-}
+    callback(e) {
+      this.$emit('click', e);
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

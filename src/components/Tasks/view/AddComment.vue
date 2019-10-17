@@ -1,33 +1,34 @@
 <template lang="pug">
-  .add-comment
-    a-comment
-      div(slot='content')
-        a-form-item
-          a-textarea(:rows='4', v-model='text')
-        a-form-item
-          a-button(htmlType='submit', @click='sendComment', type='primary')
-            | Добавить комментарий
+.add-comment
+  a-comment
+    div(slot="content")
+      a-form-item
+        a-textarea(:rows="4" v-model="text")
+      a-form-item
+        a-button(htmlType="submit" type="primary" @click="sendComment")
+          | Добавить комментарий
 </template>
+
 <script>
-import ru from '../../../../node_modules/date-fns/locale/ru'
-import { format } from 'date-fns'
+import { format } from 'date-fns';
+import ru from '../../../../node_modules/date-fns/locale/ru';
 
 export default {
-  data () {
+  data() {
     return {
-      text: ''
-    }
+      text: '',
+    };
   },
   methods: {
-    sendComment: function () {
+    sendComment() {
       const body = {
-        text: this.text
-      }
-      this.$store.dispatch('addTaskComment', body)
-      this.text = ''
-    }
-  }
-}
+        text: this.text,
+      };
+      this.$store.dispatch('addTaskComment', body);
+      this.text = '';
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

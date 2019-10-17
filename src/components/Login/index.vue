@@ -1,75 +1,98 @@
 <template lang="pug">
-  .cont
-    .inner
-      h2.title SIRES
-      form.form
-        span.mb.caption Ваша почта
-        input.mb(name="email" v-model='email' @keyup.enter='logIn')
-        span.mb.caption Ваш пароль
-        input.mb(name="password" v-model='password', type='password' @keyup.enter='logIn')
-        a-button.mb.mt(:disabled='!email&&!password' type='primary' size='large' @click='logIn' :loading='loading') Вход
-        a-button(@click='regModal = true') Регистрация
-      a-modal(title='Регистрация', v-model='regModal', @ok='register', :okButtonProps='{props:{disabled: !(regModal&&regEmail&&regPass&&regName&&regLastn&&regPos&&regAva)}}',okText='Регистрация', cancelText='Отменить')
-        a-row.mb(:gutter="16" type="flex" align="middle")
-          a-col(:span='12')
-            a-input(v-model='regEmail' placeholder="Email")
-          a-col(:span='12')
-            a-input(v-model='regPass' placeholder="Пароль" type='password')
-        a-row.mb(:gutter="16" type="flex" align="middle")
-          a-col(:span='12')
-            a-input(v-model='regName' placeholder="Имя")
-          a-col(:span='12')
-            a-input(v-model='regLastn' placeholder="Фамилия")
-        a-row(:gutter="16" type="flex" align="middle")
-          a-col(:span='12')
-            a-input(v-model='regPos' placeholder="Должность")
-          a-col(:span='12')
-            span.mb.caption Ваша аватарка
-            input.inp(type='file', @change='handleChange')
+.cont
+  .inner
+    h2.title SIRES
+    form.form
+      span.mb.caption Email
+      input.mb(name="email" v-model="email" @keyup.enter="logIn")
+      span.mb.caption Пароль
+      input.mb(name="password" type="password" v-model="password" @keyup.enter="logIn")
+      a-button.mb.mt(type="primary" size="large" :disabled="!(email && password)"
+                    :loading="loading" @click="logIn") Вход
+      a-button(@click="registration.modal = true") Регистрация
+    a-modal(title="Регистрация" cancelText="Отменить" okText="Зарегистрироваться"
+            :okButtonProps="okButtonProps" v-model="registration.modal"
+            @ok="register")
+      a-row.mb(type="flex" align="middle" :gutter="16")
+        a-col(:span="12")
+          a-input(placeholder="Email" v-model="registration.email")
+        a-col(:span="12")
+          a-input(type="password" placeholder="Пароль" v-model="registration.password")
+      a-row.mb(type="flex" align="middle" :gutter="16")
+        a-col(:span="12")
+          a-input(placeholder="Имя" v-model="registration.firstName")
+        a-col(:span="12")
+          a-input(placeholder="Фамилия" v-model="registration.lastName")
+      a-row(type="flex" align="middle" :gutter="16")
+        a-col(:span="12")
+          a-input(placeholder="Должность" v-model="registration.position")
+        a-col(:span="12")
+          span.mb.caption Аватар
+          input.inp(type="file" @change="addAvatar")
 </template>
+
 <script>
 import axios from 'axios';
+
 export default {
   data() {
     return {
       loading: false,
       email: '',
       password: '',
-      regModal: false,
-      regEmail: '',
-      regPass: '',
-      regName: '',
-      regLastn: '',
-      regPos: '',
-      regAva: null,
-    }
+      registration: {
+        modal: false,
+        email: '',
+        password: '',
+        firstName: '',
+        lastName: '',
+        position: '',
+        avatar: null,
+      },
+    };
+  },
+  computed: {
+    okButtonProps() {
+      return { props: { disabled: !this.isFilled } };
+    },
+    isFilled() {
+      let flag = true;
+      const values = Object.values(this.registration);
+      for (let i = 0; i < values.length; i += 1) {
+        if (!values[i]) {
+          flag = false;
+          break;
+        }
+      }
+      return flag;
+    },
   },
   methods: {
-    handleChange: function(e) {
-      this.regAva = e.target.files[0]
+    addAvatar(e) {
+      this.registration.avatar = e.target.files[0];
     },
-    register: function() {
-      let body = new FormData()
-      body.set('user[first_name]', this.regName)
-      body.set('user[last_name]', this.regLastn)
-      body.set('user[avatar]', this.regAva)
-      body.set('user[position]', this.regPos)
-      body.set('user[role]', "regular")
-      body.set('user[email]', this.regEmail)
-      body.set('user[password]', this.regPass)
+    register() {
+      const body = new FormData();
+      body.set('user[first_name]', this.registration.firstName);
+      body.set('user[last_name]', this.registration.lastName);
+      body.set('user[avatar]', this.registration.avatat);
+      body.set('user[position]', this.registration.position);
+      body.set('user[role]', 'regular');
+      body.set('user[email]', this.registration.email);
+      body.set('user[password]', this.registration.password);
       this.$auth.register({
         data: body,
         success: () => {
           this.$auth.login({
             data: {
-              email: this.regEmail,
-              password: this.regPass
+              email: this.registration.email,
+              password: this.registration.password,
             },
             success: (resSuc) => {
-              this.$store.commit('changeUser', resSuc.data.user)
+              this.$store.commit('changeUser', resSuc.data.user);
             },
             headers: {
-              "Content-Type": "application/json"
+              'Content-Type': 'application/json',
             },
             rememberMe: true,
             redirect: '/inbox',
@@ -80,35 +103,37 @@ export default {
         redirect: '/login',
       });
     },
-    logIn: function () {
-      if(this.email&&this.password) {
-        this.loading = true
+    logIn() {
+      if (this.email && this.password) {
+        this.loading = true;
         this.$auth.login({
           data: {
             email: this.email,
-            password: this.password
+            password: this.password,
           },
           success: (res) => {
-            this.loading = false
-            this.$store.commit('changeUser', res.data.user)
+            this.loading = false;
+            this.$store.dispatch('getProjects');
+            this.$store.commit('changeUser', res.data.user);
           },
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
           },
           error: (err) => {
-            if (err.response.status == 401) {
-              this.loading = false
-              this.$message.error("Неправильный логин или пароль")
+            if (err.response.status === 401) {
+              this.loading = false;
+              this.$message.error('Неправильный логин или пароль');
             }
           },
           rememberMe: true,
           redirect: '/inbox',
         });
-      } 
-    }
-  }
-}
+      }
+    },
+  },
+};
 </script>
+
 <style lang="sass" scoped>
 .cont
   display: flex

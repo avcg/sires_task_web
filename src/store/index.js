@@ -31,12 +31,7 @@ const store = new Vuex.Store({
       'Антон Подосинников',
       'Анастасия Хвостова',
     ],
-    projects: [
-      {
-        name: 'Входящие',
-        id: 'inbox',
-      },
-    ],
+    projects: [],
     calendar: {},
     tags: [
     ],
@@ -153,11 +148,15 @@ const store = new Vuex.Store({
     deleteManyAssigned(state, payload) {
       const { key, val } = payload;
       const arr = state.tasks.filter((task) => task.id === state.actualTaskId)[0].assigned[key];
-      state.tasks.filter((task) => task.id === state.actualTaskId)[0].assigned[key] = arr.filter((item) => item !== val);
+      state.tasks.filter(
+        (task) => task.id === state.actualTaskId,
+      )[0].assigned[key] = arr.filter((item) => item !== val);
     },
     deleteAssigned(state, payload) {
       const { key } = payload;
-      state.tasks.filter((task) => task.id === state.actualTaskId)[0].assigned[key] = null;
+      state.tasks.filter(
+        (task) => task.id === state.actualTaskId,
+      )[0].assigned[key] = null;
     },
     closeLabelDialog(state) {
       state.labelDialog = false;

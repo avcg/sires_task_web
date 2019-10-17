@@ -1,37 +1,39 @@
 <template lang="pug">
-  .cont
-    .side
-      .select-proj
-        a-select(:defaultValue="inboxId", style='flex: 1; margin-right: 10px;', @change="projectChange")
-          a-select-option(v-for='proj in projects', :key='proj.id') {{proj.name}}
-        a-tooltip(title='Экспорт в Excel')
-          a-button(@click='exportExcel' type='primary' :disabled='tasks.length ==0')
-            a-icon(type="export")
-      .tasks-tree
-        task-drawer(:open='openViewDrawer', @close='closeDrawer')
-        .tasks-tree-task(v-for='task in tasks' @click='openTask(task.id)') {{task.name}}
-    .gantt(ref='ganttCont')
-      .ganttBody#ganttBody(:style='{ width: ganttWidth + "px" }')
-        .head
-          .month(v-for='month in getGanttMonths')
-            .month-name {{fMonth(month.start)}}
-            .dates
-              .date(:class='{ "today" : isToday(day)}' v-for='day in month.days') {{fDay(day)}}
-        .body
-          .task(v-for='bar in getGanttItems')
-            a-tooltip(placement='top', :title="bar.name")
-              .bar(:style='{ width: bar.width + "px", marginLeft: bar.margin + "px" }')
-              //- template(slot='content')
-              //-   div
-              //-     a-avatar A
+.cont
+  .side
+    .select-proj
+      a-select(:defaultValue="inboxId" style="flex: 1; margin-right: 10px"
+              @change="projectChange")
+        a-select-option(v-for="proj in projects" :key="proj.id") {{ proj.name }}
+      a-tooltip(title="Экспорт в Excel")
+        a-button(@click="exportExcel" type="primary" :disabled="tasks.length == 0")
+          a-icon(type="export")
+    .tasks-tree
+      task-drawer(:open="openViewDrawer" @close="closeDrawer")
+      .tasks-tree-task(v-for="task in tasks" :key="task.id"
+                      @click="openTask(task.id)") {{ task.name }}
+  .gantt(ref="ganttCont")
+    .ganttBody#ganttBody(:style="{ width: `${ganttWidth}px` }")
+      .head
+        .month(v-for="(month, i) in getGanttMonths" :key="`month${i}`")
+          .month-name {{ fMonth(month.start) }}
+          .dates
+            .date(v-for="(day, j) in month.days" :key="`month${i}-day${j}`"
+                  :class="{ 'today' : isToday(day)}") {{ fDay(day) }}
+      .body
+        .task(v-for="(bar, i) in getGanttItems" :key="`bar${i}`")
+          a-tooltip(placement="top" :title="bar.name")
+            .bar(:style="{ width: `${bar.width}px`, marginLeft: `${bar.margin}px` }")
+            //- template(slot="content")
+              div
+                a-avatar A
 </template>
+
 <script>
-/* eslint-disable */
-import { uniqBy } from 'lodash'
-import TaskDrawer from '../Projects/ViewTaskDrawer'
-import ExcelJS from 'exceljs/dist/exceljs'
-import { saveAs } from 'file-saver'
-import { 
+import { uniqBy } from 'lodash';
+import ExcelJS from 'exceljs/dist/exceljs';
+import { saveAs } from 'file-saver';
+import {
   min,
   max,
   format,
@@ -46,209 +48,220 @@ import {
   addDays,
   eachDay,
   differenceInCalendarDays,
-  isToday
-} from 'date-fns'
+  isToday,
+} from 'date-fns';
+import TaskDrawer from '../Projects/ViewTaskDrawer';
 
-var ruLocale = require('date-fns/locale/ru')
-const dayWidth = 35
+const ruLocale = require('date-fns/locale/ru');
+
+const dayWidth = 35;
 
 export default {
-  components: { TaskDrawer },
-  props: [ 'tasks', 'projects' ],
-  data(){
+  props: ['tasks', 'projects'],
+  components: {
+    TaskDrawer,
+  },
+  data() {
     return {
       expandProj: [],
       proj: this.inboxId,
-      openViewDrawer: false
-    }
+      openViewDrawer: false,
+    };
   },
   methods: {
     async exportExcel() {
-      let id = this.inboxId
-      if(this.proj) id = this.proj
-      const proj = this.projects.filter(p => p.id == id)[0]
+      let id = this.inboxId;
+      if (this.proj) id = this.proj;
+      const proj = this.projects.filter((p) => p.id === id)[0];
 
-      const wb = new ExcelJS.Workbook()
+      const wb = new ExcelJS.Workbook();
 
-      const ws = wb.addWorksheet()
-      let headline = []
-      let days = []
-      
-      this.getGanttMonths.forEach((m, mI)=> {
-        if (mI == 0) end = 2
+      const ws = wb.addWorksheet();
+      const headline = [];
+      const days = [];
+
+      this.getGanttMonths.forEach((m, mI) => {
+        if (mI === 0) {
+          end = 2;
+        }
         m.days.forEach((d, i) => {
-          if (i == 0) {
-            headline.push(this.fMonth(m.start))
+          if (i === 0) {
+            headline.push(this.fMonth(m.start));
           } else {
-            headline.push('')
+            headline.push('');
           }
-          days.push(parseInt(this.fDay(d)))
-        })
-      })
-      ws.getColumn(2).width = 20
-      ws.addRow([])
-      ws.addRow(['', proj.name, ...headline])
-      ws.addRow(['', '', ...days])
-      let end 
-      this.getGanttMonths.forEach((m, mI)=> {
-        if (mI == 0) end = 3
-        ws.mergeCells(2,end,2, end + (m.days.length - 1))
-        ws.getCell(2, end).alignment = { vertical: 'middle', horizontal: 'center' };
-        end = end + m.days.length
-      })
+          days.push(parseInt(this.fDay(d)));
+        });
+      });
+      ws.getColumn(2).width = 20;
+      ws.addRow([]);
+      ws.addRow(['', proj.name, ...headline]);
+      ws.addRow(['', '', ...days]);
+      let end;
+      this.getGanttMonths.forEach((m, mI) => {
+        if (mI === 0) {
+          end = 3;
+        }
+        ws.mergeCells(2, end, 2, end + (m.days.length - 1));
+        ws.getCell(2, end).alignment = {
+          vertical: 'middle',
+          horizontal: 'center',
+        };
+        end += m.days.length;
+      });
 
       this.tasks.forEach((t, tI) => {
-        let taskRow = ['', t.name]
-        this.getGanttMonths.forEach((m, mI)=> {
+        const taskRow = ['', t.name];
+        this.getGanttMonths.forEach((m, mI) => {
           m.days.forEach((d, i) => {
-            days.push('')
-            
-          })
-        })
-        ws.addRow(taskRow)
-      })
+            days.push('');
+          });
+        });
+        ws.addRow(taskRow);
+      });
       ws.views = [
-        {state: 'frozen', xSplit: 2, ySplit: 3, topLeftCell: 'C4', activeCell: 'A1'}
+        {
+          state: 'frozen',
+          xSplit: 2,
+          Split: 3,
+          topLeftCell: 'C4',
+          activeCell: 'A1',
+        },
       ];
       this.tasks.forEach((t, tI) => {
-        ws.getCell(tI + 3, 3).alignment = { wrapText: true }
-        this.getGanttMonths.forEach((m, mI)=> {
-          if (mI == 0) end = 3
+        ws.getCell(tI + 3, 3).alignment = { wrapText: true };
+        this.getGanttMonths.forEach((m, mI) => {
+          if (mI === 0) {
+            end = 3;
+          }
           m.days.forEach((d, i) => {
-            
-            let col  = ws.getColumn(end + i)
-            col.width = 4
-            if(isWithinRange(d, t.start_time, t.finish_time)) {
+            const col = ws.getColumn(end + i);
+            col.width = 4;
+            if (isWithinRange(d, t.start_time, t.finish_time)) {
               ws.getCell(4 + tI, end + i).fill = {
-              type: 'pattern',
-              pattern:'solid',
-              fgColor:{argb:'FF4090F7'}
-            };
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FF4090F7' },
+              };
             }
-            
-          })
-          end = end + m.days.length
-        })
-      })
-      const buf = await wb.xlsx.writeBuffer()
+          });
+          end += m.days.length;
+        });
+      });
+      const buf = await wb.xlsx.writeBuffer();
 
-      saveAs(new Blob([buf]), `Сетевой_график_${proj.name}_${format(new Date(),"ss:mm:HH_D.M.YYYY")}.xlsx`)
+      saveAs(new Blob([buf]), `Сетевой_график_${proj.name}_${format(new Date(), 'ss:mm:HH_D.M.YYYY')}.xlsx`);
     },
-    openTask(id){
-      this.$store.dispatch('showTask', id)
-      this.openViewDrawer = true
+    openTask(id) {
+      this.$store.dispatch('showTask', id);
+      this.openViewDrawer = true;
     },
-    closeDrawer(){
-      this.openViewDrawer = false
+    closeDrawer() {
+      this.openViewDrawer = false;
     },
-    isToday: function (date) {
-      return isToday(date)
+    isToday(date) {
+      return isToday(date);
     },
-    projectChange: function (id) {
-      this.proj = id
-      this.$store.dispatch('getProjectTasks', id)
+    projectChange(id) {
+      this.proj = id;
+      this.$store.dispatch('getProjectTasks', id);
     },
-    fMonth: function (date) {
-      return format(date,'MMMM', { locale: ruLocale })
+    fMonth(date) {
+      return format(date, 'MMMM', { locale: ruLocale });
     },
-    fDay: function (date) {
-      return format(date, 'D')
+    fDay(date) {
+      return format(date, 'D');
     },
-    redrawGantt: function () {
-      var gantt = new Gantt("#gantt", this.getGanttItems, {
+    redrawGantt() {
+      const gantt = new Gantt('#gantt', this.getGanttItems, {
         bar_height: 17,
-        language: 'ru'
-      })
+        language: 'ru',
+      });
     },
-    expand: function (expandedKeys) {
-      this.expandProj=expandedKeys
-      this.redrawGantt()
+    expand(expandedKeys) {
+      this.expandProj = expandedKeys;
+      this.redrawGantt();
     },
   },
   mounted() {
-    setTimeout(()=>{
-      this.$refs.ganttCont.scrollLeft = (differenceInCalendarDays(new Date(), this.getGanttMonths[0].start) - 10) * dayWidth
-    }, 200)
+    setTimeout(() => {
+      this.$refs.ganttCont.scrollLeft = (
+        differenceInCalendarDays(new Date(), this.getGanttMonths[0].start) - 10) * dayWidth;
+    },
+    200);
   },
   computed: {
-    inboxId: function () {
-      return this.$store.state.user.inbox_project_id
+    inboxId() {
+      return this.$store.state.user.inbox_project_id;
     },
-    getGanttMonths: function() {
-      const tasks = this.tasks
-      const minDate = startOfMonth(subMonths(min(...tasks.map(d=>d.start_time)),1)),
-        maxDate = endOfMonth(addMonths(max(...tasks.map(d=>d.finish_time)),1))
-      let months = [],
-        tempMonth = minDate
-      
-      while(differenceInMonths(maxDate, tempMonth)>=0){
+    getGanttMonths() {
+      const { tasks } = this;
+      const minDate = startOfMonth(subMonths(min(...tasks.map((d) => d.start_time)), 1));
+      const maxDate = endOfMonth(addMonths(max(...tasks.map((d) => d.finish_time)), 1));
+      const months = [];
+      let tempMonth = minDate;
+      while (differenceInMonths(maxDate, tempMonth) >= 0) {
         months.push({
           start: tempMonth,
           width: getDaysInMonth(tempMonth) * dayWidth,
-          days: []
-        })
-        tempMonth = addMonths(tempMonth,1)
+          days: [],
+        });
+        tempMonth = addMonths(tempMonth, 1);
       }
-      months.splice(-1, 1)
-      months.map(month => {
-        const monthEndDay = endOfMonth(month.start)
-        month.days = eachDay(month.start, monthEndDay)
-      })
-      return months
+      months.splice(-1, 1);
+      months.map((month) => {
+        const monthEndDay = endOfMonth(month.start);
+        month.days = eachDay(month.start, monthEndDay);
+      });
+      return months;
     },
-    ganttWidth: function () {
-      return this.getGanttMonths.reduce((acc,item)=>{
-        return acc+=item.width
-      },0)
+    ganttWidth() {
+      return this.getGanttMonths.reduce((acc, item) => acc += item.width, 0);
     },
-    getTasks: function() {
-      return this.$store.state.tasks.map(item=>{
-        return item
-      })
+    getTasks() {
+      return this.$store.state.tasks.map((item) => item);
     },
-    getTree: function() {
-      let tree = []
-      tree = this.$store.state.tasks.map(item => {
-        return {
-          title: item.project.name,
-          key: item.project.name,
-          children: [],
-          class: 'gantt-node'
-        }
-      })
-      tree = uniqBy(tree, 'key')
-      this.$store.state.tasks.map(item=>{
-        let projInd = tree.map(d=>d.key).indexOf(item.project.name)
-        item.title=item.name
-        tree[projInd].children.push(item)
-      })
-      return tree
+    getTree() {
+      let tree = [];
+      tree = this.$store.state.tasks.map((item) => ({
+        title: item.project.name,
+        key: item.project.name,
+        children: [],
+        class: 'gantt-node',
+      }));
+      tree = uniqBy(tree, 'key');
+      this.$store.state.tasks.map((item) => {
+        const projInd = tree.map((d) => d.key).indexOf(item.project.name);
+        item.title = item.name;
+        tree[projInd].children.push(item);
+      });
+      return tree;
     },
-    getProjects: function() {
-      return this.$store.state.projects
+    getProjects() {
+      return this.$store.state.projects;
     },
-    getProjTree: function() {
-      let list = {}
-      this.$store.state.tasks.map(item=>{
-        if(!list[item.project.name]) list[item.project.name] = []
-        item.title=item.name
-        item.class='gantt-node'
-        list[item.project.name].push(item)
-      })
-      return list
+    getProjTree() {
+      const list = {};
+      this.$store.state.tasks.map((item) => {
+        if (!list[item.project.name]) list[item.project.name] = [];
+        item.title = item.name;
+        item.class = 'gantt-node';
+        list[item.project.name].push(item);
+      });
+      return list;
     },
-    getGanttItems: function() {
-      let tasks = []
-      this.$store.state.tasks.map(task => {
-        task.start=task.start_time
-        task.end=task.finish_time
-        task.margin = differenceInCalendarDays(task.start, this.getGanttMonths[0].start) * dayWidth
-        task.width = differenceInCalendarDays(task.end, task.start) * dayWidth + dayWidth
-        task.type='task'
-        tasks.push(task)
-      })
-      return tasks
-    }
+    getGanttItems() {
+      const tasks = [];
+      this.$store.state.tasks.map((task) => {
+        task.start = task.start_time;
+        task.end = task.finish_time;
+        task.margin = differenceInCalendarDays(task.start, this.getGanttMonths[0].start) * dayWidth;
+        task.width = differenceInCalendarDays(task.end, task.start) * dayWidth + dayWidth;
+        task.type = 'task';
+        tasks.push(task);
+      });
+      return tasks;
+    },
     // getGanttItems: function() {
     //   let tasks = []
     //   for(const projKey in this.getProjTree){
@@ -278,8 +291,9 @@ export default {
     //   return tasks
     // }
   },
-}
+};
 </script>
+
 <style lang="sass" scoped>
 .cont
   display: inline-flex

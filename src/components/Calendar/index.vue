@@ -1,28 +1,29 @@
 <template lang="pug">
-.tasks 
+.tasks
   .calendar
     .select
-      a-button(@click='subMonth')
-        a-icon(type='left')
-      a-select.select-month(:value='monthsTranslate[getMonth - 1]', @change='changeMonth')
-        a-select-option(v-for='month, index in monthsTranslate', :value='index', :key='"month" + index') {{month}}
-      a-select.select-year(:value='getYear')
-        a-select-option(value='2018') 2018
-        a-select-option(value='2019') 2019
-      a-button(@click='addMonth')
-        a-icon(type='right')
+      a-button(@click="subMonth")
+        a-icon(type="left")
+      a-select.select-month(:value="monthsTranslate[getMonth - 1]" @change="changeMonth")
+        a-select-option(v-for="(month, i) in monthsTranslate" :key="`month${i}`"
+                        :value="i") {{ month }}
+      a-select.select-year(:value="getYear")
+        a-select-option(value="2018") 2018
+        a-select-option(value="2019") 2019
+      a-button(@click="addMonth")
+        a-icon(type="right")
     .days
-      a-badge(v-for='day in getDays' :count='getCalendar[day] ? getCalendar[day].length : 0', :offset='[-16, 35]')
-        span.day(:class='{ "active" : getDay===day, "disabled" : !getCalendar[day] }' @click='changeDay(day)') {{day}}
-    task-drawer(:open='openViewDrawer', ,@close='openViewDrawer = false')
-    task-list(v-if='getCalendar',:proj='true', @selectTask='openViewDrawer = true', :tasks='tasks')
+      a-badge(v-for="(day, i) in getDays" :key="`day${i}`"
+              :count="getCalendar[day] ? getCalendar[day].length : 0" :offset="[-16, 35]")
+        span.day(:class="{ 'active' : getDay === day, 'disabled' : !getCalendar[day] }"
+                @click="changeDay(day)") {{ day }}
+    task-drawer(:open="openViewDrawer" @close="openViewDrawer = false")
+    task-list(v-if="getCalendar" :tasks="tasks" :proj="true" @selectTask="openViewDrawer = true")
     .loading(v-else)
-      a-icon(type='loading')
+      a-icon(type="loading")
 </template>
+
 <script>
-/* eslint-disable */
-import TaskDrawer from '@/components/Projects/ViewTaskDrawer.vue'
-import TaskList from '@/components/Tasks/TaskList'
 import {
   format,
   eachDay,
@@ -30,73 +31,75 @@ import {
   setYear,
   setDate,
   addMonths,
-  subMonths
-} from 'date-fns'
+  subMonths,
+} from 'date-fns';
+import TaskDrawer from '@/components/Projects/ViewTaskDrawer.vue';
+import TaskList from '@/components/Tasks/TaskList';
 
 export default {
   components: { TaskList, TaskDrawer },
   methods: {
-    fDay: function (date) {
-      return format(date, 'D')
+    fDay(date) {
+      return format(date, 'D');
     },
-    updateCalendar: function () {
+    updateCalendar() {
       const payload = {
         year: format(this.date, 'YYYY'),
-        month: format(this.date, 'M')
-      }
-      this.$store.dispatch('getCalendar', payload)
-      this.$store.dispatch('getDateTasks', this.date)
+        month: format(this.date, 'M'),
+      };
+      this.$store.dispatch('getCalendar', payload);
+      this.$store.dispatch('getDateTasks', this.date);
     },
-    subMonth: function () {
-      this.date = subMonths(this.date, 1)
-      this.updateCalendar()
+    subMonth() {
+      this.date = subMonths(this.date, 1);
+      this.updateCalendar();
     },
-    addMonth: function () {
-      this.date = addMonths(this.date, 1)
-      this.updateCalendar()
+    addMonth() {
+      this.date = addMonths(this.date, 1);
+      this.updateCalendar();
     },
-    changeMonth: function (index) {
-      this.date = setMonth(this.date, index)
-      this.updateCalendar()
+    changeMonth(index) {
+      this.date = setMonth(this.date, index);
+      this.updateCalendar();
     },
-    changeYear: function (val) {
-      this.date = setYear(this.date, val)
-      this.updateCalendar()
+    changeYear(val) {
+      this.date = setYear(this.date, val);
+      this.updateCalendar();
     },
-    changeDay: function (val) {
-      this.date = setDate(this.date, val)
-      this.$store.dispatch('getDateTasks', this.date)
+    changeDay(val) {
+      this.date = setDate(this.date, val);
+      this.$store.dispatch('getDateTasks', this.date);
     },
   },
   computed: {
-    getCalendar: function () {
-      return this.$store.state.calendar
+    getCalendar() {
+      return this.$store.state.calendar;
     },
-    tasks(){
-      return this.$store.state.tasks
+    tasks() {
+      return this.$store.state.tasks;
     },
-    getDays: function () {
-      let month = eachDay(
+    getDays() {
+      const month = eachDay(
         format(this.date, 'YYYY-MM'),
-        addMonths(format(this.date, 'YYYY-MM'), 1)
-      ).map(item=>format(item,'D'))
-      month.pop()
-      return month
+        addMonths(format(this.date, 'YYYY-MM'), 1),
+      ).map((item) => format(item, 'D'));
+      month.pop();
+      return month;
     },
-    getMonth: function () {
-      return format(this.date,'M')
+    getYear() {
+      return format(this.date, 'YYYY');
     },
-    getYear: function () {
-      return format(this.date, 'YYYY')
+    getMonth() {
+      return format(this.date, 'M');
     },
-    getDay: function () {
-      return format(this.date, 'D')
-    }
+    getDay() {
+      return format(this.date, 'D');
+    },
   },
   mounted() {
-    this.updateCalendar()
+    this.updateCalendar();
   },
-  data () {
+  data() {
     return {
       openViewDrawer: false,
       date: new Date(),
@@ -107,17 +110,18 @@ export default {
         'Чт',
         'Пт',
         'Сб',
-        'Вс'
+        'Вс',
       ],
       monthsTranslate: [
         'Январь', 'Февраль', 'Март', 'Апрель',
         'Май', 'Июнь', 'Июль', 'Август',
-        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
-      ]
-    }
-  }
-}
+        'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+      ],
+    };
+  },
+};
 </script>
+
 <style lang="sass" scoped>
 .picker
   max-width: 280px
@@ -176,4 +180,3 @@ export default {
           color: #fff
           background-color: $primary-color
 </style>
-
