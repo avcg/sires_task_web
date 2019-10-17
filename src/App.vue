@@ -13,37 +13,75 @@ div(v-if="$auth.ready()")
           router-view(:key="$route.fullPath")
 </template>
 <script>
-import Toolbar from './components/Toolbar'
-import SideMenu from './components/SideMenu'
-import AddProjectDialog from './components/Projects/AddProjectDialog.vue'
-import AddLabelDialog from './components/Labels/AddLabelDialog.vue'
+import { Socket } from 'phoenix';
+import Toolbar from './components/Toolbar';
+import SideMenu from './components/SideMenu';
+import AddProjectDialog from './components/Projects/AddProjectDialog.vue';
+import AddLabelDialog from './components/Labels/AddLabelDialog.vue';
 
 export default {
-  components: { Toolbar, SideMenu, AddProjectDialog, AddLabelDialog },
+  components: {
+    Toolbar, SideMenu, AddProjectDialog, AddLabelDialog,
+  },
   name: 'App',
   computed: {
-    isLoggined: function () {
-      return this.$store.state.authenticated
+    isLoggined() {
+      return this.$store.state.authenticated;
     },
-    isDialogOpen: function () {
-      const state = this.$store.state
-      return state.labelDialog || state.projectDialog
-    }
+    isDialogOpen() {
+      const { state } = this.$store;
+      return state.labelDialog || state.projectDialog;
+    },
   },
-  mounted(){
-    if(this.$route.name!=='login'){
-      this.$store.dispatch('getProjects')
-      this.$store.dispatch('getTags')
-      this.$store.dispatch('getUser')
-      this.$store.dispatch('getUsers')
+  mounted() {
+    if (this.$route.name !== 'login') {
+      this.$store.dispatch('getProjects');
+      this.$store.dispatch('getTags');
+      this.$store.dispatch('getUser');
+      this.$store.dispatch('getUsers');
     }
+    this.axios.get('/current_user').then((resp) => {
+      const socket = new Socket('ws://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
+      socket.connect();
+      socket.onError(() => console.log('there was an error with the connection!'));
+      socket.onClose(() => console.log('the connection dropped'));
+      console.log(socket);
+      const channel = socket.channel('tasks', {});
+      channel.onError(() => console.log('there was an error!'));
+      channel.onClose(() => console.log('the channel has gone away gracefully'));
+      channel.join()
+        .receive('ok', ({ messages }) => console.log('catching up', messages))
+        .receive('error', ({ reason }) => console.log('failed join', reason))
+        .receive('timeout', () => console.log('Networking issue. Still waiting...'));
+      channel.on('create', (msg) => {
+        this.$notification.info({
+          message: 'Задача успешно создана',
+        });
+      });
+      channel.on('update', (msg) => {
+        this.$notification.info({
+          message: `Задача "${msg.task.name}" обновлена`,
+        });
+      });
+      channel.on('toggle_done', (msg) => {
+        this.$notification.info({
+          message: `Задача "${msg.task.name}" выполнена`,
+        });
+      });
+      channel.on('add_member', (msg) => console.log('add_memberd', msg));
+      channel.on('add_attachment', (msg) => console.log('add_attachmentd', msg));
+      channel.on('add_comment', (msg) => console.log('add_attachmentd', msg));
+      // create, update, delete, toggle_done, add_member,
+      // remove_member, add_attachment, add_attachment_version,
+      // delete_attachment_version, add_comment, change_comment, remove_comment, add_reference, remove_reference
+    });
   },
-  data () {
+  data() {
     return {
-      inVal: ''
-    }
-  }
-}
+      inVal: '',
+    };
+  },
+};
 </script>
 
 <style lang='sass'>

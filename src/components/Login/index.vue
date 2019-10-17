@@ -29,6 +29,7 @@
 </template>
 <script>
 import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -42,34 +43,34 @@ export default {
       regLastn: '',
       regPos: '',
       regAva: null,
-    }
+    };
   },
   methods: {
-    handleChange: function(e) {
-      this.regAva = e.target.files[0]
+    handleChange(e) {
+      this.regAva = e.target.files[0];
     },
-    register: function() {
-      let body = new FormData()
-      body.set('user[first_name]', this.regName)
-      body.set('user[last_name]', this.regLastn)
-      body.set('user[avatar]', this.regAva)
-      body.set('user[position]', this.regPos)
-      body.set('user[role]', "regular")
-      body.set('user[email]', this.regEmail)
-      body.set('user[password]', this.regPass)
+    register() {
+      const body = new FormData();
+      body.set('user[first_name]', this.regName);
+      body.set('user[last_name]', this.regLastn);
+      body.set('user[avatar]', this.regAva);
+      body.set('user[position]', this.regPos);
+      body.set('user[role]', 'regular');
+      body.set('user[email]', this.regEmail);
+      body.set('user[password]', this.regPass);
       this.$auth.register({
         data: body,
         success: () => {
           this.$auth.login({
             data: {
               email: this.regEmail,
-              password: this.regPass
+              password: this.regPass,
             },
             success: (resSuc) => {
-              this.$store.commit('changeUser', resSuc.data.user)
+              this.$store.commit('changeUser', resSuc.data.user);
             },
             headers: {
-              "Content-Type": "application/json"
+              'Content-Type': 'application/json',
             },
             rememberMe: true,
             redirect: '/inbox',
@@ -80,34 +81,34 @@ export default {
         redirect: '/login',
       });
     },
-    logIn: function () {
-      if(this.email&&this.password) {
-        this.loading = true
+    logIn() {
+      if (this.email && this.password) {
+        this.loading = true;
         this.$auth.login({
           data: {
             email: this.email,
-            password: this.password
+            password: this.password,
           },
           success: (res) => {
-            this.loading = false
-            this.$store.commit('changeUser', res.data.user)
+            this.loading = false;
+            this.$store.commit('changeUser', res.data.user);
           },
           headers: {
-            "Content-Type": "application/json"
+            'Content-Type': 'application/json',
           },
           error: (err) => {
             if (err.response.status == 401) {
-              this.loading = false
-              this.$message.error("Неправильный логин или пароль")
+              this.loading = false;
+              this.$message.error('Неправильный логин или пароль');
             }
           },
           rememberMe: true,
           redirect: '/inbox',
         });
-      } 
-    }
-  }
-}
+      }
+    },
+  },
+};
 </script>
 <style lang="sass" scoped>
 .cont

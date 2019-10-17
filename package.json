@@ -22,6 +22,7 @@
     "file-saver": "^2.0.2",
     "lodash": "^4.17.11",
     "moment": "^2.24.0",
+    "phoenix": "^1.4.10",
     "pug-plain-loader": "^1.0.0",
     "serve-static": "^1.13.2",
     "v-click-outside": "^2.0.2",
