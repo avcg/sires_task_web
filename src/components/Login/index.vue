@@ -113,6 +113,7 @@ export default {
           },
           success: (res) => {
             this.loading = false;
+            this.$store.dispatch('getProjects');
             this.$store.commit('changeUser', res.data.user);
           },
           headers: {

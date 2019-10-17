@@ -9,6 +9,10 @@ import TaskHeader from './TaskHeader.vue';
 import TaskBody from './TaskBody.vue';
 
 export default {
+  components: {
+    TaskHeader,
+    TaskBody,
+  },
   data() {
     return {
       addTask: false,
@@ -19,10 +23,10 @@ export default {
       },
     };
   },
-  updated() {
+  mounted() {
     this.initTasks();
   },
-  mounted() {
+  updated() {
     this.initTasks();
   },
   methods: {
@@ -50,11 +54,11 @@ export default {
       this.addTask = !this.addTask;
     },
   },
-  components: { TaskHeader, TaskBody },
 };
 </script>
 
 <style lang="sass" scoped>
   .tasks
     height: 100%
+    box-sizing: border-box
 </style>

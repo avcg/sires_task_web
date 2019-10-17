@@ -38,6 +38,7 @@ function getBase64(img, callback) {
   reader.addEventListener('load', () => callback(reader.result));
   reader.readAsDataURL(img);
 }
+
 export default {
   data() {
     return {
@@ -49,6 +50,30 @@ export default {
       surname: this.$store.state.user.last_name,
       position: this.$store.state.user.position,
     };
+  },
+  computed: {
+    isSidebarOpen() {
+      return this.$store.state.sidebarOpen;
+    },
+    getAvatar() {
+      return `https://api.avcg.ru${this.$store.state.user.avatar}`;
+    },
+    getName() {
+      return this.$store.state.user.first_name;
+    },
+    getSurname() {
+      return this.$store.state.user.last_name;
+    },
+    getPosition() {
+      return this.$store.state.user.position;
+    },
+    getFullName() {
+      if (this.getName && this.getSurname) {
+        const toTitleCase = (s) => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase();
+        return `${toTitleCase(this.getName)} ${toTitleCase(this.getSurname)}`;
+      }
+      return null;
+    },
   },
   methods: {
     handleChange(e) {
@@ -104,116 +129,95 @@ export default {
       this.name = this.getName;
     },
   },
-  computed: {
-    isSidebarOpen() {
-      return this.$store.state.sidebarOpen;
-    },
-    getAvatar() {
-      return `https://api.avcg.ru${this.$store.state.user.avatar}`;
-    },
-    getName() {
-      return this.$store.state.user.first_name;
-    },
-    getSurname() {
-      return this.$store.state.user.last_name;
-    },
-    getPosition() {
-      return this.$store.state.user.position;
-    },
-    getFullName() {
-      if (this.getName && this.getSurname) {
-        const toTitleCase = (s) => s.substr(0, 1).toUpperCase() + s.substr(1).toLowerCase();
-        return `${toTitleCase(this.getName)} ${toTitleCase(this.getSurname)}`;
-      }
-      return null;
-    },
-  },
 };
 </script>
+
 <style lang="sass">
-  .popover-link
-    margin-bottom: 5px
-    &:hover
-      cursor: pointer
-    &-red
-      color: #f5222d
+.popover-link
+  margin-bottom: 5px
+  &:hover
+    cursor: pointer
+  &-red
+    color: #f5222d
 </style>
 
 <style lang="sass" scoped>
-  .mb
-    margin-bottom: 10px
-  .inp
-    margin-bottom: 15px
-  .toolbar
-    height: 64px
-    border-bottom: solid 1px #e8ecef
+.mb
+  margin-bottom: 10px
+.inp
+  margin-bottom: 15px
+.toolbar
+  height: 64px
+  box-sizing: border-box
+  border-top: solid 1px rgba(0,0,0,0)
+  border-bottom: solid 1px #e8ecef
+  display: flex
+  align-items: center
+  .cont
+    .logout
+      color: #f5222d
+  i
+    user-select: none
+    transition: color .3s
+    color: #92A0B0
+  .logo
+    width: 242px
+    text-align: center
+    font-size: 30px
+    font-weight: 300
+    letter-spacing: 6px
+  .burger
+    margin-left: 26px
+    font-size: 24px
+    &:hover
+      i
+        cursor: pointer
+        color: $primary-color
+  .add
+    margin-left: 24px
+  .route
+    font-size: 20px
+    margin-left: 20px
+    color: #252631
+  .avatar
+    margin-right: 25px
+    height: 100%
+    padding: 0 15px
     display: flex
     align-items: center
-    .cont
-      .logout
-        color: #f5222d
+    font-size: 20px
     i
-      user-select: none
       transition: color .3s
-      color: #92A0B0
-    .logo
-      width: 242px
-      text-align: center
-      font-size: 30px
-      font-weight: 300
-      letter-spacing: 6px
-    .burger
-      margin-left: 26px
-      font-size: 24px
-      &:hover
-        i
-          cursor: pointer
-          color: $primary-color
-    .add
-      margin-left: 24px
-    .route
-      font-size: 20px
-      margin-left: 20px
-      color: #252631
-    .avatar
-      margin-right: 25px
-      height: 100%
-      padding: 0 15px
-      display: flex
-      align-items: center
-      font-size: 20px
+    &:hover
+      cursor: pointer
       i
-        transition: color .3s
-      &:hover
-        cursor: pointer
-        i
-          color: #FE4D97
-    .msg
-      margin-left: 26px
-    .notifications
-      margin-left: 26px
-      margin-right: 55px
-      font-size: 24px
-    .apps
-      margin-left: 26px
-    .user
-      width: 36px
-      height: 36px
-      background-position: center center
-      background-size: 100% auto
-      border-radius: 50%
-      margin: 0 26px
-    .search-input
-      display: flex
-      align-items: center
-      input
-        padding: 0px
-        border-width: 0px
-        font-size: 14px
-        color: #252631
-        margin-left: 13px
-        outline: none
-        width: 260px
-        &::placeholder
-          color: #778ca2
+        color: #FE4D97
+  .msg
+    margin-left: 26px
+  .notifications
+    margin-left: 26px
+    margin-right: 55px
+    font-size: 24px
+  .apps
+    margin-left: 26px
+  .user
+    width: 36px
+    height: 36px
+    background-position: center center
+    background-size: 100% auto
+    border-radius: 50%
+    margin: 0 26px
+  .search-input
+    display: flex
+    align-items: center
+    input
+      padding: 0px
+      border-width: 0px
+      font-size: 14px
+      color: #252631
+      margin-left: 13px
+      outline: none
+      width: 260px
+      &::placeholder
+        color: #778ca2
 </style>

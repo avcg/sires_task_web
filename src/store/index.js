@@ -31,12 +31,7 @@ const store = new Vuex.Store({
       'Антон Подосинников',
       'Анастасия Хвостова',
     ],
-    projects: [
-      {
-        name: 'Входящие',
-        id: 'inbox',
-      },
-    ],
+    projects: [],
     calendar: {},
     tags: [
     ],

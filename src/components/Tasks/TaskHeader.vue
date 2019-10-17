@@ -89,4 +89,6 @@ export default {
         color: #778ca2
         margin-left: 6px
         margin-right: 10px
+      .select
+        min-width: 222px
 </style>

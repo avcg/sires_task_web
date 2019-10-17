@@ -26,13 +26,18 @@ import AddProjectDialog from './components/Projects/AddProjectDialog.vue';
 import AddLabelDialog from './components/Labels/AddLabelDialog.vue';
 
 export default {
+  name: 'App',
   components: {
     Toolbar,
     SideMenu,
     AddProjectDialog,
     AddLabelDialog,
   },
-  name: 'App',
+  data() {
+    return {
+      inVal: '',
+    };
+  },
   computed: {
     isLoggined() {
       return this.$store.state.authenticated;
@@ -50,11 +55,6 @@ export default {
       this.$store.dispatch('getUsers');
     }
   },
-  data() {
-    return {
-      inVal: '',
-    };
-  },
 };
 </script>
 
@@ -62,13 +62,16 @@ export default {
 body
   margin: 0
   font-family: "Rubik", sans-serif
-.fl
-  display: flex
 #app
   color: #2c3e50
   height: 100vh
   width: 100vw
   overflow: hidden
+  display: flex
+  flex-direction: column
+  .fl
+    flex: 1
+    display: flex
 .icon
   color: #778ca2
   transition: color .3s

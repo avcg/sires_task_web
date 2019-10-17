@@ -56,26 +56,9 @@ export default {
       isProj: false,
     };
   },
-  methods: {
-    deleteTag(id) {
-      this.axios.delete(`/tags/${id}`);
-    },
-    openAddProj() {
-      this.$store.commit('openProjectDialog');
-    },
-    openAddLabel() {
-      this.$store.commit('openLabelDialog');
-    },
-    getEl(e, proj) {
-      e.stopPropagation();
-      if (proj) this.isProj = true;
-      else this.isProj = false;
-      this.top = e.target.getBoundingClientRect().top;
-    },
-  },
   computed: {
     projects() {
-      return this.$store.state.projects.filter((it) => it.name !== 'Inbox');
+      return this.$store.state.projects.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие');
     },
     tags() {
       return this.$store.state.tags;
@@ -96,16 +79,33 @@ export default {
       }
     },
   },
+  methods: {
+    deleteTag(id) {
+      this.axios.delete(`/tags/${id}`);
+    },
+    openAddProj() {
+      this.$store.commit('openProjectDialog');
+    },
+    openAddLabel() {
+      this.$store.commit('openLabelDialog');
+    },
+    getEl(e, proj) {
+      e.stopPropagation();
+      if (proj) this.isProj = true;
+      else this.isProj = false;
+      this.top = e.target.getBoundingClientRect().top;
+    },
+  },
 };
 </script>
 
 <style lang="sass" scoped>
 .sidebar
-  transition: width .5s
+  border-right: solid 1px #e8ecef
   overflow: hidden
   white-space: nowrap
-  border-right: solid 1px #e8ecef
-  height: calc(100vh - 65px)
+  transition: width .5s
+  height: 100%
   .active
     background-color: #f8fafb
     span
