@@ -1,62 +1,64 @@
 <template lang="pug">
-  .body
-    .labels
-      a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
-      a-popover(placement='bottomLeft',title="Добавить тег")
-        a-tag(@click='tagPopover=true') +
-        div()
-          a-tag(v-for='taskLabel in actualTask.tags', color="orange") {{taskLabel.name}}
-    .head-input
-      input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj')
-    AssignTabs(
-      :users='users',
-      :assignor='assignor',
-      :coresponsibles='coresponsibles',
-      :observers='observers',
-      :responsible='responsible'
-      @changeAssign='updateAssign'
-    )
-    .fl-jsb
-      a-select(:defaultValue='actualTask.project.id' @change='setTaskProject')
-        a-select-option(v-for='proj in allProjects',:value='proj.id', :key='proj.id') {{proj.name}}
-      a-locale-provider(:locale='locale')
-        a-range-picker(
-          format='DD MMM YYYY',
-          :allowClear="false",
-          :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
-          @change='dateChange'
-        )
-
-    .desc-input
-      .headline Описание
-      a-textarea(placeholder='Опишите вашу задачу' autosize :value='actualTask.description' @change="updateDescription")
-    //- .check-input
-    //-   .headline Чек-лист
-    //-   transition-group(name="list-complete", enter-active-class="animated fast slideInRight")
-    //-     .check-item(v-for='item,index in actualTask.checks', :key='item.id')
-    //-       .check(@click='checkSubtask(item.id)', :style='{ backgroundColor: item.checked ? "$primary-color" : "#e8ecef" }')
-    //-         i.la.icon(v-if='item.checked') &#xf17b;
-    //-       .name
-    //-         input(:value='item.name' @input='updateCheckName($event, item.id)' placeholder='Введите название подзадачи')
-    //-     .check-item.add-check(@click='addCheck', key='add123')
-    //-       i.la.icon 
-    //-       .name Добавить
-    .attachments
-      .headline Приложения
-      a-upload-dragger(name='file', :multiple='true', :customRequest='handleSendFile', @change='handleChangeUpload')
-        p.ant-upload-drag-icon
-          a-icon(type='inbox')
-        p.ant-upload-text Нажмите или перетащите файл в эту область
-      //- a.attachment(v-for='item in actualTask.attachments' :href='getUrl(item.file)' :download='item.name')
-      //-   i.la.icon &#xf1ec;
-      //-   span {{item.name}}
-      //- input(type="file" @change='addDoc' ref="file" style="display: none")
-      //- .addAttach(@click="$refs.file.click()")
-      //-   i.la.icon 
-      //-   span Прикрепить файл
-    activity(:items='actualTask.comments')
-    add-comment
+.body
+  .labels
+    a-tag(v-for="(taskLabel, i) in actualTask.tags" :key="`tag${i}`"
+          color="orange") {{ taskLabel.name }}
+    a-popover(placement="bottomLeft" title="Добавить тег")
+      a-tag(@click="tagPopover = true") +
+      div
+        a-tag(v-for="(taskLabel, i) in actualTask.tags" :key="`tag${i}`"
+              color="orange") {{ taskLabel.name }}
+  .head-input
+    input.input-name(placeholder="Название задачи" v-model="taskName"
+                    @keyup.enter="parseForLabelAndProj")
+  assign-tabs(:users="users" :responsible="responsible" :coresponsibles="coresponsibles"
+            :observers="observers" :assignor="assignor"
+            @changeAssign="updateAssign")
+  .fl-jsb
+    a-select(:defaultValue="actualTask.project.id" @change="setTaskProject")
+      a-select-option(v-for="proj in allProjects" :key="proj.id"
+                      :value="proj.id") {{ proj.name }}
+    a-locale-provider(:locale="locale")
+      a-range-picker(format="DD MMM YYYY" :allowClear="false"
+        :value="[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]",
+        @change="dateChange")
+  .desc-input
+    .headline Описание
+    a-textarea(placeholder="Опишите вашу задачу" autosize
+              :value="actualTask.description" @change="updateDescription")
+  //- .check-input
+  //-   .headline Чек-лист
+  //-   transition-group(name="list-complete"
+                        enter-active-class="animated fast slideInRight")
+  //-     .check-item(v-for="item in actualTask.checks" :key="item.id")
+  //-       .check(:style="{ backgroundColor: item.checked ? "$primary-color" : "#e8ecef" }"
+                  @click="checkSubtask(item.id)")
+  //-         i.la.icon(v-if="item.checked") &#xf17b;
+  //-       .name
+  //-         input(placeholder="Введите название подзадачи" :value="item.name"
+                    @input="updateCheckName($event, item.id)")
+  //-     .check-item.add-check(key="add123" @click="addCheck")
+  //-       i.la.icon 
+  //-       .name Добавить
+  .attachments
+    .headline Приложения
+    a-upload-dragger(name="file" :multiple="true"
+                    :customRequest="handleSendFile" @change="handleChangeUpload")
+      p.ant-upload-drag-icon
+        a-icon(type="inbox")
+      p.ant-upload-text Нажмите или перетащите файл в эту область
+    //- a.attachment(v-for="item in actualTask.attachments"
+                    :href="getUrl(item.file)" :download="item.name")
+    //-   i.la.icon &#xf1ec;
+    //-   span {{ item.name }}
+    //- input(type="file" style="display: none" ref="file" @change="addDoc")
+    //- .addAttach(@click="$refs.file.click()")
+    //-   i.la.icon 
+    //-   span Прикрепить файл
+  activity(:items="actualTask.comments")
+  add-comment
 </template>
+
 <script>
 import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU';
 import axios from 'axios';
@@ -65,7 +67,11 @@ import AddComment from './AddComment.vue';
 import Activity from './Activity.vue';
 
 export default {
-  components: { AssignTabs, AddComment, Activity },
+  components: {
+    AssignTabs,
+    AddComment,
+    Activity,
+  },
   computed: {
     taskName: {
       get() {
@@ -211,29 +217,22 @@ export default {
       users: [],
       locale: ruRU,
       projects: [],
-      weekdaysTranslate: [
-        'Пн',
-        'Вт',
-        'Ср',
-        'Чт',
-        'Пт',
-        'Сб',
-        'Вс',
-      ],
+      weekdaysTranslate: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
       monthsTranslate: [
-        'Январь', 'Февраль', 'Март', 'Апрель',
-        'Май', 'Июнь', 'Июль', 'Август',
+        'Январь', 'Февраль', 'Март', 'Апрель', 'Май',
+        'Июнь', 'Июль', 'Август',
         'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
       ],
     };
   },
 };
 </script>
+
 <style lang="sass" scoped>
 .fl-jsb
+  width: 100%
   display: flex
   justify-content: space-between
-  width: 100%
 .body
   padding: 26px 23px
   overflow-y: auto

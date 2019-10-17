@@ -1,11 +1,12 @@
 <template lang="pug">
-div register 
+div register
 </template>
+
 <script>
 export default {
-  
-}
-</script>
-<style lang="sass" scoped>
 
+};
+</script>
+
+<style lang="sass" scoped>
 </style>

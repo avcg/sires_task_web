@@ -1,32 +1,36 @@
 <template lang="pug">
-  .activity
-    .activity-body
-      a-list.comment-list(:header='`${items.length} ответ`', itemLayout='horizontal', :dataSource='items')
-        a-list-item(slot='renderItem', slot-scope='item, index')
-          a-comment(:author='item.author.first_name + " " + item.author.middle_name + " " + item.author.last_name')
-            p(slot='content') {{item.text}}
-            a-tooltip(slot='datetime', :title="moment(item.inserted_at).format('DD-MM-YYYY HH:mm:ss')")
-              span {{moment(item.inserted_at).fromNow()}}
-      //- .activity-item(v-for='item in items')
-      //-   .pin
-      //-     img(src='/history_pin.svg')
-      //-   .head
-      //-     .name {{item.author.email}}
-      //-     .text(v-if='item.type!==1') {{item.text}}
-      //-     .date {{fDate(item.updated_at)}}
-      //-   .comment(v-if='item.type===1')
-      //-     p {{item.text}}
+.activity
+  .activity-body
+    a-list.comment-list(:header="`${items.length} ответ`"
+                        itemLayout="horizontal" :dataSource="items")
+      a-list-item(slot="renderItem" slot-scope="item, index")
+        a-comment(:author="`${item.author.first_name} ${item.author.middle_name} ${item.author.last_name}`")
+          p(slot="content") {{ item.text }}
+          a-tooltip(slot="datetime"
+                    :title="moment(item.inserted_at).format('DD-MM-YYYY HH:mm:ss')")
+            span {{ moment(item.inserted_at).fromNow() }}
+    //- .activity-item(v-for="item in items")
+    //-   .pin
+    //-     img(src="/history_pin.svg")
+    //-   .head
+    //-     .name {{ item.author.email }}
+    //-     .text(v-if="item.type !== 1") {{ item.text }}
+    //-     .date {{ fDate(item.updated_at) }}
+    //-   .comment(v-if="item.type === 1")
+    //-     p {{ item.text }}
 </template>
+
 <script>
-import { format } from 'date-fns'
+import { format } from 'date-fns';
+
 export default {
   props: ['items'],
   methods: {
-    fDate: function (date) {
-      return format(date, 'DD-MM-YYYY')
-    }
-  }
-}
+    fDate(date) {
+      return format(date, 'DD-MM-YYYY');
+    },
+  },
+};
 </script>
 
 <style lang="sass" scoped>

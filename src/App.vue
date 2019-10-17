@@ -1,17 +1,24 @@
-<template lang='pug'>
+<template lang="pug">
 div(v-if="$auth.ready()")
-  add-label-dialog(v-if='$auth.check()')
-  add-project-dialog(v-if='$auth.check()')
+  add-label-dialog(v-if="$auth.check()")
+  add-project-dialog(v-if="$auth.check()")
   #app
-    transition(name="tool" enter-active-class="animated slideInDown" leave-active-class="animated slideOutUp" mode="out-in")
-      Toolbar(v-if='$auth.check()')
+    transition(name="tool" mode="out-in"
+              enter-active-class="animated slideInDown"
+              leave-active-class="animated slideOutUp")
+      toolbar(v-if="$auth.check()")
     .fl
-      transition(name="side" enter-active-class="animated slideInLeft" leave-active-class="animated slideOutRight" mode="out-in")
-        SideMenu(v-if='$auth.check()')
-      .router-cont(v-if='$store.state.user')
-        transition(name="route" enter-active-class="animated fast fadeIn" leave-active-class="animated fast fadeOut" mode="out-in")
+      transition(name="side" mode="out-in"
+                enter-active-class="animated slideInLeft"
+                leave-active-class="animated slideOutRight")
+        side-menu(v-if="$auth.check()")
+      .router-cont(v-if="$store.state.user")
+        transition(name="route" mode="out-in"
+                  enter-active-class="animated fast fadeIn"
+                  leave-active-class="animated fast fadeOut")
           router-view(:key="$route.fullPath")
 </template>
+
 <script>
 import { Socket } from 'phoenix';
 import Toolbar from './components/Toolbar';
@@ -20,10 +27,13 @@ import AddProjectDialog from './components/Projects/AddProjectDialog.vue';
 import AddLabelDialog from './components/Labels/AddLabelDialog.vue';
 
 export default {
-  components: {
-    Toolbar, SideMenu, AddProjectDialog, AddLabelDialog,
-  },
   name: 'App',
+  components: {
+    Toolbar,
+    SideMenu,
+    AddProjectDialog,
+    AddLabelDialog,
+  },
   computed: {
     isLoggined() {
       return this.$store.state.authenticated;
@@ -76,25 +86,23 @@ export default {
       // delete_attachment_version, add_comment, change_comment, remove_comment, add_reference, remove_reference
     });
   },
-  data() {
-    return {
-      inVal: '',
-    };
-  },
 };
 </script>
 
-<style lang='sass'>
+<style lang="sass">
 body
-  font-family: 'Rubik', sans-serif
   margin: 0
-.fl
-  display: flex
+  font-family: "Rubik", sans-serif
 #app
   color: #2c3e50
   height: 100vh
   width: 100vw
   overflow: hidden
+  display: flex
+  flex-direction: column
+  .fl
+    flex: 1
+    display: flex
 .icon
   color: #778ca2
   transition: color .3s

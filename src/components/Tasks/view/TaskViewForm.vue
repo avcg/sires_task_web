@@ -1,90 +1,102 @@
 <template lang="pug">
-  .add
-    .header(:style='{ paddingTop: proj?"0px": "22px"}')
-      a-button.mr-10(size='small' @click='openPrev', v-if='this.actualTask.parent_references && this.actualTask.parent_references.length>0') Назад
-      a-tag(v-for='tagSelected in actualTask.tags', color="orange") {{tagSelected.name}}
-      a-popover(placement='bottomLeft',title="Добавить тег" v-if='isTaskAdmin')
-        a-tag(@click='tagPopover=true') +
-        div(slot='content')
-          a-tag(v-for='tag in allTags', color="orange", @click='addTag(tag)') {{tag.name}}
-      .spacer
-      a-popconfirm( placement="bottomRight" title='Вы точно хотите удалить задачу?' @confirm='deleteTask' okText='Да' cancelText='Нет' v-if='isTaskAdmin')
-        .delete
-          a-icon(type='delete')
-      .close(@click='close' v-if='!proj')
-        a-icon(type='close')
-    .divider
-    .body
-      .head-input
-        input.input-name(placeholder='Название задачи', v-model='taskName' @keyup.enter='parseForLabelAndProj' :disabled='!isTaskAdmin')
-      AssignTabs(
-        v-if='actualTask.project.name != "Inbox" && actualTask.project.name != "Входящие"'
-        :users='users',
-        :assignor='assignor',
-        :coresponsibles='coresponsibles',
-        :observers='observers',
-        :responsible='responsible'
-        @changeAssign='updateAssign'
-      )
-      .fl-jsb
-        a-select(:defaultValue='actualTask.project.id' @change='setTaskProject' :disabled='!isTaskAdmin')
-          a-select-option(v-for='proj in allProjects',:value='proj.id', :key='proj.id') {{proj.name}}
-        a-locale-provider(:locale='locale')
-          a-range-picker(
-            :disabled='!isTaskAdmin'
-            format='DD MMM YYYY',
-            :allowClear="false",
-            :value='[moment(actualTask.start_time, "YYYY-MM-DD"), moment(actualTask.finish_time, "YYYY-MM-DD")]',
-            @change='dateChange'
-          )
-      .desc-input
-        .headline Подзадачи
-          a-button(@click='addSubtask' v-if='isTaskAdmin') Добавить подзадачу
-        .task(v-for='item, index in actualTask.child_references', :key='item.task.id', @click='showTask(item.task.id)', :class='{ "completed": item.task.done }')
-          .task-inner
-            .check(@click='checkClick($event, item.task.id, item.task.done)')
-              i.la.icon(v-if='item.task.done') &#xf17b;
-            span {{item.task.name}}
-            .spacer
-            span {{fDate(item.task.finish_time)}}
-          .task-divider
-      .desc-input
-        .headline Описание
-        a-textarea(placeholder='Опишите вашу задачу' autosize v-model='taskDesc' :disabled='!isTaskAdmin')
-
-      .attachments
-        .headline Приложения
-        a-upload-dragger(name='file',:fileList="attach", :multiple='true', :customRequest='handleSendFile' :disabled='!isTaskAdmin' :remove='deleteFile')
-          p.ant-upload-drag-icon
-            a-icon(type='inbox')
-          p.ant-upload-text Нажмите или перетащите файл в эту область
-        //- a.attachment(v-for='item in actualTask.attachments' :href='getUrl(item.file)' :download='item.name')
-        //-   i.la.icon &#xf1ec;
-        //-   span {{item.name}}
-        //- input(type="file" @change='addDoc' ref="file" style="display: none")
-        //- .addAttach(@click="$refs.file.click()")
-        //-   i.la.icon 
-        //-   span Прикрепить файл
-      activity(:items='actualTask.comments')
-      add-comment
+.add
+  .header(:style="{ paddingTop: proj ? '0px' : '22px'}")
+    a-button.mr-10(v-if="this.actualTask.parent_references && this.actualTask.parent_references.length > 0"
+                  size="small" @click="openPrev") Назад
+    a-tag(v-for="(tagSelected, i) in actualTask.tags" :key="`tag${i}`"
+          color="orange") {{ tagSelected.name }}
+    a-popover(v-if="isTaskAdmin" placement="bottomLeft" title="Добавить тег")
+      a-tag(@click="tagPopover = true") +
+      div(slot="content")
+        a-tag(v-for="(tag, i) in allTags" :key="`tag${i}`"
+              color="orange" @click="addTag(tag)") {{ tag.name }}
+    .spacer
+    a-popconfirm(v-if="isTaskAdmin" placement="bottomRight"
+                title="Вы точно хотите удалить задачу?" cancelText="Нет" okText="Да"
+                @confirm="deleteTask")
+      .delete
+        a-icon(type="delete")
+    .close(v-if="!proj" @click="close")
+      a-icon(type="close")
+  .divider
+  .body
+    .head-input
+      input.input-name(placeholder="Название задачи" :disabled="!isTaskAdmin"
+                      v-model="taskName" @keyup.enter="parseForLabelAndProj")
+    assign-tabs(v-if="actualTask.project.name != 'Inbox' && actualTask.project.name != 'Входящие'"
+                :users="users" :responsible="responsible" :coresponsibles="coresponsibles"
+                :observers="observers" :assignor="assignor"
+                @changeAssign="updateAssign")
+    .fl-jsb
+      a-select(:defaultValue="actualTask.project.id" :disabled="!isTaskAdmin"
+              @change="setTaskProject")
+        a-select-option(v-for="proj in allProjects" :key="proj.id"
+                        :value="proj.id") {{ proj.name }}
+      a-locale-provider(:locale="locale")
+        a-range-picker(format="DD MMM YYYY" :disabled="!isTaskAdmin"
+          :value="[moment(actualTask.start_time, 'YYYY-MM-DD'), moment(actualTask.finish_time, 'YYYY-MM-DD')]"
+          :allowClear="false" @change="dateChange")
+    .desc-input
+      .headline Подзадачи
+        a-button(v-if="isTaskAdmin" @click="addSubtask") Добавить подзадачу
+      .task(v-for="item in actualTask.child_references" :key="item.task.id"
+            :class="{ 'completed': item.task.done }" @click="showTask(item.task.id)")
+        .task-inner
+          .check(@click="checkClick($event, item.task.id, item.task.done)")
+            i.la.icon(v-if="item.task.done") &#xf17b;
+          span {{ item.task.name }}
+          .spacer
+          span {{ fDate(item.task.finish_time) }}
+        .task-divider
+    .desc-input
+      .headline Описание
+      a-textarea(placeholder="Опишите вашу задачу" :disabled="!isTaskAdmin"
+                autosize v-model="taskDesc")
+    .attachments
+      .headline Приложения
+      a-upload-dragger(name="file" :multiple="true" :disabled="!isTaskAdmin"
+                      :fileList="attach" :customRequest="handleSendFile" :remove="deleteFile")
+        p.ant-upload-drag-icon
+          a-icon(type="inbox")
+        p.ant-upload-text Нажмите или перетащите файл в эту область
+      //- a.attachment(v-for="(item, i) in actualTask.attachments" :key="`item${i}`"
+                      :href="getUrl(item.file)" :download="item.name")
+      //-   i.la.icon &#xf1ec;
+      //-   span {{ item.name }}
+      //- input(type="file" style="display: none"
+                ref="file" @change="addDoc")
+      //- .addAttach(@click="$refs.file.click()")
+      //-   i.la.icon 
+      //-   span Прикрепить файл
+    activity(:items="actualTask.comments")
+    add-comment
 </template>
+
 <script>
 import ruRU from 'ant-design-vue/lib/locale-provider/ru_RU';
 import axios from 'axios';
-import { startOfDay, endOfDay, format } from 'date-fns';
+import {
+  startOfDay,
+  endOfDay,
+  format,
+} from 'date-fns';
+import AssignTabs from './AssignTabs.vue';
 import Activity from './Activity.vue';
 import AddComment from './AddComment.vue';
-import AssignTabs from './AssignTabs.vue';
 
 export default {
   props: ['proj'],
-  components: { AssignTabs, AddComment, Activity },
+  components: {
+    AssignTabs,
+    AddComment,
+    Activity,
+  },
   computed: {
     isTaskAdmin() {
-      if (this.users && this.users.filter((u) => u.role == 'admin').length > 0 && this.users.filter((u) => u.role == 'admin')[0].user.id == this.$store.state.user.id) return true;
-      if (this.$store.state.user.role == 'admin') return true;
-      if (this.actualTask.members.length > 0 && this.actualTask.members.filter((i) => i.role == 'assignator').length > 0) {
-        return this.actualTask.members.filter((i) => i.role == 'assignator')[0].user.id == this.$store.state.user.id;
+      if (this.users && this.users.filter((u) => u.role === 'admin').length > 0 && this.users.filter((u) => u.role === 'admin')[0].user.id === this.$store.state.user.id) return true;
+      if (this.$store.state.user.role === 'admin') return true;
+      if (this.actualTask.members.length > 0 && this.actualTask.members.filter((i) => i.role === 'assignator').length > 0) {
+        return this.actualTask.members.filter((i) => i.role === 'assignator')[0].user.id === this.$store.state.user.id;
       }
       return false;
     },
@@ -93,7 +105,7 @@ export default {
         return this.actualTask.description;
       },
       set(val) {
-        if (val != this.actualTask.description) {
+        if (val !== this.actualTask.description) {
           this.$store.dispatch('updateDescription', val);
         }
       },
@@ -103,7 +115,7 @@ export default {
         return this.actualTask.name;
       },
       set(val) {
-        if (val != this.actualTask.name) {
+        if (val !== this.actualTask.name) {
           this.$store.dispatch('updateName', val);
         }
       },
@@ -117,9 +129,8 @@ export default {
     allTags() {
       return this.$store.state.tags;
     },
-    taskMembers() { return this.$store.state.actualTask.members; },
-    assignor() {
-      return this.filterByRole('assignator');
+    taskMembers() {
+      return this.$store.state.actualTask.members;
     },
     responsible() {
       return this.filterByRole('responsible');
@@ -129,6 +140,9 @@ export default {
     },
     observers() {
       return this.filterByRole('observer');
+    },
+    assignor() {
+      return this.filterByRole('assignator');
     },
   },
   mounted() {
@@ -182,7 +196,7 @@ export default {
       this.$store.dispatch('showTask', this.actualTask.parent_references[0].task.id);
     },
     deleteFile(file) {
-      const version = this.actualTask.attachments.filter((f) => f.id == file.id)[0].last_version.id;
+      const version = this.actualTask.attachments.filter((f) => f.id === file.id)[0].last_version.id;
       this.axios.delete(`/tasks/${this.actualTask.id}/attachments/${file.id}/versions/${version}`).then((resp) => {
         this.$store.dispatch('reloadTask', this.actualTask.id);
       });

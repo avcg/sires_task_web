@@ -1,9 +1,12 @@
 import axios from 'axios';
 import { startOfDay, endOfDay } from 'date-fns';
 import _ from 'lodash';
-import API from '@/api/task.js';
+import API from '@/api/task';
 
-const saveDebounced = _.wrap(_.memoize(() => _.debounce(API.updateTask, 500), _.property('id')), (func, payload) => func(payload)(payload));
+const saveDebounced = _.wrap(
+  _.memoize(() => _.debounce(API.updateTask, 500), _.property('id')),
+  (func, payload) => func(payload)(payload),
+);
 
 export default {
   addTagTask: ({ state, commit }, tag) => {
@@ -41,7 +44,7 @@ export default {
     };
     saveDebounced(payload);
   },
-  updateAssign: ({ }, { task_id, user_ids, role }) => {
+  updateAssign: ({}, { task_id, user_ids, role }) => {
     axios.put(`/tasks/${task_id}/members/roles/${role}`, { user_ids });
   },
   updateName: ({ state, commit }, name) => {
