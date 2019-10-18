@@ -4,7 +4,7 @@
     transition(name="task-list" mode="out-in"
               enter-active-class="animated fast fadeIn"
               leave-active-class="animated fast fadeOut")
-      task-list(v-if="getTasks.length > 0" :tasks="getTasks")
+      task-list(v-if="inTask.length > 0" :tasks="inTask")
       task-empty(v-else)
   .cont(:style="{ width: viewTask ? '50%' : 0 }")
     transition(name="task-view" mode="out-in"
@@ -19,9 +19,15 @@ import TaskList from './TaskList.vue';
 import TaskView from './TaskView.vue';
 
 export default {
-  props: ['sortBy'],
+  props: ['sortBy', 'imIn'],
   components: { TaskEmpty, TaskList, TaskView },
   computed: {
+    inTask() {
+      if (this.imIn) {
+        return this.getTasks.filter((t) => t.members.filter((m) => m.user.id === this.$store.state.user.id).length > 0);
+      }
+      return this.getTasks;
+    },
     getTasks() {
       const { tasks } = this.$store.state;
       switch (this.sortBy.type) {

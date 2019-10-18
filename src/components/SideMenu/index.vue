@@ -22,30 +22,31 @@
       router-link.menu-item(to="/calendar" active-class="active")
         i.la.icon &#xf15f;
         span(v-if="sidebarOpen") Календарь
-  .projects
-    .headline
-      .headline-inner(v-if="sidebarOpen")
-        span Проекты
-        .add(@click="openAddProj")
-          i.la.icon 
-          span Добавить
-    .list(v-if="sidebarOpen")
-      div(v-for="(item, i) in projects" :key="`item${i}`"
-          @click="getEl($event, true)")
-        router-link.list-item(:to="`/project/${item.id}`" active-class="active")
-          span {{item.name.length > 21 ? `${item.name.substring(0, 21)}...` : item.name}}
-  .projects
-    .headline
-      .headline-inner(v-if="sidebarOpen")
-        span Теги
-        .add(v-if="$auth.check('admin')" @click="openAddLabel")
-          i.la.icon 
-          span Добавить
-    .list(v-if="sidebarOpen")
-      div(v-for="(tag, i) in tags" :key="`tag${i}`"
-          @click="deleteTag(tag.id)")
-        .list-item(active-class="active")
-          span {{ tag.name }}
+  .projects-glob
+    .projects
+      .headline
+        .headline-inner(v-if="sidebarOpen")
+          span Проекты
+          .add(@click="openAddProj")
+            i.la.icon 
+            span Добавить
+      .list(v-if="sidebarOpen")
+        div(v-for="(item, i) in projects" :key="`item${i}`"
+            @click="getEl($event, true)")
+          router-link.list-item(:to="`/project/${item.id}`" active-class="active")
+            span {{item.name.length > 21 ? `${item.name.substring(0, 21)}...` : item.name}}
+    .projects
+      .headline
+        .headline-inner(v-if="sidebarOpen")
+          span Теги
+          .add(v-if="$auth.check('admin')" @click="openAddLabel")
+            i.la.icon 
+            span Добавить
+      .list(v-if="sidebarOpen")
+        div(v-for="(tag, i) in tags" :key="`tag${i}`"
+            @click="deleteTag(tag.id)")
+          .list-item(active-class="active")
+            span {{ tag.name }}
 </template>
 
 <script>
@@ -58,7 +59,11 @@ export default {
   },
   computed: {
     projects() {
-      return this.$store.state.projects.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие');
+      return this.$store.getters.getProjectsAll.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие').sort((a, b) => {
+        if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
+        if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
+        return 0;
+      });
     },
     tags() {
       return this.$store.state.tags;
@@ -140,9 +145,12 @@ export default {
         color: #778ca2
       i
         font-size: 18px
+  .projects-glob
+    max-height: calc(100% - 235px)
+    padding-bottom: 235px
+    overflow: auto
   .projects
     .list
-      max-height: 158px
       overflow: auto
       &-item
         height: 46px
@@ -173,6 +181,10 @@ export default {
       padding-right: 20px
       height: 60px
       font-size: 14px
+      position: sticky
+      top: 0
+      z-index: 10
+      background: #fff
       color: #98a9bc
       &-inner
         height: 100%

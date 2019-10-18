@@ -5,8 +5,8 @@
       a-icon(type="filter")
       span.name СОРТИРОВКА:
       a-select.select(:defaultValue="0" @change="changeSort")
-        a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`"
-                        :value="i") {{ sortType.name }}
+        a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
+      a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
     //- .filter(v-if="$route.name !== 'Входящие')
     //-   a-icon(type="project")
     //-   span.name Проект:
@@ -46,6 +46,9 @@ export default {
     };
   },
   methods: {
+    changeImIn() {
+      this.$emit('imInToggle');
+    },
     changeSort(index) {
       this.$emit('sort', this.sort[index]);
     },
@@ -57,6 +60,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.ml-10
+  margin-left: 10px
 .headline
   display: flex
   .add

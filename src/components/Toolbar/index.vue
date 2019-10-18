@@ -17,9 +17,11 @@
           a-col
             input.inp(type="file" @change="handleChange")
         a-row.mb
-          a-col(:span="11")
+          a-col(:span="7")
             a-input(placeholder="Ваше имя" v-model="name")
-          a-col(:span="11" :offset="2")
+          a-col(:span="7" :offset="1")
+            a-input(placeholder="Ваше отчество" v-model="middleName")
+          a-col(:span="7" :offset="1")
             a-input(placeholder="Ваша фамилия" v-model="surname")
         a-row
           a-col(:span="11")
@@ -48,6 +50,7 @@ export default {
       profileModal: false,
       name: this.$store.state.user.first_name,
       surname: this.$store.state.user.last_name,
+      middleName: this.$store.state.user.middle_name,
       position: this.$store.state.user.position,
     };
   },
@@ -108,6 +111,7 @@ export default {
       const body = new FormData();
       body.set('user[first_name]', this.name);
       body.set('user[last_name]', this.surname);
+      body.set('user[middle_name]', this.middleName);
       body.set('user[avatar]', this.ava);
       body.set('user[position]', this.position);
       axios({

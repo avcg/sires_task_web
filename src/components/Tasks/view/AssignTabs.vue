@@ -15,7 +15,7 @@ a-tabs.tabs(defaultActiveKey="1")
           |{{ getFullName(user.user) }}
   a-tab-pane.tab(tab="Соисполнители" key="2")
     a-select.select(mode="multiple" size="large"
-                    :disabled="!isAssignor" defaultValue="coresponsibles"
+                    :disabled="!isAssignor" :defaultValue="coresponsibles"
                     @change="changeCoresponsibles")
       a-select-option(v-for="user in filteredUsers" :key="user.user.id"
                       :value="user.user.id")

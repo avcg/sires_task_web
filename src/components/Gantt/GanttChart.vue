@@ -238,7 +238,7 @@ export default {
       return tree;
     },
     getProjects() {
-      return this.$store.state.projects;
+      return this.$store.getters.getProjectsAll;
     },
     getProjTree() {
       const list = {};

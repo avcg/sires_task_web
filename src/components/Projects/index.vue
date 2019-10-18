@@ -55,8 +55,7 @@
                   a-avatar.ava(v-else :size="18" icon="user")
                   |{{ getFullName(user) }}
   loading(v-else)
-  task-drawer(v-if="!isLoading && project != null"
-              :open="openViewDrawer" @close="closeDrawer")
+  task-drawer(v-if="!isLoading && project != null" :open="openViewDrawer" @close="closeDrawer")
 </template>
 
 <script>

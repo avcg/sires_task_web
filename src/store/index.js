@@ -11,7 +11,7 @@ import mutationsTask from './mutations/task';
 import mutationsCalendar from './mutations/calendar';
 
 Vue.use(VueAxios, axios);
-Vue.axios.defaults.baseURL = 'https://api.avcg.ru/api/v1';
+Vue.axios.defaults.baseURL = 'https://api.avcg.ru/api/v1/';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
@@ -37,6 +37,12 @@ const store = new Vuex.Store({
     ],
     tasks: [
     ],
+  },
+  getters: {
+    getProjectsAll: (state) => state.projects.map((i) => {
+      if (i.name == 'Inbox') i.name = 'Входящие';
+      return i;
+    }),
   },
   actions: {
     ...actionsTask,

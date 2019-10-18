@@ -7,7 +7,7 @@ div(v-if="$auth.ready()")
               enter-active-class="animated slideInDown"
               leave-active-class="animated slideOutUp")
       toolbar(v-if="$auth.check()")
-    .fl
+    .fl.main-cont-height
       transition(name="side" mode="out-in"
                 enter-active-class="animated slideInLeft"
                 leave-active-class="animated slideOutRight")
@@ -51,7 +51,8 @@ export default {
       this.$store.dispatch('getUsers');
     }
     this.axios.get('/current_user').then((resp) => {
-      const socket = new Socket('ws://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
+      // const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
+      const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
       socket.connect();
       socket.onError(() => console.log('there was an error with the connection!'));
       socket.onClose(() => console.log('the connection dropped'));
@@ -107,6 +108,8 @@ body
   color: #778ca2
   transition: color .3s
   font-size: 22px
+.main-cont-height
+  height: calc(100vh - 65px)
 a
   text-decoration: none
   &:active
@@ -146,7 +149,7 @@ h1,h2,h3,h4,h5,h6
   flex: 1
   overflow-x: hidden
   padding: 28px
-  min-height: calc(100vh - 65px)
+  height: calc(100vh - 65px)
   width: 100%
   background-color: #F8FAFB
   box-sizing: border-box

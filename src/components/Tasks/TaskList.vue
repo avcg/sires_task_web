@@ -7,7 +7,9 @@ transition-group.task-list(name="list-complete" tag="div")
         i.la.icon(v-if="item.done") &#xf17b;
       span {{ item.name }}
       .spacer
-      span {{ fDate(item.finish_time) }}
+      a-tag.mr-10(v-if='getRole(item)') {{getRole(item)}}
+      a-tooltip(title='Дата дедлайна')
+        span {{ fDate(item.finish_time) }}
     .task-divider
 </template>
 
@@ -22,6 +24,25 @@ export default {
     },
   },
   methods: {
+    getRole(task) {
+      console.log(task);
+      let member = task.members.filter((m) => m.user.id === this.$store.state.user.id);
+      console.log(member);
+      if (member.length === 0) return '';
+      member = member[0];
+      switch (member.role) {
+        case 'assignator':
+          return 'Постановщик';
+        case 'observer':
+          return 'Наблюдатель';
+        case 'responsible':
+          return 'Ответсвенный';
+        case 'co-responsible':
+          return 'Соисполнитель';
+        default:
+          return '';
+      }
+    },
     fDate(val) {
       return format(val, 'DD.MM.YYYY');
     },

@@ -85,7 +85,7 @@ export default {
       return this.$store.state.actualTask;
     },
     allProjects() {
-      return this.$store.state.projects;
+      return this.$store.getters.getProjectsAll;
     },
     allTags() {
       return this.$store.state.tags;
