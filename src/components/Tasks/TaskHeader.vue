@@ -6,7 +6,8 @@
       span.name СОРТИРОВКА:
       a-select.select(:defaultValue="0" @change="changeSort")
         a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
-      a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
+      //- a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
+      a-cascader.ml-10(:options='users', :showSearch='{filter}', @change='changeSortByUser', placeholder='Фильтр по польз.')
     //- .filter(v-if="$route.name !== 'Входящие')
     //-   a-icon(type="project")
     //-   span.name Проект:
@@ -15,15 +16,17 @@
     //-     a-select-option(value="alphdesc") от А до Я
     //-     a-select-option(value="alphdesc") от Я до А
   .spacer
-  .add(@click="addTask")
+  .add(@click="addTask", v-if='!proj')
     i.la.icon 
     span НОВАЯ ЗАДАЧА
 </template>
 
 <script>
 export default {
+  props: ['proj'],
   data() {
     return {
+      users: [],
       sort: [
         {
           name: 'По возрастанию дедлайна',
@@ -45,7 +48,41 @@ export default {
       ],
     };
   },
+  mounted() {
+    const defaultPrefab = [
+      {
+        label: 'Все',
+        value: 'all',
+      }, {
+        label: 'Постановщик',
+        value: 'assignator',
+      }, {
+        label: 'Ответсвенный',
+        value: 'resposible',
+      }, {
+        label: 'Соисполнитель',
+        value: 'co-responsible',
+      }, {
+        label: 'Наблюдатель',
+        value: 'observer',
+      },
+    ];
+    this.axios.get('/users').then((resp) => {
+      this.users = resp.data.users.map((i) => ({
+        value: i.id,
+        label: `${i.first_name} ${i.last_name}`,
+        children: defaultPrefab,
+      }));
+      this.users.unshift({
+        label: 'Все',
+        value: 'all',
+      });
+    });
+  },
   methods: {
+    changeSortByUser(val) {
+      this.$emit('sortByUser', val);
+    },
     changeImIn() {
       this.$emit('imInToggle');
     },

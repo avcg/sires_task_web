@@ -1,7 +1,7 @@
 <template lang="pug">
 .tasks
-  task-header(@openAddTask="openAddTask" @sort="changeSort" @imInToggle='imInToggle')
-  task-body(:addTask="addTask" :sortBy="sortBy" :imIn='imInTask' )
+  task-header(@openAddTask="openAddTask" @sort="changeSort" @sortByUser='sortByUser')
+  task-body(:addTask="addTask" :sortBy="sortBy" :sortUser='sortUser' :sortRole='sortRole' )
 </template>
 
 <script>
@@ -17,6 +17,8 @@ export default {
     return {
       addTask: false,
       imInTask: true,
+      sortUser: null,
+      sortRole: null,
       sortBy: {
         name: 'По убыванию дедлайна',
         type: 'date',
@@ -33,6 +35,15 @@ export default {
   methods: {
     imInToggle() {
       this.imInTask = !this.imInTask;
+    },
+
+    sortByUser(filters) {
+      if (filters.length < 2) {
+        this.sortUser = 'all';
+        this.sortRole = null;
+      }
+      this.sortUser = filters[0];
+      this.sortRole = filters[1];
     },
     changeSort(val) {
       this.sortBy = val;

@@ -2,7 +2,8 @@
 .cont
   a-row(v-if="!isLoading && project != null" :gutter="16")
     a-col(:span="15")
-      task-list(v-if="tasks" :tasks="tasks" :proj="true" @selectTask="openViewDrawer = true")
+      task-header(:proj='true' @sortByUser='sortByUser' @sort="changeSort")
+      task-list(v-if="tasksByUserRole" :tasks="tasksByUserRole" :proj="true" @selectTask="openViewDrawer = true")
     a-col(:span="9")
       a-card(:title="project.name" :bodyStyle="{ maxHeight: '100%' }")
         a-row
@@ -64,17 +65,26 @@ import AddTaskDrawer from './AddTaskDrawer.vue';
 import TaskDrawer from './ViewTaskDrawer';
 import TaskList from '../Tasks/TaskList.vue';
 import Loading from '../Loading/index.vue';
+import TaskHeader from '../Tasks/TaskHeader.vue';
+
 
 export default {
   components: {
-    AddTaskDrawer, TaskList, Loading, TaskDrawer,
+    AddTaskDrawer, TaskList, Loading, TaskDrawer, TaskHeader,
   },
   data() {
     return {
       openDrawer: false,
       openViewDrawer: false,
       project: null,
+      sortBy: {
+        name: 'По убыванию дедлайна',
+        type: 'date',
+        desc: true,
+      },
       users: null,
+      sortUser: null,
+      sortRole: null,
       isLoading: false,
       projectMembers: null,
       selectedGuests: [],
@@ -82,6 +92,63 @@ export default {
     };
   },
   computed: {
+    getTasks() {
+      const { tasks } = this;
+      switch (this.sortBy.type) {
+        case 'date':
+          if (this.sortBy.desc) {
+            tasks.sort((a, b) => new Date(b.finish_time) - new Date(a.finish_time));
+          } else {
+            tasks.sort((a, b) => new Date(a.finish_time) - new Date(b.finish_time));
+          }
+          break;
+        case 'alphabet':
+          if (this.sortBy.desc) {
+            tasks.sort((a, b) => {
+              if (b.name < a.name) {
+                return -1;
+              }
+              if (b.name > a.name) {
+                return 1;
+              }
+              return 0;
+            });
+          } else {
+            tasks.sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              }
+              if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          break;
+        default:
+      }
+      return tasks;
+    },
+    tasksByUserRole() {
+      const { sortUser, sortRole } = this;
+      const tasks = this.getTasks;
+      if (sortUser == 'all') {
+        return tasks;
+      }
+      if (!sortRole && !sortUser) {
+        return tasks;
+      }
+      if (!sortRole && sortUser) {
+        return tasks.filter((t) => this.isMember(t.members, sortUser));
+      }
+      if (sortUser && sortRole) {
+        if (sortRole == 'all') {
+          return tasks.filter((t) => this.isMember(t.members, sortUser, sortRole));
+        }
+        return tasks.filter((t) => this.isMemberWithRole(t.members, sortUser, sortRole));
+      }
+      return tasks;
+    },
     isGuest() {
       if (this.user) {
         if (this.user.role === 'admin') return false;
@@ -136,6 +203,27 @@ export default {
     },
   },
   methods: {
+    changeSort(val) {
+      this.sortBy = val;
+    },
+    isMember(members, id) {
+      return members.map((m) => m.user.id).includes(id);
+    },
+    isMemberWithRole(members, id, role) {
+      let isTrue = false;
+      members.forEach((m) => {
+        if (m.user.id == id && m.role == role) isTrue = true;
+      });
+      return isTrue;
+    },
+    sortByUser(filters) {
+      if (filters.length < 2) {
+        this.sortUser = 'all';
+        this.sortRole = null;
+      }
+      this.sortUser = filters[0];
+      this.sortRole = filters[1];
+    },
     deleteProject() {
       this.axios.delete(`/projects/${this.project.id}`).then(() => {
         this.$store.dispatch('getProjects');

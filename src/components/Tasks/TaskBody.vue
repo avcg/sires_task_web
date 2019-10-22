@@ -4,7 +4,7 @@
     transition(name="task-list" mode="out-in"
               enter-active-class="animated fast fadeIn"
               leave-active-class="animated fast fadeOut")
-      task-list(v-if="inTask.length > 0" :tasks="inTask")
+      task-list(v-if="tasksByUserRole.length > 0" :tasks="tasksByUserRole")
       task-empty(v-else)
   .cont(:style="{ width: viewTask ? '50%' : 0 }")
     transition(name="task-view" mode="out-in"
@@ -19,14 +19,40 @@ import TaskList from './TaskList.vue';
 import TaskView from './TaskView.vue';
 
 export default {
-  props: ['sortBy', 'imIn'],
+  props: ['sortBy', 'sortUser', 'sortRole'],
+  methods: {
+    isMember(members, id) {
+      return members.map((m) => m.user.id).includes(id);
+    },
+    isMemberWithRole(members, id, role) {
+      let isTrue = false;
+      members.forEach((m) => {
+        if (m.user.id == id && m.role == role) isTrue = true;
+      });
+      return isTrue;
+    },
+  },
   components: { TaskEmpty, TaskList, TaskView },
   computed: {
-    inTask() {
-      if (this.imIn) {
-        return this.getTasks.filter((t) => t.members.filter((m) => m.user.id === this.$store.state.user.id).length > 0);
+    tasksByUserRole() {
+      const { sortUser, sortRole } = this;
+      const tasks = this.getTasks;
+      if (sortUser == 'all') {
+        return tasks;
       }
-      return this.getTasks;
+      if (!sortRole && !sortUser) {
+        return tasks;
+      }
+      if (!sortRole && sortUser) {
+        return tasks.filter((t) => this.isMember(t.members, sortUser));
+      }
+      if (sortUser && sortRole) {
+        if (sortRole == 'all') {
+          return tasks.filter((t) => this.isMember(t.members, sortUser, sortRole));
+        }
+        return tasks.filter((t) => this.isMemberWithRole(t.members, sortUser, sortRole));
+      }
+      return tasks;
     },
     getTasks() {
       const { tasks } = this.$store.state;

@@ -75,7 +75,7 @@ export default {
       const body = new FormData();
       body.set('user[first_name]', this.registration.firstName);
       body.set('user[last_name]', this.registration.lastName);
-      body.set('user[avatar]', this.registration.avatat);
+      body.set('user[avatar]', this.registration.avatar);
       body.set('user[position]', this.registration.position);
       body.set('user[role]', 'regular');
       body.set('user[email]', this.registration.email);
