@@ -77,7 +77,7 @@ const store = new Vuex.Store({
       });
     },
     getUsers: ({ commit }) => {
-      axios.get('/users?limit=100').then((res) => {
+      axios.get('/users?limit=300').then((res) => {
         commit('updateUsers', res.data.users);
       });
     },

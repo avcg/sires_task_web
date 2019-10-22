@@ -287,7 +287,7 @@ export default {
     },
   },
   mounted() {
-    axios.get('/users?limit=100').then((res) => {
+    axios.get('/users?limit=300').then((res) => {
       this.users = res.data.users;
     });
     this.isLoading = true;

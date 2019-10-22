@@ -67,7 +67,7 @@ export default {
         value: 'observer',
       },
     ];
-    this.axios.get('/users').then((resp) => {
+    this.axios.get('/users?limit=300').then((resp) => {
       this.users = resp.data.users.map((i) => ({
         value: i.id,
         label: `${i.first_name} ${i.last_name}`,
