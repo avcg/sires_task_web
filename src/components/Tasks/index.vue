@@ -28,6 +28,8 @@ export default {
   },
   mounted() {
     this.initTasks();
+    this.sortUser = this.$store.state.user.id;
+    this.sortRole = 'all';
   },
   updated() {
     this.initTasks();
@@ -36,7 +38,6 @@ export default {
     imInToggle() {
       this.imInTask = !this.imInTask;
     },
-
     sortByUser(filters) {
       if (filters.length < 2) {
         this.sortUser = 'all';

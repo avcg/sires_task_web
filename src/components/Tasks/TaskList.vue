@@ -25,9 +25,7 @@ export default {
   },
   methods: {
     getRole(task) {
-      console.log(task);
       let member = task.members.filter((m) => m.user.id === this.$store.state.user.id);
-      console.log(member);
       if (member.length === 0) return '';
       member = member[0];
       switch (member.role) {

@@ -7,7 +7,7 @@
       a-select.select(:defaultValue="0" @change="changeSort")
         a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
       //- a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
-      a-cascader.ml-10(:options='users', :showSearch='{filter}', @change='changeSortByUser', placeholder='Фильтр по польз.')
+      a-cascader.ml-10(notFoundContent="Нет пользователей с таким именем" :options='users', :showSearch='{filter, limit: false}', @change='changeSortByUser', placeholder='Фильтр по польз.' :defaultValue='[$store.state.user.id, "all"]')
     //- .filter(v-if="$route.name !== 'Входящие')
     //-   a-icon(type="project")
     //-   span.name Проект:
@@ -80,6 +80,11 @@ export default {
     });
   },
   methods: {
+    filter(inputValue, path) {
+      return path.some(
+        (option) => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1,
+      );
+    },
     changeSortByUser(val) {
       this.$emit('sortByUser', val);
     },

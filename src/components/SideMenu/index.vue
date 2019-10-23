@@ -22,27 +22,29 @@
       router-link.menu-item(to="/calendar" active-class="active")
         i.la.icon &#xf15f;
         span(v-if="sidebarOpen") Календарь
-  .projects-glob
+  .projects-glob(v-if="sidebarOpen")
     .projects
       .headline
-        .headline-inner(v-if="sidebarOpen")
+        .headline-inner
           span Проекты
           .add(@click="openAddProj")
             i.la.icon 
             span Добавить
-      .list(v-if="sidebarOpen")
-        div(v-for="(item, i) in projects" :key="`item${i}`"
+      .proj-search
+        a-input(size='small' placeholder='Поиск по проектам' v-model='searchProj')
+      .list
+        div(v-for="(item, i) in filteredProjects" :key="`item${i}`"
             @click="getEl($event, true)")
           router-link.list-item(:to="`/project/${item.id}`" active-class="active")
             span {{item.name.length > 21 ? `${item.name.substring(0, 21)}...` : item.name}}
     .projects
       .headline
-        .headline-inner(v-if="sidebarOpen")
+        .headline-inner
           span Теги
           .add(v-if="$auth.check('admin')" @click="openAddLabel")
             i.la.icon 
             span Добавить
-      .list(v-if="sidebarOpen")
+      .list
         div(v-for="(tag, i) in tags" :key="`tag${i}`"
             @click="deleteTag(tag.id)")
           .list-item(active-class="active")
@@ -55,9 +57,17 @@ export default {
     return {
       top: 65,
       isProj: false,
+      searchProj: '',
     };
   },
   computed: {
+    filteredProjects() {
+      const { searchProj, projects } = this;
+      if (searchProj) {
+        return projects.filter((p) => p.name.toLowerCase().includes(searchProj));
+      }
+      return projects;
+    },
     projects() {
       return this.$store.getters.getProjectsAll.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие').sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
@@ -105,6 +115,9 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.proj-search
+  padding-left: 28px
+  padding-right: 20px
 .sidebar
   border-right: solid 1px #e8ecef
   overflow: hidden

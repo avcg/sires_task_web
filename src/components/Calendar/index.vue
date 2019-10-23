@@ -1,5 +1,6 @@
 <template lang="pug">
 .tasks
+  task-header(:proj='true' @sortByUser='sortByUser' @sort="changeSort")
   .calendar
     .select
       a-button(@click="subMonth")
@@ -18,7 +19,7 @@
         span.day(:class="{ 'active' : getDay === day, 'disabled' : !getCalendar[day] }"
                 @click="changeDay(day)") {{ day }}
     task-drawer(:open="openViewDrawer" @close="openViewDrawer = false")
-    task-list(v-if="getCalendar" :tasks="tasks" :proj="true" @selectTask="openViewDrawer = true")
+    task-list(v-if="getCalendar" :tasks="tasksByUserRole" :proj="true" @selectTask="openViewDrawer = true")
     .loading(v-else)
       a-icon(type="loading")
 </template>
@@ -35,10 +36,32 @@ import {
 } from 'date-fns';
 import TaskDrawer from '@/components/Projects/ViewTaskDrawer.vue';
 import TaskList from '@/components/Tasks/TaskList';
+import TaskHeader from '@/components/Tasks/TaskHeader';
 
 export default {
-  components: { TaskList, TaskDrawer },
+  components: { TaskList, TaskDrawer, TaskHeader },
   methods: {
+    changeSort(val) {
+      this.sortBy = val;
+    },
+    isMember(members, id) {
+      return members.map((m) => m.user.id).includes(id);
+    },
+    isMemberWithRole(members, id, role) {
+      let isTrue = false;
+      members.forEach((m) => {
+        if (m.user.id == id && m.role == role) isTrue = true;
+      });
+      return isTrue;
+    },
+    sortByUser(filters) {
+      if (filters.length < 2) {
+        this.sortUser = 'all';
+        this.sortRole = null;
+      }
+      this.sortUser = filters[0];
+      this.sortRole = filters[1];
+    },
     fDay(date) {
       return format(date, 'D');
     },
@@ -72,6 +95,63 @@ export default {
     },
   },
   computed: {
+    getTasks() {
+      const { tasks } = this;
+      switch (this.sortBy.type) {
+        case 'date':
+          if (this.sortBy.desc) {
+            tasks.sort((a, b) => new Date(b.finish_time) - new Date(a.finish_time));
+          } else {
+            tasks.sort((a, b) => new Date(a.finish_time) - new Date(b.finish_time));
+          }
+          break;
+        case 'alphabet':
+          if (this.sortBy.desc) {
+            tasks.sort((a, b) => {
+              if (b.name < a.name) {
+                return -1;
+              }
+              if (b.name > a.name) {
+                return 1;
+              }
+              return 0;
+            });
+          } else {
+            tasks.sort((a, b) => {
+              if (a.name < b.name) {
+                return -1;
+              }
+              if (a.name > b.name) {
+                return 1;
+              }
+              return 0;
+            });
+          }
+          break;
+        default:
+      }
+      return tasks;
+    },
+    tasksByUserRole() {
+      const { sortUser, sortRole } = this;
+      const tasks = this.getTasks;
+      if (sortUser == 'all') {
+        return tasks;
+      }
+      if (!sortRole && !sortUser) {
+        return tasks;
+      }
+      if (!sortRole && sortUser) {
+        return tasks.filter((t) => this.isMember(t.members, sortUser));
+      }
+      if (sortUser && sortRole) {
+        if (sortRole == 'all') {
+          return tasks.filter((t) => this.isMember(t.members, sortUser, sortRole));
+        }
+        return tasks.filter((t) => this.isMemberWithRole(t.members, sortUser, sortRole));
+      }
+      return tasks;
+    },
     getCalendar() {
       return this.$store.state.calendar;
     },
@@ -98,11 +178,20 @@ export default {
   },
   mounted() {
     this.updateCalendar();
+    this.sortUser = this.$store.state.user.id;
+    this.sortRole = 'all';
   },
   data() {
     return {
       openViewDrawer: false,
       date: new Date(),
+      sortBy: {
+        name: 'По убыванию дедлайна',
+        type: 'date',
+        desc: true,
+      },
+      sortUser: null,
+      sortRole: null,
       weekdaysTranslate: [
         'Пн',
         'Вт',

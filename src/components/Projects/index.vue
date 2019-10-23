@@ -289,6 +289,8 @@ export default {
   mounted() {
     axios.get('/users?limit=300').then((res) => {
       this.users = res.data.users;
+      this.sortUser = this.$store.state.user.id;
+      this.sortRole = 'all';
     });
     this.isLoading = true;
     axios.get(`/projects/${this.$route.params.id}`).then((res) => {
