@@ -5,12 +5,19 @@
       task-header(:proj='true' @sortByUser='sortByUser' @sort="changeSort")
       task-list(v-if="tasksByUserRole" :tasks="tasksByUserRole" :proj="true" @selectTask="openViewDrawer = true")
     a-col(:span="9")
-      a-card(:title="project.name" :bodyStyle="{ maxHeight: '100%' }")
+      a-card(:bodyStyle="{ maxHeight: '100%' }")
+        div(slot='title')
+          span(v-if='isDisabled') {{project.name}}
+          a-input-search(v-else :defaultValue='project.name' @search='saveProjName')
+            a-button(icon='save' slot="enterButton" type='primary')
         a-row
           a-col(v-if="!isGuest" :span="10")
             a-button(type="primary" @click="addTask") Добавить задачу
           a-col(v-if="!isDisabled" :span="10" :offset="4")
-            a-button(type="danger" @click="deleteProject") Удалить проект
+            a-popconfirm(placement="bottom"
+                title="Вы точно хотите удалить проект?" cancelText="Нет" okText="Да"
+                @confirm="deleteProject")
+              a-button(type="danger") Удалить проект
         a-row
           a-col
             .headline Администратор
@@ -61,12 +68,12 @@
 
 <script>
 import axios from 'axios';
+import _ from 'lodash';
 import AddTaskDrawer from './AddTaskDrawer.vue';
 import TaskDrawer from './ViewTaskDrawer';
 import TaskList from '../Tasks/TaskList.vue';
 import Loading from '../Loading/index.vue';
 import TaskHeader from '../Tasks/TaskHeader.vue';
-
 
 export default {
   components: {
@@ -203,6 +210,15 @@ export default {
     },
   },
   methods: {
+    saveProjName(val) {
+      this.axios.put(`/projects/${this.project.id}`, {
+        project: {
+          name: val,
+        },
+      }).then(() => {
+        this.$message.success('Проект успешно изменен');
+      });
+    },
     changeSort(val) {
       this.sortBy = val;
     },

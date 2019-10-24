@@ -7,10 +7,17 @@
       a-select.select(:defaultValue="0" @change="changeSort")
         a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
       //- a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
-      span.ml-10
-        | {{text}} &nbsp;
-        a-cascader.ml-10(notFoundContent="Нет пользователей с таким именем" :options='users', :showSearch='{filter, limit: false}', @change='changeSortByUser', placeholder='Фильтр по польз.' v-model='sortRole')
-          a(href="#") Фильтр по польз.
+      a-input-group.ml-10(compact v-if='users')
+        a-select(:defaultValue='$store.state.user.id' showSearch optionFilterProp="children" :filterOption="filterOption", style='width: 160px;' @change='changeSortUser')
+          a-select-option(v-for='user in users' :value='user.value') {{user.label}}
+        a-select(defaultValue='all', style='width: 160px;' @change='changeSortRole')
+          a-select-option(value='all') Все
+          a-select-option(value='assignator') Постановщик
+          a-select-option(value='observer') Наблюдатель
+          a-select-option(value='co-responsible') Соисполнитель
+          a-select-option(value='resposible') Ответсвенный
+        //- a-cascader.ml-10(notFoundContent="Нет пользователей с таким именем" :options='users', :showSearch='{filter, limit: false}', @change='changeSortByUser', placeholder='Фильтр по польз.' v-model='sortRole')
+        //-   a-input(placeholder='Фильтр по польз' v-model='cscInp' @focus='focusInput' @blur='blurInput')
     //- .filter(v-if="$route.name !== 'Входящие')
     //-   a-icon(type="project")
     //-   span.name Проект:
@@ -29,7 +36,6 @@ export default {
   props: ['proj'],
   data() {
     return {
-      text: 'Не выбрано',
       sortRole: [],
       users: [],
       sort: [
@@ -73,6 +79,7 @@ export default {
       },
     ];
     this.axios.get('/users?limit=300').then((resp) => {
+      this.sortRole = [this.$store.state.user.id, 'all'];
       this.users = resp.data.users.map((i) => ({
         value: i.id,
         label: `${i.first_name} ${i.last_name}`,
@@ -82,20 +89,26 @@ export default {
         label: 'Все',
         value: 'all',
       });
-      this.sortRole = [this.$store.state.user.id, 'all'];
+
       this.text = `${this.$store.state.user.first_name} ${this.$store.state.user.last_name}, Все`;
     });
   },
   methods: {
-    filter(inputValue, path) {
-      return path.some(
-        (option) => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1,
+    changeSortUser(val) {
+      this.sortRole[0] = val;
+      this.$emit('sortByUser', this.sortRole);
+    },
+    changeSortRole(val) {
+      this.sortRole[1] = val;
+      this.$emit('sortByUser', this.sortRole);
+    },
+    filterOption(input, option) {
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
       );
     },
-    changeSortByUser(val, selectedOptions) {
-      this.text = selectedOptions.map((o) => o.label).join(', ');
-      this.sortRole = val;
-      this.$emit('sortByUser', val);
+    changeSortByUser() {
+      this.$emit('sortByUser', this.sortRole);
     },
     changeImIn() {
       this.$emit('imInToggle');
