@@ -7,7 +7,10 @@
       a-select.select(:defaultValue="0" @change="changeSort")
         a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
       //- a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
-      a-cascader.ml-10(notFoundContent="Нет пользователей с таким именем" :options='users', :showSearch='{filter, limit: false}', @change='changeSortByUser', placeholder='Фильтр по польз.' v-model='sortRole')
+      span.ml-10
+        | {{text}} &nbsp;
+        a-cascader.ml-10(notFoundContent="Нет пользователей с таким именем" :options='users', :showSearch='{filter, limit: false}', @change='changeSortByUser', placeholder='Фильтр по польз.' v-model='sortRole')
+          a(href="#") Фильтр по польз.
     //- .filter(v-if="$route.name !== 'Входящие')
     //-   a-icon(type="project")
     //-   span.name Проект:
@@ -26,6 +29,7 @@ export default {
   props: ['proj'],
   data() {
     return {
+      text: 'Не выбрано',
       sortRole: [],
       users: [],
       sort: [
@@ -79,6 +83,7 @@ export default {
         value: 'all',
       });
       this.sortRole = [this.$store.state.user.id, 'all'];
+      this.text = `${this.$store.state.user.first_name} ${this.$store.state.user.last_name}, Все`;
     });
   },
   methods: {
@@ -87,7 +92,8 @@ export default {
         (option) => option.label.toLowerCase().indexOf(inputValue.toLowerCase()) > -1,
       );
     },
-    changeSortByUser(val) {
+    changeSortByUser(val, selectedOptions) {
+      this.text = selectedOptions.map((o) => o.label).join(', ');
       this.sortRole = val;
       this.$emit('sortByUser', val);
     },
