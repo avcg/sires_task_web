@@ -67,8 +67,9 @@ export default {
     },
     defaultSortId() {
       const local = localStorage[`ibmkfilter${this.$route.path}Id`];
-      if (local) return local;
+      if (local) return parseInt(local, 10);
       if (this.$store.state.user.role === 'admin') return 'all';
+
       return this.$store.state.user.id;
     },
   },

@@ -4,8 +4,8 @@
     a-list.comment-list(:header="`${comments.length} ответ`" itemLayout="horizontal" :dataSource="comments" :key='tik')
       a-list-item(slot="renderItem" slot-scope="item, index")
         a-comment(:author="`${item.author.first_name} ${item.author.middle_name} ${item.author.last_name}`" :key='`list-item-${index}-${item.edit}`')
-          span(slot="actions" @click='editComment(item)') {{item.edit?"Сохранить":"Редактировать"}}
-          span(slot="actions" @click='deleteComment(item)') Удалить
+          span(slot="actions" @click='editComment(item)' v-if='item.author.id == $store.state.user.id') {{item.edit?"Сохранить":"Редактировать"}}
+          span(slot="actions" @click='deleteComment(item)' v-if='item.author.id == $store.state.user.id') Удалить
           div(slot='content')
             p(v-if='item.edit==false') {{ item.text }}
             div(v-else)
