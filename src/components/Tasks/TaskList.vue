@@ -34,7 +34,7 @@ export default {
         case 'observer':
           return 'Наблюдатель';
         case 'responsible':
-          return 'Ответсвенный';
+          return 'Ответственный';
         case 'co-responsible':
           return 'Соисполнитель';
         default:

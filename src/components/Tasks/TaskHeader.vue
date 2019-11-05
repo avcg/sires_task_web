@@ -8,9 +8,9 @@
         a-select-option(v-for="(sortType, i) in sort" :key="`sort${i}`" :value="i") {{ sortType.name }}
       //- a-checkbox.ml-10(@change="changeImIn" :defaultChecked='true') Мои задачи
       a-input-group.ml-10(compact v-if='users')
-        a-select(:defaultValue='$store.state.user.id' showSearch optionFilterProp="children" :filterOption="filterOption", style='width: 160px;' @change='changeSortUser')
+        a-select(:defaultValue='defaultSortId', showSearch optionFilterProp="children" :filterOption="filterOption", style='width: 160px;' @change='changeSortUser')
           a-select-option(v-for='user in users' :value='user.value') {{user.label}}
-        a-select(defaultValue='all', style='width: 160px;' @change='changeSortRole')
+        a-select(:defaultValue='defaultSortRole', style='width: 160px;' @change='changeSortRole')
           a-select-option(value='all') Все
           a-select-option(value='assignator') Постановщик
           a-select-option(value='observer') Наблюдатель
@@ -59,6 +59,19 @@ export default {
       ],
     };
   },
+  computed: {
+    defaultSortRole() {
+      const local = localStorage[`ibmkfilter${this.$route.path}Role`];
+      if (local) return local;
+      return 'all';
+    },
+    defaultSortId() {
+      const local = localStorage[`ibmkfilter${this.$route.path}Id`];
+      if (local) return local;
+      if (this.$store.state.user.role === 'admin') return 'all';
+      return this.$store.state.user.id;
+    },
+  },
   mounted() {
     const defaultPrefab = [
       {
@@ -79,7 +92,7 @@ export default {
       },
     ];
     this.axios.get('/users?limit=300').then((resp) => {
-      this.sortRole = [this.$store.state.user.id, 'all'];
+      this.sortRole = [this.defaultSortId, this.defaultSortRole];
       this.users = resp.data.users.map((i) => ({
         value: i.id,
         label: `${i.first_name} ${i.last_name}`,
@@ -90,16 +103,18 @@ export default {
         value: 'all',
       });
 
-      this.text = `${this.$store.state.user.first_name} ${this.$store.state.user.last_name}, Все`;
+      this.$emit('sortByUser', this.sortRole);
     });
   },
   methods: {
     changeSortUser(val) {
       this.sortRole[0] = val;
+      localStorage[`ibmkfilter${this.$route.path}Id`] = val;
       this.$emit('sortByUser', this.sortRole);
     },
     changeSortRole(val) {
       this.sortRole[1] = val;
+      localStorage[`ibmkfilter${this.$route.path}Role`] = val;
       this.$emit('sortByUser', this.sortRole);
     },
     filterOption(input, option) {

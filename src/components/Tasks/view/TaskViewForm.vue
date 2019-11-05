@@ -68,7 +68,7 @@
       //- .addAttach(@click="$refs.file.click()")
       //-   i.la.icon 
       //-   span Прикрепить файл
-    activity(:items="actualTask.comments")
+    activity(:items="actualTask.comments" :task_id='actualTask.id')
     add-comment
 </template>
 

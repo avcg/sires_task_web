@@ -1,13 +1,16 @@
 <template lang="pug">
 .activity
   .activity-body
-    a-list.comment-list(:header="`${items.length} ответ`"
-                        itemLayout="horizontal" :dataSource="items")
+    a-list.comment-list(:header="`${comments.length} ответ`" itemLayout="horizontal" :dataSource="comments" :key='tik')
       a-list-item(slot="renderItem" slot-scope="item, index")
-        a-comment(:author="`${item.author.first_name} ${item.author.middle_name} ${item.author.last_name}`")
-          p(slot="content") {{ item.text }}
-          a-tooltip(slot="datetime"
-                    :title="moment(item.inserted_at).format('DD-MM-YYYY HH:mm:ss')")
+        a-comment(:author="`${item.author.first_name} ${item.author.middle_name} ${item.author.last_name}`" :key='`list-item-${index}-${item.edit}`')
+          span(slot="actions" @click='editComment(item)') {{item.edit?"Сохранить":"Редактировать"}}
+          span(slot="actions" @click='deleteComment(item)') Удалить
+          div(slot='content')
+            p(v-if='item.edit==false') {{ item.text }}
+            div(v-else)
+              a-textarea(placeholder="Комментарий" v-model='item.text' :autosize="{ minRows: 1 }")
+          a-tooltip(slot="datetime" :title="moment(item.inserted_at).format('DD-MM-YYYY HH:mm:ss')")
             span {{ moment(item.inserted_at).fromNow() }}
     //- .activity-item(v-for="item in items")
     //-   .pin
@@ -24,8 +27,44 @@
 import { format } from 'date-fns';
 
 export default {
-  props: ['items'],
+  props: ['items', 'task_id'],
+  data() {
+    return {
+      comments: this.items.map((i) => {
+        i.edit = false;
+        return i;
+      }),
+      tik: false,
+    };
+  },
+  watch: {
+    items(val) {
+      this.comments = val.map((i) => {
+        i.edit = false;
+        return i;
+      });
+    },
+  },
   methods: {
+    deleteComment(item) {
+      this.axios.delete(`/tasks/${this.task_id}/comments/${item.id}`).then(() => {
+        this.$store.dispatch('reloadTask', this.task_id);
+      });
+    },
+    editComment(item) {
+      if (item.edit) {
+        this.axios.put(`/tasks/${this.task_id}/comments/${item.id}`, {
+          comment: {
+            text: item.text,
+          },
+        });
+        item.edit = !item.edit;
+        this.tik = !this.tik;
+      } else {
+        item.edit = !item.edit;
+        this.tik = !this.tik;
+      }
+    },
     fDate(date) {
       return format(date, 'DD-MM-YYYY');
     },
@@ -34,6 +73,8 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+  .mt-10
+    margin-top: 10px
   .activity
     &-body
       margin-top: 20px

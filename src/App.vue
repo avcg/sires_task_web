@@ -50,6 +50,18 @@ export default {
       this.$store.dispatch('getUser');
       this.$store.dispatch('getUsers');
     }
+    // this.axios.delete('/notification_subscriptions', {
+    //   notification_subscription: {
+    //     media: 'email',
+    //     operations: [
+    //     ],
+    //   },
+    // }).then((resp) => {
+    //   console.log(resp.data);
+    // });
+    // this.axios.get('/notification_subscriptions').then((resp) => {
+    //   console.log(resp.data);
+    // });
     this.axios.get('/current_user').then((resp) => {
       // const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
       const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
