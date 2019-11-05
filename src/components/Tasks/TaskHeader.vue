@@ -67,7 +67,11 @@ export default {
     },
     defaultSortId() {
       const local = localStorage[`ibmkfilter${this.$route.path}Id`];
-      if (local) return parseInt(local, 10);
+      if (local) {
+        const parsed = parseInt(local, 10);
+        if (isNaN(parsed)) return local;
+        return parsed;
+      }
       if (this.$store.state.user.role === 'admin') return 'all';
 
       return this.$store.state.user.id;
