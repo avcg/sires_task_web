@@ -29,7 +29,8 @@ Vue.use(require('../node_modules/@websanova/vue-auth'), {
       this.options.http._setHeaders.call(this, req, { Authorization: `Bearer ${token}` });
     },
     response(res) {
-      return (res.data || {}).jwt;
+      // return (res.data || {}).jwt;
+      return (res.data || {}).token;
     },
   },
   registerData: {

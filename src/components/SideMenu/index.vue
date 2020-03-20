@@ -69,7 +69,8 @@ export default {
       return projects;
     },
     projects() {
-      return this.$store.getters.getProjectsAll.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие').sort((a, b) => {
+      const proj = this.$store.getters.getProjectsAll ? this.$store.getters.getProjectsAll : [];
+      return proj.filter((it) => it.name !== 'Inbox' && it.name !== 'Входящие').sort((a, b) => {
         if (a.name.toLowerCase() < b.name.toLowerCase()) { return -1; }
         if (a.name.toLowerCase() > b.name.toLowerCase()) { return 1; }
         return 0;

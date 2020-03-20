@@ -20,12 +20,13 @@ export default {
   props: ['tasks', 'proj'],
   computed: {
     tasksWithoutChildes() {
-      return this.tasks.filter((t) => t.parent_references.length === 0);
+      console.log(this.tasks);
+      return this.tasks.filter((t) => t.parent_reference === 0);
     },
   },
   methods: {
     getRole(task) {
-      let member = task.members.filter((m) => m.user.id === this.$store.state.user.id);
+      let member = task.members.filter((m) => m.id === this.$store.state.user.id);
       if (member.length === 0) return '';
       member = member[0];
       switch (member.role) {

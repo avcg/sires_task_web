@@ -63,37 +63,38 @@ export default {
     //   console.log(resp.data);
     // });
     this.axios.get('/current_user').then((resp) => {
+
       // const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
-      const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
-      socket.connect();
-      socket.onError(() => console.log('there was an error with the connection!'));
-      socket.onClose(() => console.log('the connection dropped'));
-      console.log(socket);
-      const channel = socket.channel('tasks', {});
-      channel.onError(() => console.log('there was an error!'));
-      channel.onClose(() => console.log('the channel has gone away gracefully'));
-      channel.join()
-        .receive('ok', ({ messages }) => console.log('catching up', messages))
-        .receive('error', ({ reason }) => console.log('failed join', reason))
-        .receive('timeout', () => console.log('Networking issue. Still waiting...'));
-      channel.on('create', (msg) => {
-        this.$notification.info({
-          message: 'Задача успешно создана',
-        });
-      });
-      channel.on('update', (msg) => {
-        this.$notification.info({
-          message: `Задача "${msg.task.name}" обновлена`,
-        });
-      });
-      channel.on('toggle_done', (msg) => {
-        this.$notification.info({
-          message: `Задача "${msg.task.name}" выполнена`,
-        });
-      });
-      channel.on('add_member', (msg) => console.log('add_memberd', msg));
-      channel.on('add_attachment', (msg) => console.log('add_attachmentd', msg));
-      channel.on('add_comment', (msg) => console.log('add_attachmentd', msg));
+      // const socket = new Socket('wss://api.avcg.ru/socket', { params: { token: resp.data.ws_token } });
+      // socket.connect();
+      // socket.onError(() => console.log('there was an error with the connection!'));
+      // socket.onClose(() => console.log('the connection dropped'));
+      // console.log(socket);
+      // const channel = socket.channel('tasks', {});
+      // channel.onError(() => console.log('there was an error!'));
+      // channel.onClose(() => console.log('the channel has gone away gracefully'));
+      // channel.join()
+      //   .receive('ok', ({ messages }) => console.log('catching up', messages))
+      //   .receive('error', ({ reason }) => console.log('failed join', reason))
+      //   .receive('timeout', () => console.log('Networking issue. Still waiting...'));
+      // channel.on('create', (msg) => {
+      //   this.$notification.info({
+      //     message: 'Задача успешно создана',
+      //   });
+      // });
+      // channel.on('update', (msg) => {
+      //   this.$notification.info({
+      //     message: `Задача "${msg.task.name}" обновлена`,
+      //   });
+      // });
+      // channel.on('toggle_done', (msg) => {
+      //   this.$notification.info({
+      //     message: `Задача "${msg.task.name}" выполнена`,
+      //   });
+      // });
+      // channel.on('add_member', (msg) => console.log('add_memberd', msg));
+      // channel.on('add_attachment', (msg) => console.log('add_attachmentd', msg));
+      // channel.on('add_comment', (msg) => console.log('add_attachmentd', msg));
       // create, update, delete, toggle_done, add_member,
       // remove_member, add_attachment, add_attachment_version,
       // delete_attachment_version, add_comment, change_comment, remove_comment, add_reference, remove_reference

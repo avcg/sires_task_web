@@ -1,7 +1,7 @@
 <template lang="pug">
 .add
   .header(:style="{ paddingTop: proj ? '0px' : '22px'}")
-    a-button.mr-10(v-if="this.actualTask.parent_references && this.actualTask.parent_references.length > 0"
+    a-button.mr-10(v-if="this.actualTask&&this.actualTask.parent_reference"
                   size="small" @click="openPrev") Назад
     a-tag(v-for="(tagSelected, i) in actualTask.tags" :key="`tag${i}`"
           color="orange") {{ tagSelected.name }}
@@ -39,14 +39,14 @@
     .desc-input
       .headline Подзадачи
         a-button(v-if="isTaskAdmin" @click="addSubtask") Добавить подзадачу
-      .task(v-for="item in actualTask.child_references" :key="item.task.id"
-            :class="{ 'completed': item.task.done }" @click="showTask(item.task.id)")
+      .task(v-for="item in actualTask.subtasks" :key="item.id"
+            :class="{ 'completed': item.done }" @click="showTask(item.id)")
         .task-inner
-          .check(@click="checkClick($event, item.task.id, item.task.done)")
-            i.la.icon(v-if="item.task.done") &#xf17b;
-          span {{ item.task.name }}
+          .check(@click="checkClick($event, item.id, item.done)")
+            i.la.icon(v-if="item.done") &#xf17b;
+          span {{ item.name }}
           .spacer
-          span {{ fDate(item.task.finish_time) }}
+          span {{ fDate(item.finish_time) }}
         .task-divider
     .desc-input
       .headline Описание
@@ -146,7 +146,7 @@ export default {
     },
   },
   mounted() {
-    this.updateMembers(this.actualTask.project.id);
+    this.updateMembers(this.actualTask.project_id);
     this.attach = this.$store.state.actualTask.attachments.map((i) => {
       const attach = i.last_version;
       attach.name = decodeURIComponent(attach.url).split('/').pop();
@@ -174,26 +174,19 @@ export default {
       return format(val, 'DD.MM.YYYY');
     },
     addSubtask() {
-      this.axios.post('/tasks', {
-        task: {
-          finish_time: endOfDay(new Date()).toISOString(),
-          name: 'Новая подзадача',
-          project_id: this.actualTask.project.id,
-          start_time: startOfDay(new Date()).toISOString(),
-        },
-      }).then((res) => {
-        this.axios.post(`/tasks/${res.data.task.id}/references`, {
-          reference: {
-            reference_type: 'subtask',
-            task_id: this.actualTask.id,
+        this.axios.post(`/tasks/${this.actualTask.id}/references`, {
+          task: {
+            finish_time: endOfDay(new Date()).toISOString(),
+            name: 'Новая подзадача',
+            project_id: this.actualTask.project.id,
+            start_time: startOfDay(new Date()).toISOString(),
           },
         }).then(() => {
           this.$store.dispatch('reloadTask', this.actualTask.id);
         });
-      });
     },
     openPrev() {
-      this.$store.dispatch('showTask', this.actualTask.parent_references[0].task.id);
+      this.$store.dispatch('showTask', this.actualTask.parent_reference);
     },
     deleteFile(file) {
       const version = this.actualTask.attachments.filter((f) => f.id === file.id)[0].last_version.id;
@@ -283,7 +276,7 @@ export default {
   },
   watch: {
     'actualTask.attachments': function (val) {
-      if (val) {
+      if (val&&val.length>0) {
         this.attach = this.$store.state.actualTask.attachments.map((i) => {
           const attach = i.last_version;
           attach.name = decodeURIComponent(attach.url).split('/').pop();

@@ -22,7 +22,8 @@ export default {
   props: ['sortBy', 'sortUser', 'sortRole'],
   methods: {
     isMember(members, id) {
-      return members.map((m) => m.user.id).includes(id);
+      const mem = members || [];
+      return mem.map((m) => m.user.id).includes(id);
     },
     isMemberWithRole(members, id, role) {
       let isTrue = false;
