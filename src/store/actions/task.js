@@ -81,7 +81,7 @@ export default {
         task: {
           finish_time: endOfDay(new Date()).toISOString(),
           name: 'Новая задача',
-          project_id: id,
+          project_id: parseInt(id, 10),
           start_time: startOfDay(new Date()).toISOString(),
         },
       }).then((res) => {

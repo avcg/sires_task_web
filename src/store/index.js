@@ -11,7 +11,8 @@ import mutationsTask from './mutations/task';
 import mutationsCalendar from './mutations/calendar';
 
 Vue.use(VueAxios, axios);
-Vue.axios.defaults.baseURL = 'https://api-tasker.sires.dev/api/v1/';
+// Vue.axios.defaults.baseURL = 'https://api-tasker.sires.dev/api/v1/';
+Vue.axios.defaults.baseURL = 'http://localhost:5434/api/v1/';
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
