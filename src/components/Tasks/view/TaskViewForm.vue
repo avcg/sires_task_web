@@ -39,12 +39,12 @@
     .desc-input
       .headline Подзадачи
         a-button(v-if="isTaskAdmin" @click="addSubtask") Добавить подзадачу
-      .task(v-for="item in actualTask.subtasks" :key="item.id"
+      .task(v-for="item in sortedSubtasks" :key="item.id"
             :class="{ 'completed': item.done }" @click="showTask(item.id)")
         .task-inner
           .check(@click="checkClick($event, item.id, item.done)")
             i.la.icon(v-if="item.done") &#xf17b;
-          span {{ item.name }}
+          span.task-name {{ item.name }}
           .spacer
           span {{ fDate(item.finish_time) }}
         .task-divider
@@ -92,6 +92,10 @@ export default {
     Activity,
   },
   computed: {
+    sortedSubtasks() {
+      this.actualTask.subtasks.sort((a, b) => new Date(a.finish_time) - new Date(b.finish_time));
+      return this.actualTask.subtasks;
+    },
     isTaskAdmin() {
       if (this.users && this.users.filter((u) => u.role === 'admin').length > 0 && this.users.filter((u) => u.role === 'admin')[0].user.id === this.$store.state.user.id) return true;
       if (this.$store.state.user.role === 'admin') return true;
@@ -174,16 +178,16 @@ export default {
       return format(val, 'DD.MM.YYYY');
     },
     addSubtask() {
-        this.axios.post(`/tasks/${this.actualTask.id}/references`, {
-          task: {
-            finish_time: endOfDay(new Date()).toISOString(),
-            name: 'Новая подзадача',
-            project_id: this.actualTask.project.id,
-            start_time: startOfDay(new Date()).toISOString(),
-          },
-        }).then(() => {
-          this.$store.dispatch('reloadTask', this.actualTask.id);
-        });
+      this.axios.post(`/tasks/${this.actualTask.id}/references`, {
+        task: {
+          finish_time: endOfDay(new Date()).toISOString(),
+          name: 'Новая подзадача',
+          project_id: this.actualTask.project.id,
+          start_time: startOfDay(new Date()).toISOString(),
+        },
+      }).then(() => {
+        this.$store.dispatch('reloadTask', this.actualTask.id);
+      });
     },
     openPrev() {
       this.$store.dispatch('showTask', this.actualTask.parent_reference);
@@ -276,7 +280,7 @@ export default {
   },
   watch: {
     'actualTask.attachments': function (val) {
-      if (val&&val.length>0) {
+      if (val && val.length > 0) {
         this.attach = this.$store.state.actualTask.attachments.map((i) => {
           const attach = i.last_version;
           attach.name = decodeURIComponent(attach.url).split('/').pop();
@@ -313,6 +317,11 @@ export default {
 </script>
 
 <style lang="sass" scoped>
+.task-name
+  width: 260px
+  white-space: nowrap
+  overflow: hidden !important
+  text-overflow: ellipsis
 .mr-10
   margin-right: 10px
 .task
@@ -523,7 +532,7 @@ export default {
         font-size: 20px
         color: #252631
         outline: none
-        width: 300px
+        width: 100%
       .proj
         font-size: 12px
         color: #7B8CA0

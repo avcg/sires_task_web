@@ -5,7 +5,7 @@ transition-group.task-list(name="list-complete" tag="div")
     .task-inner
       .check(@click="checkClick($event, item.id, item.done)")
         i.la.icon(v-if="item.done") &#xf17b;
-      span {{ item.name }}
+      span.task-name {{ item.name }}
       .spacer
       a-tag.mr-10(v-if='getRole(item)') {{getRole(item)}}
       a-tooltip(title='Дата дедлайна')
@@ -111,6 +111,11 @@ export default {
         font-size: 16px
         color: #252631
         margin-left: 12px
+      .task-name
+        width: 260px
+        white-space: nowrap
+        overflow: hidden !important
+        text-overflow: ellipsis
     &-divider
       height: 1px
       background-color: #E8ECEF
