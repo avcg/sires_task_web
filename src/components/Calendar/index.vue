@@ -8,9 +8,13 @@
       a-select.select-month(:value="monthsTranslate[getMonth - 1]" @change="changeMonth")
         a-select-option(v-for="(month, i) in monthsTranslate" :key="`month${i}`"
                         :value="i") {{ month }}
-      a-select.select-year(:value="getYear")
+      a-select.select-year(:value="getYear" @change="changeYear")
         a-select-option(value="2018") 2018
         a-select-option(value="2019") 2019
+        a-select-option(value="2020") 2020
+        a-select-option(value="2021") 2021
+        a-select-option(value="2022") 2022
+        a-select-option(value="2023") 2023
       a-button(@click="addMonth")
         a-icon(type="right")
     .days
