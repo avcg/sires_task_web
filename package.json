@@ -20,7 +20,7 @@
     "exceljs": "^3.1.0",
     "express": "^4.16.4",
     "file-saver": "^2.0.2",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "moment": "^2.24.0",
     "phoenix": "^1.4.10",
     "pug-plain-loader": "^1.0.0",
